@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SatisfactoryHowson</title>
+</head>
+<body style="margin:0">
+<title>SatisfactoryHowson</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a drafting sheet. Spec strip, then two measured drawings (site, plant) with the build steps beside and below them. */
+:root{
+  --bg:#e9edf1; --panel:#f7f9fb; --ink:#16222d; --muted:#566573; --line:#c3ccd6; --grid:#d3dae2;
+  --mach:#dde3ea; --pond:#b8dcf4; --void:#c6ccd4; --ledge:#dcdccf;
+  --coal:#b85a00; --water:#0a6fbd; --power:#a3238a; --tube:#17786a; --ok:#1c7446; --okbg:#e0f1e7;
+  --display:"Saira Condensed","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1922; --panel:#15232e; --ink:#e4ecf2; --muted:#9bafbf; --line:#2c3f4e; --grid:#213341;
+  --mach:#24384a; --pond:#16425e; --void:#081017; --ledge:#1b2d33;
+  --coal:#ff9d47; --water:#58baff; --power:#f27ad8; --tube:#4fd1b8; --ok:#62d394; --okbg:#143326; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0e1922; --panel:#15232e; --ink:#e4ecf2; --muted:#9bafbf; --line:#2c3f4e; --grid:#213341;
+  --mach:#24384a; --pond:#16425e; --void:#081017; --ledge:#1b2d33;
+  --coal:#ff9d47; --water:#58baff; --power:#f27ad8; --tube:#4fd1b8; --ok:#62d394; --okbg:#143326; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:44px}
+h2{font-size:28px}
+h3{font-size:20px}
+p{margin:0;max-width:66ch}
+a{color:var(--water)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:14px}
+.spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--line);background:var(--panel)}
+.spec div{padding:12px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.spec div:last-child{border-right:0}
+.spec b{font-family:var(--display);font-size:30px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.spec span{font-size:13px;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:16px}
+.verdict{background:var(--okbg);border:1px solid var(--ok);padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.verdict h2{color:var(--ok)}
+ul,ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+.two{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:minmax(0,1fr)} h1{font-size:34px}}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.sheet{border:1px solid var(--line);background:var(--panel);overflow-x:auto;position:relative}
+.pop{position:absolute;z-index:5;width:min(340px,calc(100% - 16px));background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:12px 44px 12px 14px;display:flex;flex-direction:column;gap:6px}
+.pop h3{font-size:19px}
+.pop p{font-size:15px;line-height:1.5;max-width:none}
+.pop-x{position:absolute;top:6px;right:6px;width:30px;height:30px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:500 20px/1 var(--body);cursor:pointer}
+.pop-x:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+svg [data-sel]{stroke:var(--ok);stroke-width:4px}
+.sheet svg{display:block}
+#plant svg{min-width:760px;width:100%;height:auto}
+#site svg{width:100%;height:auto}
+#side svg{min-width:680px;width:100%;height:auto}
+#flow svg{min-width:680px;width:100%;height:auto}
+svg text{font-family:var(--body);font-size:14.5px;fill:var(--ink)}
+svg .sm{font-size:13.5px;fill:var(--muted)}
+svg .mono{font-family:var(--mono);font-size:13px;fill:var(--muted)}
+svg .h{font-family:var(--display);font-size:19px;font-weight:600}
+svg .tc{fill:var(--coal);font-weight:600}
+svg .tw{fill:var(--water);font-weight:600}
+svg .tp{fill:var(--power);font-weight:600}
+.layers{display:flex;flex-wrap:wrap;gap:8px}
+.layers button{font:500 14px var(--body);padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;border-radius:2px}
+.layers button:hover{border-color:var(--ink)}
+.layers button:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.layers button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.layers .sw{display:inline-block;width:10px;height:10px;margin-right:7px;vertical-align:baseline}
+#plant .L{transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){#plant .L{transition:none}}
+#plant[data-show="place"] .L:not(.L-place), #plant[data-show="coal"] .L:not(.L-coal):not(.L-place),
+#plant[data-show="water"] .L:not(.L-water):not(.L-place), #plant[data-show="power"] .L:not(.L-power):not(.L-place){opacity:.1}
+.note{border-left:3px solid var(--ink);padding:2px 0 2px 14px;display:flex;flex-direction:column;gap:6px;min-height:118px}
+.note[data-k="coal"]{border-color:var(--coal)} .note[data-k="water"]{border-color:var(--water)} .note[data-k="power"]{border-color:var(--power)}
+.steps{list-style:none;padding:0;gap:0;max-width:none;border-top:1px solid var(--line)}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);align-items:start}
+.steps input{width:20px;height:20px;margin:3px 0 0;accent-color:var(--ok)}
+.steps label{display:flex;flex-direction:column;gap:2px;cursor:pointer}
+.steps b{font-weight:600}
+.steps span{color:var(--muted);font-size:15px;max-width:74ch}
+.steps li:has(input:checked) b{text-decoration:line-through;color:var(--muted)}
+.tablebox{overflow-x:auto;border:1px solid var(--line);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.n{text-align:right;font-family:var(--mono)}
+.key{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted)}
+.key i{display:inline-block;width:22px;height:0;border-top:3px solid;margin-right:6px;vertical-align:middle}
+.key .kw{border-color:var(--water)} .key .kc{border-color:var(--coal)} .key .kp{border-color:var(--power);border-top-style:dashed;border-top-width:2px} .key .kt{border-color:var(--tube);border-top-style:dotted}
+#plant [data-part]{cursor:pointer}
+#plant svg text{pointer-events:none}
+.swt{display:inline-block;width:16px;height:16px;vertical-align:-3px;margin-right:8px;border:2.5px solid var(--ink);background:var(--mach)}
+.swt.ln{height:0;width:22px;border-width:3px 0 0;background:none;vertical-align:4px}
+.swt.dot{border-radius:50%;width:13px;height:13px;border:0}
+dl{margin:0;display:grid;grid-template-columns:minmax(110px,max-content) minmax(0,1fr);gap:8px 18px;font-size:15px}
+dt{font-weight:600}
+dd{margin:0;color:var(--muted)}
+kbd{font:500 13px var(--mono);border:1px solid var(--line);border-bottom-width:2px;padding:1px 6px;background:var(--panel);color:var(--ink);white-space:nowrap}
+.halves{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
+footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+
+.hall svg{min-width:900px;width:100%;height:auto}
+#district svg{min-width:760px;width:100%;height:auto}
+#anatomy svg{width:100%;height:auto}
+.hall [data-i],.hall [data-p],.hall [data-q],.hall [data-l],#district [data-d]{cursor:pointer}
+.hall svg text,#district svg text,#anatomy svg text{pointer-events:none}
+.hall svg text{font-size:14px}
+.hall svg .sm{font-size:13.5px}
+.hall svg .mono{font-size:13px}
+.hall svg .tc,.hall svg .tp{font-size:14.5px}
+#district svg .tp{font-size:13.5px}
+#anatomy svg text{font-size:17px}
+#anatomy svg .mono{font-size:15px}
+.sheet .L{transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){.sheet .L{transition:none}}
+.sheet[data-show="place"] .L:not(.L-place),.sheet[data-show="belt"] .L:not(.L-belt):not(.L-place),.sheet[data-show="power"] .L:not(.L-power):not(.L-place){opacity:.08}
+.facts{font-family:var(--mono);font-size:13px;color:var(--muted);max-width:none}
+.jump{display:flex;flex-wrap:wrap;gap:8px}
+.jump a{font:500 14px var(--body);padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;border-radius:2px}
+.jump a:hover{border-color:var(--ink)}
+.jump a:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.track{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border:1px solid var(--line);background:var(--panel)}
+.track > div{padding:14px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:8px;min-width:0}
+.track > div:last-child{border-right:0}
+.track label{font-weight:600}
+.track input{font:500 18px var(--mono);width:8ch;padding:4px 8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.track input:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.track .bar{height:10px;background:var(--grid);position:relative}
+.track .bar i{position:absolute;inset:0 auto 0 0;background:var(--ok)}
+.track .left{font-size:14px;color:var(--muted)}
+.track .err{font-size:13px;color:var(--coal)}
+.note[data-k="belt"]{border-color:var(--coal)}
+.leg{font:inherit;color:inherit;background:none;border:0;border-bottom:1px dashed var(--muted);padding:2px 0;cursor:pointer;text-align:left}
+.leg:hover{border-bottom-color:var(--ink)}
+.leg:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.leg[aria-pressed="true"]{color:var(--ok);border-bottom:2px solid var(--ok);font-weight:600}
+.wrap[data-hl="machine"] .hall [data-i],.wrap[data-hl="split"] .hall [data-q="split"],.wrap[data-hl="merge"] .hall [data-q="merge"],.wrap[data-hl="cross"] .hall [data-q="cross"],.wrap[data-hl="cont"] .hall [data-q="cont"],.wrap[data-hl="pole"] .hall [data-p]{stroke:var(--ok);stroke-width:4px}
+.wrap[data-hl="belt"] .hall [data-lv],.wrap[data-hl="wire"] .hall [data-q="wire"]{stroke:var(--ok)}
+.wrap[data-hl="grid"] .hall .gridlines{stroke:var(--ok)}
+.note[data-k="place"]{border-color:var(--ink)}
+
+#world svg text{pointer-events:none}#world svg .tp{font-size:13px}
+
+#region svg{width:100%;height:auto;max-width:1120px}
+#site{max-height:78vh;overflow:auto;cursor:grab}
+#site.drag{cursor:grabbing;user-select:none}
+#site svg{max-width:none;display:block;margin:0 auto}
+.sheet[data-phase="1"] .ph2,.sheet[data-phase="1"] .ph3,.sheet[data-phase="2"] .ph3{display:none}
+.hallgrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.hallgrid{grid-template-columns:minmax(0,1fr)}}
+.hallgrid .sheet{padding:6px}
+.hallgrid svg{width:100%;height:auto}
+#station svg{min-width:760px;width:100%;height:auto}
+.mod svg{width:100%;height:auto}
+.mod .sheet{padding:6px}
+.mod{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.mod{grid-template-columns:minmax(0,1fr)}}
+.lvl{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ok)}
+.lvl[data-l="Advanced"]{color:var(--coal)}
+.sheet [data-k]{cursor:pointer}
+.sheet [data-k]:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.pop p{white-space:pre-line}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center}
+.toolbar .hint{font-size:14px;color:var(--muted)}
+.coords{font-family:var(--mono);font-size:13px;color:var(--muted);min-width:16ch}
+.layers button[aria-pressed="true"],.phases button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.phases,.zoom{display:flex;flex-wrap:wrap;gap:8px}
+.phases button,.zoom button{font:500 14px var(--body);padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;border-radius:2px}
+.phases button:hover,.zoom button:hover{border-color:var(--ink)}
+.phases button:focus-visible,.zoom button:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.sheet .L{transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){.sheet .L{transition:none}}
+.sheet[data-show="floors"] .L,.sheet[data-show="flow"] .L,.sheet[data-show="power"] .L,.sheet[data-show="survey"] .L{opacity:.1}
+.sheet[data-show="flow"] .L-floors,.sheet[data-show="power"] .L-floors{opacity:.35}
+.sheet[data-show="floors"] .L-floors,.sheet[data-show="flow"] .L-belts,.sheet[data-show="flow"] .L-water,.sheet[data-show="power"] .L-power,.sheet[data-show="survey"] .L-survey{opacity:1}
+.wrap[data-hl="machine"] .q-machine,.wrap[data-hl="split"] .q-split,.wrap[data-hl="merge"] .q-merge,.wrap[data-hl="pole"] .q-pole,.wrap[data-hl="floor"] .q-floor,
+.wrap[data-hl="node"] .q-node,.wrap[data-hl="store"] .q-store,.wrap[data-hl="ext"] .q-ext,.wrap[data-hl="pump"] .q-pump,.wrap[data-hl="tower"] .q-tower{stroke:var(--ok);stroke-width:4px}
+.wrap[data-hl="belt"] .q-belt{stroke:var(--ok)}
+.wrap[data-hl="spot"] .q-spot{fill:var(--ok);font-weight:600}
+.sw{display:inline-block;width:26px;height:16px;vertical-align:middle;border:1.6px solid var(--ink);background:var(--mach)}
+.sw.line{height:0;border:0;border-top:3px solid var(--coal)}
+.sw.dash{height:0;border:0;border-top:2px dashed var(--power)}
+.sw.dot{width:16px;border-radius:50%;background:var(--power);border-color:var(--panel)}
+.stage{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:18px 4px 6px;border-bottom:1px solid var(--line)}
+.steps + .stage{border-top:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;border:1px solid var(--line);background:var(--panel)}.cards a{display:flex;flex-direction:column;gap:6px;padding:18px 20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}.cards a:hover{background:var(--okbg)}.cards a:focus-visible{outline:2px solid var(--water);outline-offset:-2px}.cards b{font-family:var(--display);font-size:24px;font-weight:600}.cards span{color:var(--muted);font-size:15px}</style>
+<div class="wrap"><header><div class="eyebrow">Our modded Satisfactory server · Rocky Desert</div><h1>SatisfactoryHowson</h1><p>The plan for the base, a handbook for building it, and everything needed to join the server.</p></header><section><div class="cards"><a href="rocky-desert-works.html"><b>Rocky Desert Works</b><span>Where to base, the districts and phases on a map you can drag, every hall machine by machine, the power station and the build order from the first hour.</span></a><a href="builders-handbook.html"><b>Builder's Handbook</b><span>Six blocks from a biofuel depot to steel, drawn to scale with numbered power poles. For anyone new to the game.</span></a><a href="game-plan.html"><b>Game plan</b><span>The five stages, the house rules and who does what.</span></a><a href="pacing.html"><b>Keeping the pace</b><span>Which mods can shorten the game, and the settings and rules that stop them.</span></a><a href="mod-guide.html"><b>Mod guide</b><span>The mods you will actually touch, with their keys.</span></a><a href="mod-list.html"><b>Mod list</b><span>All 87 mods with one line each.</span></a><a href="install-client.html"><b>Client install</b><span>Joining the server, step by step.</span></a><a href="install-server.html"><b>Server install</b><span>The Pelican egg, ports and putting the pack on the server.</span></a></div><p>The mod packs and blueprints are files in the <a href="https://github.com/scotthowson/SatisfactoryHowson">repository</a>.</p></section></div>
+</body>
+</html>
