@@ -6,7 +6,7 @@ What sets the length of the game is the parts each milestone and each Space Elev
 
 | Mod | What it speeds up | Risk to the pace | What to do |
 | --- | --- | --- | --- |
-| Faster Manual Crafting | Hand crafting speeds up with every item, to 25 times normal by default | High in the first hours | Cap it: `MaxSpeedMultiplier` 4 and `SpeedMultiplier` 0.1 in `FasterManualCraftingRedux.cfg`. Hand crafting stays a chore worth automating |
+| Faster Manual Crafting | Hand crafting speeds up with every item, to 25 times normal by default | High in the first hours | Capped: `MaxSpeedMultiplier` 4 and `SpeedMultiplier` 0.1. The file is in the repository under `packs/configs`. Hand crafting stays a chore worth automating |
 | Industrial Evolution | Upgraded machines with a production multiplier, researched in the MAM. A bigger multiplier costs more to build | High from the mid game | Leave its MAM tree alone until phase 2 is delivered. Never use its `/ie UnlockAll` chat command |
 | Refined Power | Wind, water and solar power that burns nothing | Medium | Build the coal station first. Treat wind and solar as a phase 3 reward |
 | Megaprojects: Water Dam | Free power, 250 MW from each unfinished dam | Low for us | None of its three sites is near the Rocky Desert |
@@ -25,7 +25,9 @@ What sets the length of the game is the parts each milestone and each Space Elev
 
 Each mod's own page on ficsit.app and its settings file as installed on the host's PC. Nothing here is measured: nobody has timed a playthrough with this pack.
 
-The two hand-crafting numbers are a suggestion, not a setting that has been applied. At 4 times, hand crafting is still clearly faster than the base game but stops well short of replacing a Constructor.
+The hand-crafting cap is set on Scott's PC (13 Nov 2026). It still has to be copied to the server and to every other PC: the install guides say where. At 4 times, hand crafting is still clearly faster than the base game but stops well short of replacing a Constructor.
+
+The base plan relies on hand crafting in one place only: the 50 Rotors for the first Space Elevator phase.
 
 ## Blueprints
 

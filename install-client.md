@@ -34,3 +34,12 @@ About fifteen minutes, most of it download time. Works the same on Windows and L
 | A mod looks wrong or missing in the build menu | Say which piece. Do not remove the mod yourself: that breaks the match with the server |
 
 The seven mods you may pause freely are listed at the bottom of the [mod list](mod-list.md). All others must stay on.
+
+## Mod settings that must match the server
+
+One mod has a setting we have changed, and it has to be the same on the server and on every PC.
+
+- **Faster Manual Crafting** is capped at 4 times normal speed, building up slowly, so that hand crafting never replaces a factory. The file is [`packs/configs/FasterManualCraftingRedux.cfg`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/configs/FasterManualCraftingRedux.cfg).
+- Close the game, then copy that file into the game's `FactoryGame/Configs` folder, replacing the one there. On Steam that folder is inside `steamapps/common/Satisfactory`.
+- Why, and what else to leave alone, is in [Keeping the pace](pacing.md).
+
