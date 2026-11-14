@@ -22,6 +22,7 @@ One pack built round [Satisfactory Plus](satisfactory-plus.html), in three forms
 2. Import the file next to the Profile dropdown and wait for it to finish.
 3. Server: do this with the server stopped, then switch the install dropdown back to your game before touching the Profile dropdown again.
 4. Start a new world. The [Satisfactory Plus page](satisfactory-plus.html) is the guide for it.
+5. For the server and for anyone joining it there is more than the profile: our own builds of FicsIt-Networks and two fixed mods, the Satisfactory Plus fixes and four settings files come as one overlay zip each. The steps are in [Howson Plus on the server](plus-server.md).
 
 ## Settings to make once
 
@@ -30,13 +31,23 @@ One pack built round [Satisfactory Plus](satisfactory-plus.html), in three forms
 - **Universal Swatch Slots:** players joining the server need the same palette file as the server (its page).
 - **Smart!: panel position Y 0.35.** At its default the Smart! panel sits under Location and Rotation's readout while you place something. In the game: Mods, Smart!, HUD. Each player sets it on their own PC.
 
+## Satisfactory Plus fixes to copy once
+
+Ten mods in the pack do not fit Satisfactory Plus by themselves (nine have no official patch, and the one for Storage On Belt misses its unlock): Covered Conveyor Belts, four of the five woods of Wood Walls, two Road Maker fence walls and Storage On Belt can never be unlocked, and Architecture + 01, SciFi 01, 2m Walls, Throughput Counter and Limiter, Lights + and Foundations + cost parts that Satisfactory Plus only makes later. The fixes are ten small folders of text files in [`packs/dataforge/`](https://github.com/scotthowson/SatisfactoryHowson/tree/main/packs/dataforge).
+
+1. Close the game (stop the server).
+2. In the game folder go to `FactoryGame/Mods` and make a folder named `DataForge`.
+3. Copy the ten folders from `packs/dataforge/` into it and start the game.
+
+The server and every PC need the same folders. The Mod Manager leaves them alone. What each one changes, how to check it loaded and how to take it out again is in [`packs/dataforge/README.md`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/dataforge/README.md). Loaded and checked on Scott's PC on 14 Nov 2026; not yet tried on the server.
+
 ## Check these in the first hours
 
 These are the places where two mods meet and only the game can say what happens. Tell Claude what you see and the pack gets corrected.
 
 1. The game reaches the main menu with no mod loader error, solo first, then the server's console.
 2. In the HUB, every milestone is one of Satisfactory Plus's: no second "Logistics" or "Coal Power" left over from the base game.
-3. After Logistics Mk. 2, Covered Conveyor Mk.2 can be unlocked; after pipes, the wall pipe supports appear in the AWESOME Shop; the Wood Walls pieces are all there.
+3. With the fixes above copied in: Covered Conveyor Mk.1 is a tier 1 milestone and Mk.2 can be unlocked after Logistics Mk. 2; the Wood Walls pieces are all there after Base Building. The wall pipe supports appear in the AWESOME Shop once the game's own Pipeline Wall Attachments are bought there.
 4. Snap On: put a Splitter straight onto a Constructor, not onto a Crusher or Sorter (see the warnings).
 5. Critical Path (F10) lists Satisfactory Plus's milestone, not a base-game one.
 6. A hard drive in the MAM takes five minutes.
@@ -44,7 +55,7 @@ These are the places where two mods meet and only the game can say what happens.
 
 ## Warnings that the mods' own pages give
 
-- **SnapOn:** Snap On, Scott's pick. Its author warns that Splitters and Mergers attached straight to buildings 'could have negative consequences such as random crashes, item duplication, or item loss', more so on buildings with several outputs, which Satisfactory Plus is full of (Crusher, Sorter, Modular Miner). Use it on single-output machines.
+- **SnapOn:** Snap On, Scott's pick. Its author warns that Splitters and Mergers attached straight to buildings 'could have negative consequences such as random crashes, item duplication, or item loss', more so on buildings with several outputs, which Satisfactory Plus is full of (Crusher, Sorter, Modular Miner). Use it on single-output machines. Its author also says snapped-on Splitters and Mergers will break with the next game patch.
 - **Pipe Tuner:** changes how fluids behave; its settings name only Mk.1 and Mk.2 pipes and Satisfactory Plus has three tiers
 - **Shorter Hard Drive Research:** only shortens the base game's hard drive scanner; whether Satisfactory Plus still uses that scanner for its alternates is not verified. Set per save in Mod Savegame Settings (300 seconds for Scott's five minutes); the default is 3 seconds.
 - **Containers with Screen:** adds four buildables costed in base-game parts; no Satisfactory Plus patch
@@ -63,6 +74,7 @@ These are the places where two mods meet and only the game can say what happens.
 - **Depot Sorting:** sorts the Dimensional Depot by the base game's tiers; Satisfactory Plus parts will probably fall outside its order
 - **Hover Pack Fuse Reminder:** display only
 - **Indicator Colors:** display only
+- **KModelerExporter:** after the chat command /modeler-generate the game crashed a few minutes later, both times on 14 Nov: save, export, then restart the game
 
 ## Not on the server, and why
 
@@ -90,6 +102,17 @@ Left out on purpose so the start stays calm. Each comes in by adding it in the M
 - **Pneumatic Fracking Machine:** same authors as Satisfactory Plus, has a patch: three oil extractors and a new fluid. Offer at Tier 5 (Oil Processing)
 - **Locomotives B-Units:** has a patch: one stronger locomotive; its page says multiplayer is untested. Offer when trains arrive (Tier 5)
 - **Server Join Race Fix:** a runtime patch for crashes when joining a heavily modded server; new, so only if joining actually crashes
+
+## Built by us, not from ficsit.app
+
+Mods in the pack that the Mod Manager cannot install, because the working version is one we built ourselves with the modding kit in Scott's PC on 14 Nov 2026. They travel in the overlay zips made by tools/make_bundles.py (manifest with checksums: packs/custom/MANIFEST.md), never in a profile. Do not add the released versions of these in the Mod Manager as well.
+
+- **FicsIt-Networks:** 1.3.0, built from the author's development branch (d1a1bf2) with twelve local fixes; the released 1.2.0 is marked 'Broken by the update to Unreal Engine 5.6.1'. Server and every player need this same build. When the author releases 1.3.0, remove this build everywhere first, then add the release to groups.
+- **MAM Enhancer:** MAM Enhancer 1.9.2, built from the unmerged pull request Nogg-aholic/MAMTips #11; the released 1.9.1 is marked Broken since game 1.2.4.0. Client side only, optional for each player.
+- **Megaprojects Library:** the released 1.2.4 with two library files rebuilt to fix the client crash on join (MegaprojectsLib issue 2). Client side; re-applying a profile in the Mod Manager puts the released files back.
+- **Satisfactory Plus fixes:** ten Satisfactory Plus fixes as text packs (packs/dataforge): they unlock 157 recipes that were stuck (Covered Conveyor, Wood Walls, Road Maker fence walls, Storage On Belt) and re-cost six misplaced mods. Server and every player.
+
+How to put them on the server and on a joining PC: [Howson Plus on the server](plus-server.html).
 
 ## Every mod
 
@@ -265,7 +288,5 @@ Left out on purpose so the start stays calm. Each comes in by adding it in the M
 - `UpsideDownFoundations`: removed 2026-11-14, one mod per job: Foundations+ stays; only CBuildings and More Beams needed it
 - `PropsAndDeco`: removed 2026-11-14, no overlaps: second general prop pack beside Factory Props, and its Satisfactory Plus patch no longer finds its milestone (Props and Deco 0.11.0 is newer than the patch)
 - `RoadSplineTool`: removed 2026-11-14, no overlaps: second road mod beside Road Maker, and four of its pieces are named ERROR by its author
-- `MAMTips`: not added 2026-11-14: MAM Enhancer 1.9.1 is marked Broken since game 1.2.4.0 ('loads, but you can't start research'); a fix is an unmerged pull request (Nogg-aholic/MAMTips #11). Client-side; add when a fixed release appears
-- `FicsItNetworks`: not added 2026-11-14: 1.2.0 is marked 'Broken by the update to Unreal Engine 5.6.1'; its development branch is active but unreleased. The FicsIt-Networks-Repository is a collection of Lua programs for it, not a mod
 - `ContainerScreen`: not added 2026-11-14: its page says 'NOT working on Dedicated Servers or Multiplayer'; Containers with Screen (ContainerWithScreen) is its author's server-ready version and is in the pack
 - `LightSettings`: removed 2026-11-14: with Taj's Graphical Overhaul it cut the game to about 8 frames a second, in the menu too. Its code (mklierman/SatisfactoryMods, LightSettings.cpp) hooks the game's light-pool update and, on every call, loops over every pooled light and resets six properties; Taj's raises the pool to 500 lights ('pool.light.count = 500'), so each update pass became hundreds of thousands of light changes on the game thread. Found by test profiles (smooth without it, slow with it) and the log (the slowdown starts on the frame Taj's applies its settings). Do not combine the two.
