@@ -6,9 +6,9 @@ One pack built round [Satisfactory Plus](satisfactory-plus.html), in three forms
 
 | File | For | Mods |
 | --- | --- | --- |
-| [`packs/HowsonPlus.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlus.smmprofile) | Solo play | 107 |
-| [`packs/HowsonPlusServer.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusServer.smmprofile) | The dedicated server | 95 |
-| [`packs/HowsonPlusClient.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusClient.smmprofile) | A PC joining that server | 103 |
+| [`packs/HowsonPlus.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlus.smmprofile) | Solo play | 106 |
+| [`packs/HowsonPlusServer.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusServer.smmprofile) | The dedicated server | 94 |
+| [`packs/HowsonPlusClient.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusClient.smmprofile) | A PC joining that server | 102 |
 
 ## Read this first
 
@@ -61,7 +61,6 @@ These are the places where two mods meet and only the game can say what happens.
 - **Megaprojects: Power Domain:** kept on Scott's choice, wireless power links included; a late goal (patched milestone at Tier 4, needs Space Elevator parts)
 - **Critical Path:** F10 report of what blocks the current milestone. Its page says modded content is measured, not assumed, but it is untested beside Satisfactory Plus's replaced milestones and custom machines: try it solo first
 - **Depot Sorting:** sorts the Dimensional Depot by the base game's tiers; Satisfactory Plus parts will probably fall outside its order
-- **Let there be Light:** retunes the game's own lights; untested beside Taj's Graphical Overhaul and Storm Lights, which also change lighting
 - **Hover Pack Fuse Reminder:** display only
 - **Indicator Colors:** display only
 
@@ -186,7 +185,7 @@ Left out on purpose so the start stays calm. Each comes in by adding it in the M
 | [Small Roll-Up Gate](https://ficsit.app/mod/SGSmallGarageDoor) | Roll-Up Gate, but smaller! (8x4 m) | Everywhere |
 | [Catwalk T Rotation Fix](https://ficsit.app/mod/CatwalkTRotation) | Switches rotation direction of Catwalk T Junctions snapped to catwalks, making it consistent with the rest of the game | Everywhere |
 
-### Decoration, lights and signs (15)
+### Decoration, lights and signs (14)
 
 | Mod | What it does | Where |
 | --- | --- | --- |
@@ -204,7 +203,6 @@ Left out on purpose so the start stays calm. Each comes in by adding it in the M
 | [This Sign Up](https://ficsit.app/mod/ThisSignUp) | Adds arrows to indicate which way is up when building a sign | Everywhere |
 | [Elevator Icon Pack](https://ficsit.app/mod/SGIconPackElevator) | A set of monochrome icons with numbered floors and basements. | Everywhere |
 | [Road Sign Icons](https://ficsit.app/mod/RoadSignIcons) | Adds 44 New Icons for Signs! | Everywhere |
-| [Let there be Light](https://ficsit.app/mod/LightSettings) | Adjust vanilla light settings | Everywhere |
 
 ### Belts, pipes and lifts (11)
 
@@ -270,3 +268,4 @@ Left out on purpose so the start stays calm. Each comes in by adding it in the M
 - `MAMTips`: not added 2026-11-14: MAM Enhancer 1.9.1 is marked Broken since game 1.2.4.0 ('loads, but you can't start research'); a fix is an unmerged pull request (Nogg-aholic/MAMTips #11). Client-side; add when a fixed release appears
 - `FicsItNetworks`: not added 2026-11-14: 1.2.0 is marked 'Broken by the update to Unreal Engine 5.6.1'; its development branch is active but unreleased. The FicsIt-Networks-Repository is a collection of Lua programs for it, not a mod
 - `ContainerScreen`: not added 2026-11-14: its page says 'NOT working on Dedicated Servers or Multiplayer'; Containers with Screen (ContainerWithScreen) is its author's server-ready version and is in the pack
+- `LightSettings`: removed 2026-11-14: with Taj's Graphical Overhaul it cut the game to about 8 frames a second, in the menu too. Its code (mklierman/SatisfactoryMods, LightSettings.cpp) hooks the game's light-pool update and, on every call, loops over every pooled light and resets six properties; Taj's raises the pool to 500 lights ('pool.light.count = 500'), so each update pass became hundreds of thousands of light changes on the game thread. Found by test profiles (smooth without it, slow with it) and the log (the slowdown starts on the frame Taj's applies its settings). Do not combine the two.
