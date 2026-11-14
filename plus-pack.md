@@ -24,12 +24,30 @@ One pack built round [Satisfactory Plus](satisfactory-plus.html), in three forms
 4. Start a new world. The [Satisfactory Plus page](satisfactory-plus.html) is the guide for it.
 5. For the server and for anyone joining it there is more than the profile: our own builds of FicsIt-Networks and two fixed mods, the Satisfactory Plus fixes and four settings files come as one overlay zip each. The steps are in [Howson Plus on the server](plus-server.md).
 
-## Settings to make once
+## Settings
 
-- **Shorter Hard Drive Research: 300 seconds.** It is set per save, in the game under Mod Savegame Settings; its own default is 3 seconds. For the server, a save's mod settings can only be chosen when the world is created: make the save in single player with the client pack, set it there, then upload the save.
-- **Faster Manual Crafting: step 0.175, at most 8 times normal speed.** The file is [`packs/configs/FasterManualCraftingRedux.cfg`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/configs/FasterManualCraftingRedux.cfg). Copy it into `FactoryGame/Configs` on the server and on every PC, replacing the one there.
+Nine settings files belong to the pack, in [`packs/configs/`](https://github.com/scotthowson/SatisfactoryHowson/tree/main/packs/configs). To use one, close the game (or stop the server) and copy it into `FactoryGame/Configs`, replacing the file there.
+
+| File | What it sets | Who needs it |
+| --- | --- | --- |
+| `FasterManualCraftingRedux.cfg` | Hand crafting speeds up in steps of 0.175 to at most 8 times normal | Server and every player |
+| `MoveTool.cfg` | Move Tool's limits; the server's values are the ones that count | Server and every player |
+| `InfiniteZoop.cfg` | Infinite Zoop: cheat mode off, ladders and corners on | Server and every player |
+| `SmartFoundations.cfg` | Smart!'s behaviour, and its panel moved to the right of the Location and Rotation readout so the two do not overlap | Server and every player |
+| `SmartCamera.cfg` | The Smart! Camera box sits under the Smart! panel | Each player, optional |
+| `MiniMap.cfg` | Small minimap at the top left, above the readout | Each player, optional |
+| `IndicatorColors.cfg` | An overclocked machine shows a magenta lamp | Each player, optional |
+| `BoomBoxPlus.cfg` | No lyric line; the "now playing" card stays | Each player, optional |
+| `ModUpdateNotifier.cfg` | No "update available" window, because the pack's versions are pinned to match the server | Each player, optional |
+
+The first four are already inside both overlay zips ([Howson Plus on the server](plus-server.html)), so installing an overlay puts them in place; nothing more to replace. The other five are a matter of taste.
+
+Set in the game, not in a file:
+
+- **Per save** (Mod Savegame Settings, chosen when the world is made): Shorter Hard Drive Research 300 seconds (its own default is 3); Infinite Zoop "Blueprint Zoops" off. For the server, make the save in single player with the client pack, set them there, then upload the save.
+- **Key bindings** (Options, Keybindings, on each PC): Infinite Nudge cycle mode from Z to apostrophe, Cable Highlighter from F8 to F9, and optionally Location and Rotation from Alt+X to Alt+L. Without the first two, Smart! swallows those keys.
+- **Custom Hud** (solo only): hide the version label, from its building in the Special tab.
 - **Universal Swatch Slots:** players joining the server need the same palette file as the server (its page).
-- **Smart!: panel position Y 0.35.** At its default the Smart! panel sits under Location and Rotation's readout while you place something. In the game: Mods, Smart!, HUD. Each player sets it on their own PC.
 
 ## Satisfactory Plus fixes to copy once
 
