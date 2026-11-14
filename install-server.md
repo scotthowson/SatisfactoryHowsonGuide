@@ -17,7 +17,7 @@ Never copy a client's Mods folder to the server: client builds of mods do not ru
 3. **Open the firewall** on the host and the router: 7788 TCP and UDP, 8889 TCP, same numbers inside and out.
 4. **Start it once** and wait for the console to say it is running. It prints `Mods installed: 0`. Stop it. The server must be stopped whenever mods are installed or changed.
 5. **Add the server to the Mod Manager.** Left panel, under Other: Manage Servers. Choose SFTP and enter the host, port and user name from the server's SFTP details in the panel. Type the password yourself. The address has the form `sftp://user:password@host:port/path/`.
-6. **Install the pack.** Pick that server in the game installation dropdown, Import `HowsonServer.smmprofile`, and wait for it to finish.
+6. **Install the pack.** Pick that server in the game installation dropdown, Import `HowsonServer.smmprofile`, and wait for it to finish. Then switch the installation dropdown back to your own game before touching the Profile dropdown again: choosing a profile installs it on whichever installation is showing, so choosing your own pack with the server still showing changes the server's mods.
 7. **Start the server.** The console prints the number of mods installed (the 80, their libraries and the mod loader) and should show no mod loader errors.
 8. **Claim it.** In the game, with the client pack on: Server Manager, Add Server, the address and port 7788. Claim the server and set its admin password there.
 

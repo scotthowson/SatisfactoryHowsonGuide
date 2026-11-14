@@ -11,7 +11,7 @@ About fifteen minutes, most of it download time. Works the same on Windows and L
 ## Steps
 
 1. **Install Satisfactory Mod Manager.** Get it from <https://smm.ficsit.app>. On Windows, if the browser says the file is not commonly downloaded, choose Keep. On Linux it is an AppImage: mark it executable and run it.
-2. **Open it.** It finds your game by itself. If you have more than one install, pick the right one in the install dropdown.
+2. **Open it.** It finds your game by itself. If you have more than one install, pick the right one in the install dropdown. If you have also added the server there (Scott has), make sure the dropdown shows your game and not the `sftp://` address: a profile is installed on whichever install is showing.
 3. **Import the pack.** Next to the Profile dropdown, choose Import, pick `HowsonServerClient.smmprofile`, give it a name if the name box is empty, and confirm.
 4. **Wait.** It downloads 87 mods plus the libraries they need. Do not start the game until it has finished.
 5. **Check the profile.** The Profile dropdown should show the imported profile, and the switch at the top left should say mods are on.
@@ -28,6 +28,7 @@ About fifteen minutes, most of it download time. Works the same on Windows and L
 
 | What you see | Do this |
 | --- | --- |
+| Import stops with "installing Snappy Build Menu ... is forbidden, version solving failed" | The install dropdown is showing the server. Seven mods in this pack exist for players only, so the pack cannot go on a server. Pick your game in the install dropdown, then choose the profile again |
 | The join fails or you are kicked straight away | Your mods differ from the server's. Import the newest profile file from this repo again |
 | The game will not start after a game update | The mod loader has not caught up with the new game build. Wait for a new pack |
 | Low frame rate | Pause Taj's Graphical Overhaul in the Mod Manager (the play button on its row). It only changes your own picture, so the server does not care |
