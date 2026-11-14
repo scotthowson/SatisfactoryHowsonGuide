@@ -40,7 +40,7 @@ The seven mods you may pause freely are listed at the bottom of the [mod list](m
 
 One mod has a setting we have changed, and it has to be the same on the server and on every PC.
 
-- **Faster Manual Crafting** is capped at 4 times normal speed, building up slowly, so that hand crafting never replaces a factory. The file is [`packs/configs/FasterManualCraftingRedux.cfg`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/configs/FasterManualCraftingRedux.cfg).
+- **Faster Manual Crafting** is capped at 8 times normal speed, building up slowly (Scott's setting of 14 Nov 2026), so that hand crafting never replaces a factory. The file is [`packs/configs/FasterManualCraftingRedux.cfg`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/configs/FasterManualCraftingRedux.cfg).
 - Close the game, then copy that file into the game's `FactoryGame/Configs` folder, replacing the one there. On Steam that folder is inside `steamapps/common/Satisfactory`.
 - Why, and what else to leave alone, is in [Keeping the pace](pacing.md).
 

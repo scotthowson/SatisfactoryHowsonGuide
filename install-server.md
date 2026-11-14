@@ -48,6 +48,6 @@ The egg's download-on-start change was tested with stand-in files, not yet on th
 
 ## Mod settings
 
-- Copy [`packs/configs/FasterManualCraftingRedux.cfg`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/configs/FasterManualCraftingRedux.cfg) into the server's `FactoryGame/Configs` folder over SFTP, replacing the one there, and restart the server. It caps hand crafting at 4 times normal speed.
+- Copy [`packs/configs/FasterManualCraftingRedux.cfg`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/configs/FasterManualCraftingRedux.cfg) into the server's `FactoryGame/Configs` folder over SFTP, replacing the one there, and restart the server. It caps hand crafting at 8 times normal speed.
 - Every player needs the same file: see the client guide. This step has not been done on the server yet.
 
