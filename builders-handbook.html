@@ -153,6 +153,13 @@ footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:
 
 #world svg text{pointer-events:none}#world svg .tp{font-size:13px}
 
+.tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:2px solid var(--ink);margin-bottom:-12px}
+.tabs a{display:flex;align-items:baseline;gap:8px;padding:9px 16px;color:var(--ink);text-decoration:none;font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:.01em;border:1px solid transparent;border-bottom:0}
+.tabs a:hover{background:var(--panel)}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.tabs a:focus-visible{outline:2px solid var(--water);outline-offset:-2px}
+.tabs small{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+
 #region svg{width:100%;height:auto;max-width:1120px}
 #site{max-height:78vh;overflow:auto;cursor:grab}
 #site.drag{cursor:grabbing;user-select:none}
@@ -208,7 +215,7 @@ footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:
 .steps + .stage{border-top:0}
 </style>
 
-<div class="wrap">
+<div class="wrap"><nav class="tabs" aria-label="Guides"><a href="rocky-desert-works.html">Rocky Desert Works<small>server</small></a><a href="builders-handbook.html" aria-current="page">Builder's Handbook<small>server</small></a><a href="satisfactory-plus.html">Satisfactory Plus<small>solo</small></a><a href="index.html">All guides</a></nav>
 <header>
   <div class="eyebrow">Satisfactory · first builds, basic to advanced · drawn to scale</div>
   <h1>Builder's Handbook</h1>
