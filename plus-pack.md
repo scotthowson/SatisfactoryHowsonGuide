@@ -28,6 +28,7 @@ One pack built round [Satisfactory Plus](satisfactory-plus.html), in three forms
 - **Shorter Hard Drive Research: 300 seconds.** It is set per save, in the game under Mod Savegame Settings; its own default is 3 seconds. For the server, a save's mod settings can only be chosen when the world is created: make the save in single player with the client pack, set it there, then upload the save.
 - **Faster Manual Crafting: step 0.175, at most 8 times normal speed.** The file is [`packs/configs/FasterManualCraftingRedux.cfg`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/configs/FasterManualCraftingRedux.cfg). Copy it into `FactoryGame/Configs` on the server and on every PC, replacing the one there.
 - **Universal Swatch Slots:** players joining the server need the same palette file as the server (its page).
+- **Smart!: panel position Y 0.35.** At its default the Smart! panel sits under Location and Rotation's readout while you place something. In the game: Mods, Smart!, HUD. Each player sets it on their own PC.
 
 ## Check these in the first hours
 
