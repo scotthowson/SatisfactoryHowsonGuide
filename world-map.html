@@ -233,8 +233,9 @@ const HD = window.HOWSON_HD, base = {}; let curStyle = null;
 base.plain = L.imageOverlay(MASK, WORLD_B, { opacity: 0.9 });
 function tiles(style){
   const box = HD.styles[style].box, g = L.layerGroup(), url = 'map-hd/' + style + '/{z}_{x}_{y}.jpg';
-  L.tileLayer(url, { tileSize: HD.tile, minNativeZoom: HD.world[0], maxNativeZoom: HD.world[1], maxZoom: 9, bounds: WORLD_B, noWrap: true, attribution: 'Map picture: Satisfactory Calculator' }).addTo(g);
-  L.tileLayer(url, { tileSize: HD.tile, minZoom: HD.base[0], minNativeZoom: HD.base[0], maxNativeZoom: HD.base[1], maxZoom: 9, bounds: [ll(box[0], box[3]), ll(box[2], box[1])], noWrap: true }).addTo(g);
+  const wmax = HD.styles[style].wmax === undefined ? HD.world[1] : HD.styles[style].wmax, bmin = HD.styles[style].bmin === undefined ? HD.base[0] : HD.styles[style].bmin;
+  L.tileLayer(url, { tileSize: HD.tile, minNativeZoom: HD.world[0], maxNativeZoom: wmax, maxZoom: 9, bounds: WORLD_B, noWrap: true, attribution: 'Map picture: Satisfactory Calculator' }).addTo(g);
+  L.tileLayer(url, { tileSize: HD.tile, minZoom: bmin, minNativeZoom: bmin, maxNativeZoom: HD.base[1], maxZoom: 9, bounds: [ll(box[0], box[3]), ll(box[2], box[1])], noWrap: true }).addTo(g);
   return g;
 }
 if (HD) { base.real = tiles('real'); base.game = tiles('game'); }
@@ -661,7 +662,7 @@ function onState(st, how){
   $('s-power').textContent = pw ? Math.round(pw.consumed) + ' / ' + Math.round(pw.produced) + ' MW' : '–'; $('s-power-l').textContent = pw && pw.fuse ? 'THE FUSE HAS BLOWN' : pw ? 'power in use, largest circuit' : 'power: not known on this PC';
   const blind = (st.pickups && !has(st.pickups)) && !(st.seen && st.seen.gone);
   const bits = []; if (st.session) bits.push(st.session); if (st.phaseName) bits.push(st.phaseName); if (st.playSeconds) bits.push(Math.floor(st.playSeconds / 3600) + ' h ' + Math.floor(st.playSeconds % 3600 / 60) + ' min played');
-  setPill('on', how, streaming ? 'real time' : live.v2 ? 'fast' : 'every few seconds');
+  setPill('on', /^Linked/.test(how) ? 'Live' : 'From a file', streaming ? 'real time' : live.v2 ? 'fast' : 'every few seconds');
   $('live-long').innerHTML = '<b>' + esc(how) + '.</b> ' + esc(bits.join(' · ')) + (st.pickups === null ? ' No save loaded yet.' : '') + (blind ? ' Joined to a server, the game gives this PC no list of what is collected: tick by hand, or wait for the mod\'s server part.' : '') + (live.mismatch ? ' The game\'s list does not line up with this map; tell Claude.' : '') + (st.mode === 'client' ? ' On a server the mod only knows what your own character has been near: unvisited places stay as they are.' : '') + (!live.v2 ? ' This version of Map Link refreshes every few seconds; the next one moves you in real time.' : '');
   $('clock').textContent = (st.dayPct !== undefined ? 'day ' + Math.round(st.dayPct) + '% · ' : '') + (st.session || '');
   if (st.worldRev !== undefined && (!W || W.rev !== st.worldRev) && !worldBusy) fetchWorld();
