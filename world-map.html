@@ -193,7 +193,7 @@ label.ck input{width:17px;height:17px;accent-color:var(--accent);flex:none}
   <div class="stat"><div><b id="s-pos">–</b><span id="s-pos-l">your position</span></div><div><b id="s-speed">–</b><span>speed · height</span></div><div><b id="s-walk">–</b><span>travelled this visit</span></div><div><b id="s-power">–</b><span id="s-power-l">power</span></div></div>
   <p id="srv-health"></p>
   <h3>Players</h3><div class="rows" id="players"><div class="none">Nobody yet.</div></div>
-  <label class="ck"><input type="checkbox" id="follow"> Keep me in view</label><label class="ck"><input type="checkbox" id="trail" checked> Draw where we have been</label>
+  <label class="ck"><input type="checkbox" id="follow"> Follow me: keep me in the middle</label><label class="ck"><input type="checkbox" id="trail" checked> Draw where we have been</label>
   <h3>From the game's own map</h3><div class="rows" id="gmarks"><div class="none">Map markers, the HUB, vehicles and stations appear here when the mod sends them.</div></div>
   <p>No mod running? Load its <code>state.json</code>: <input type="file" id="file" accept=".json,application/json" aria-label="Load a Map Link state file"></p></div>
  <div class="tab" id="t-nav"><h2>Navigate</h2><p>Pick anything on the map and press Navigate. Or let the map plan a run through the nearest things you have not collected.</p>
@@ -660,7 +660,7 @@ $('home').addEventListener('click', goHome);
 map.on('zoomend', () => $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5));
 
 // ---- players, in real time ----
-const PL = {}, COLORS = ['#35d6c2', '#ff6fb1', '#9be564', '#b08cff', '#ffd447']; let nPal = 0, raf = 0, follow = false, trailOn = true;
+const PL = {}, COLORS = ['#35d6c2', '#ff6fb1', '#9be564', '#b08cff', '#ffd447']; let nPal = 0, raf = 0, follow = store.get('howson-map-follow', false), trailOn = true;
 function plIcon(p){ return L.divIcon({ className: '', iconSize: [34, 34], iconAnchor: [17, 17], html: '<div class="pl' + (p.isMe ? '' : ' sm') + '" style="--c:' + p.color + '">' + (p.isMe ? '<i></i><em class="n">N</em><em class="e">E</em><em class="s">S</em><em class="w">W</em>' : '') + '<svg viewBox="0 0 34 34"><g class="rot"><path d="M30 17 9 27l5-10L9 7Z" fill="' + p.color + '" stroke="#0b1118" stroke-width="2" stroke-linejoin="round"/></g></svg><span>' + esc(p.name) + '</span></div>' }); }
 function sample(key, o, isMe){
   const now = performance.now(), x = o.x / 100, y = o.y / 100; let p = PL[key];
@@ -675,7 +675,7 @@ function sample(key, o, isMe){
     if (o.speed === undefined && dt > 0) o.speed = jump / (dt / 1000) * 100;
   }
   p.z = o.z / 100; p.speed = (o.speed || 0) / 100; p.veh = o.veh || '';
-  if (isMe) live.me = { x, y, z: p.z };
+  if (isMe) { const first = !live.me; live.me = { x, y, z: p.z }; if (first && follow) map.setView(ll(x, y), Math.max(map.getZoom(), 6), { animate: false }); }
   if (!raf) raf = requestAnimationFrame(tick);
 }
 function drop(key){ const p = PL[key]; if (!p) return; map.removeLayer(p.mk); trails.removeLayer(p.line); delete PL[key]; if (p.isMe) live.me = null; listPlayers(); }
@@ -690,7 +690,7 @@ function tick(now){
     const lastPt = p.pts[p.pts.length - 1], d = Math.hypot(p.cur[0] - lastPt[0], p.cur[1] - lastPt[1]);
     if (d > 1.5) { if (d < 250) p.dist += d; p.pts.push(p.cur.slice()); if (p.pts.length > 700) p.pts.splice(0, 100); if (trailOn) p.line.setLatLngs(p.pts.map(q => ll(q[0], q[1]))); }
     if (t < 1) moving = true;
-    if (p.isMe) { live.me = { x: p.cur[0], y: p.cur[1], z: p.z }; const ck = Math.floor(p.cur[0] / 8) + ',' + Math.floor(p.cur[1] / 8); if (ck !== myCell) { myCell = ck; if (cellOn) redraw(); } if (follow) { const cp = map.latLngToContainerPoint(ll(p.cur[0], p.cur[1])), sz = map.getSize(); if (cp.x < sz.x * .3 || cp.x > sz.x * .7 || cp.y < sz.y * .3 || cp.y > sz.y * .7) map.panTo(ll(p.cur[0], p.cur[1]), { animate: !calm, duration: .5 }); } }
+    if (p.isMe) { live.me = { x: p.cur[0], y: p.cur[1], z: p.z }; const ck = Math.floor(p.cur[0] / 8) + ',' + Math.floor(p.cur[1] / 8); if (ck !== myCell) { myCell = ck; if (cellOn) redraw(); } if (follow && !map._animatingZoom) { const cp = map.latLngToContainerPoint(ll(p.cur[0], p.cur[1])), sz = map.getSize(), dx = cp.x - sz.x / 2, dy = cp.y - sz.y / 2; if (Math.abs(dx) > 1.5 || Math.abs(dy) > 1.5) map.panBy([dx, dy], { animate: false }); } }     // keep you in the middle, every frame
   }
   if (now - lastText > 220) { lastText = now; liveText(); wayText(); }
   if (way && wayLine && live.me) wayLine.setLatLngs([ll(live.me.x, live.me.y), ll(way.x, way.y)]);
@@ -709,7 +709,10 @@ function listPlayers(){
   ks.forEach(k => { const p = PL[k], b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(p.name) + (p.isMe ? ' (you)' : '') + '</span><em></em>'; b.replaceChild(mini(icon(p.color, 'pin', 'c')), b.querySelector('i'));
     b.addEventListener('click', () => { map.setView(ll(p.cur[0], p.cur[1]), Math.max(map.getZoom(), 6)); select({ kind: 'pl', p }); }); box.appendChild(b); });
 }
-$('follow').addEventListener('change', e => { follow = e.target.checked; if (follow && live.me) map.setView(ll(live.me.x, live.me.y), Math.max(map.getZoom(), 6)); });
+$('follow').checked = follow;
+$('follow').addEventListener('change', e => { follow = e.target.checked; store.set('howson-map-follow', follow); if (follow && live.me) map.setView(ll(live.me.x, live.me.y), Math.max(map.getZoom(), 6), { animate: false }); });
+map.on('dragstart', () => { if (follow) { follow = false; $('follow').checked = false; store.set('howson-map-follow', false); toast('Free view: you moved the map. Press F to follow again.'); } });
+map.on('zoomend', () => { if (follow && live.me) map.panTo(ll(live.me.x, live.me.y), { animate: false }); });
 $('trail').addEventListener('change', e => { trailOn = e.target.checked; if (trailOn) { trails.addTo(map); for (const k in PL) PL[k].line.setLatLngs(PL[k].pts.map(q => ll(q[0], q[1]))); } else map.removeLayer(trails); });
 
 // ---- navigation: a waypoint, and runs through what is not collected ----
