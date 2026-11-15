@@ -471,8 +471,13 @@ footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:
       mine.forEach(function(m){ var was = m.live; m.live = !hit[m.id]; if (was !== m.live) restyle(m); });
       live.covered[kind] = true; return true;
     }
-    var okP = st.pickups && st.pickups.left ? seen(st.pickups.left, 'pickup', 2) : null, okD = st.dropPods && st.dropPods.left ? seen(st.dropPods.left, 'pod', 1) : null;
-    if (st.plants && st.plants.left) seen(st.plants.left, 'plant', 1);
+    // a list the game never filled (a client on a dedicated server gets none) says nothing: never read it as "all collected"
+    function has(o){ return o && o.left && (o.left.length > 0 || o.known > 0); }
+    function clear(kind){ all.forEach(function(m){ if (m.c.t === kind && m.live) { m.live = false; restyle(m); } }); }
+    var okP = has(st.pickups) ? seen(st.pickups.left, 'pickup', 2) : null, okD = has(st.dropPods) ? seen(st.dropPods.left, 'pod', 1) : null;
+    if (okP === null) clear('pickup'); if (okD === null) clear('pod');
+    if (has(st.plants)) seen(st.plants.left, 'plant', 1);
+    var blind = (st.pickups && !has(st.pickups)) || (st.dropPods && !has(st.dropPods));
     var p = st.player;
     if (p) {
       live.me = { x: p.x / 100, y: p.y / 100, z: p.z / 100 };
@@ -487,8 +492,9 @@ footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:
     if (st.phaseName) bits.push(st.phaseName);
     if (p) bits.push('you are at ' + Math.round(live.me.x) + ', ' + Math.round(live.me.y));
     if (okP === false || okD === false) { setLive('bad', bits.join(' · ') + '. The game\'s list does not line up with this map, so collected items are not shown. Tell Claude.'); }
-    else setLive('on', bits.join(' · '));
-    if (st.power) $('live-p').textContent = 'Power, largest circuit: ' + Math.round(st.power.consumed) + ' of ' + Math.round(st.power.produced) + ' MW in use' + (st.power.fuse ? ' · THE FUSE HAS BLOWN' : ''); else $('live-p').textContent = '';
+    else setLive('on', bits.join(' · ') + (blind ? '. The game gives this PC no list of what is collected while you are joined to a server, so tick by hand for now.' : ''));
+    if (st.power && !(st.power.capacity > 0 || st.power.produced > 0)) $('live-p').textContent = '';
+    else if (st.power) $('live-p').textContent = 'Power, largest circuit: ' + Math.round(st.power.consumed) + ' of ' + Math.round(st.power.produced) + ' MW in use' + (st.power.fuse ? ' · THE FUSE HAS BLOWN' : ''); else $('live-p').textContent = '';
     counts(); if (pop.isOpen() && pop._m) pop.setContent(popHtml(pop._m));
   }
   var URLS = ['http://127.0.0.1:8765/state'], failed = 0;
