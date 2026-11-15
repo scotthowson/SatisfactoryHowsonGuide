@@ -340,7 +340,8 @@ const fset = { show: true, lines: true, floors: true };
 let gridOn = store.get('howson-map-grid', true), cellOn = store.get('howson-map-cell', true), myCell = '';
 const DIR8 = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], facing = yaw => DIR8[Math.round((((yaw + 90) % 360) + 360) % 360 / 45) % 8];
 const arrowOf = yaw => facing(yaw + 90);                 // a building's build arrow points along its own +Y axis: a quarter turn on from its yaw
-const boxOf = m => m.w && m.l ? [m.l, m.w] : m.part ? null : PLAN.size[m.n] || null;      // [size along the building's X, size along its Y] in metres
+const kin = n => /container screen/i.test(n) ? 'Storage Container' : n;      // a container with a screen (Container Screens mod): drawn as the Storage Container it is built on, until the mod sends its own box
+const boxOf = m => m.w && m.l ? [m.l, m.w] : m.part ? null : PLAN.size[m.n] || PLAN.size[kin(m.n)] || null;      // [size along the building's X, size along its Y] in metres
 const placeBuilt = {};
 // which way parts go through a building, in its own frame, where it has been measured in Scott's game (his belts, and his word for the container): 0 = out along +X, 90 = out along +Y, 180 = out along -X
 const FLOW = { 'Storage Container': 90, 'Constructor': 90, 'Crusher': 0, 'Sorter': 180 };
@@ -453,7 +454,7 @@ function paint(ctx, b){
     if (z >= 5 && fp2 && fp2[0] * s > 9) {                // its real footprint, turned the way it stands, with its build arrow
       const w = fp2[0] * s, l = fp2[1] * s, a = Math.min(8, w / 3, l / 3);
       ctx.save(); ctx.translate(px, py); ctx.rotate((m.yaw || 0) * Math.PI / 180); ctx.fillStyle = 'rgba(30,42,58,.62)'; ctx.strokeStyle = col; ctx.lineWidth = m === sel ? 3.5 : 2; ctx.fillRect(-w / 2, -l / 2, w, l); ctx.strokeRect(-w / 2, -l / 2, w, l);
-      const fl = FLOW[m.n];
+      const fl = FLOW[kin(m.n)];
       if (fl === undefined) { ctx.globalAlpha = .55; ctx.beginPath(); ctx.moveTo(-a, l / 2 - a - 3); ctx.lineTo(0, l / 2 - 3); ctx.lineTo(a, l / 2 - a - 3); ctx.stroke(); ctx.globalAlpha = 1; }
       else {                                              // outlet: an arrow leaving the box; inlet: a bar across the other end
         ctx.rotate(fl * Math.PI / 180); const h = (fl === 90 ? l : w) / 2, c2 = (fl === 90 ? w : l) / 2; ctx.strokeStyle = '#ffd447'; ctx.lineWidth = 2.4;
@@ -561,7 +562,7 @@ function select(o, fly){
     if (o.part && bd && bd.gen) body += '<p>One of the HUB\'s own burners: they come with the HUB and stand side by side at its end. What one of them makes is not in the Satisfactory Plus data; a Biomass Burner you build yourself makes up to ' + bd.gen + ' MW.</p>';
     else if (bd && bd.gen) body += '<p>Makes up to <b>' + bd.gen + ' MW</b>.' + (bd.fuel ? ' At full load it burns ' + bd.fuel.map(f => fmt(f[1]) + ' ' + esc(f[0])).join(', or ') + ' a minute; less when less power is asked for.' : '') + '</p>';
     else if (bd && bd.mw) body += '<p>Draws <b>' + (bd.mw * Math.pow((o.clock || 100) / 100, PLAN.exp)).toFixed(1) + ' MW</b> at its ' + (o.clock || 100) + '% clock speed (' + bd.mw + ' MW at 100%).</p>';
-    if (!o.other && FLOW[o.n] !== undefined) body += '<p>Parts come out on its <b>' + facing((o.yaw || 0) + FLOW[o.n]) + '</b> side (the yellow arrow) and go in on its <b>' + facing((o.yaw || 0) + FLOW[o.n] + 180) + '</b> side (the yellow bar). Measured in your game.</p>';
+    if (!o.other && FLOW[kin(o.n)] !== undefined) body += '<p>Parts come out on its <b>' + facing((o.yaw || 0) + FLOW[kin(o.n)]) + '</b> side (the yellow arrow) and go in on its <b>' + facing((o.yaw || 0) + FLOW[kin(o.n)] + 180) + '</b> side (the yellow bar). ' + (kin(o.n) === o.n ? 'Measured in your game.' : 'Drawn as the Storage Container it is built on; its own size comes with the next mod update.') + '</p>';
     else if (!o.other) body += '<p>The faint arrow on its footprint points <b>' + arrowOf(o.yaw || 0) + '</b>: the way the build pointer faced when it was placed. Which side takes parts and which gives them is not known to the map yet for this building.</p>' + (o.recipe ? '<p>Recipe: <b>' + esc(o.recipe.replace(/^Recipe_|_C$/g, '').replace(/_/g, ' ')) + '</b> at ' + o.clock + '% clock speed' + (o.prod >= 0 ? ', productivity ' + o.prod + '%' : '') + '.</p>' : '') + posLine(o.x, o.y, o.z); acts = [nav, copy];
   } else if (o.kind === 'bline') { const q = o.q, len = Math.hypot(q[2] - q[0], q[3] - q[1]) / 100, mk = q[4] || 1, cap = { 1: 60, 2: 120, 3: 270, 4: 480, 5: 780, 6: 1200 }[mk];
     ic = icon(o.t === 'belt' ? '#ffb347' : o.t === 'pipe' ? '#49b8ff' : '#d678ff', o.t === 'wire' ? 'pole' : o.t === 'pipe' ? 'drop' : 'arrow', 'c'); title = o.t === 'belt' ? 'Conveyor Belt Mk.' + mk : o.t === 'pipe' ? 'Pipeline Mk.' + mk : 'Power Line'; sub = 'Built';
@@ -892,7 +893,7 @@ function onWorld(w){
   const everything = W.machines.concat(W.others), norm = n => n.toLowerCase().replace(/^the /, '').replace('craft bench', 'crafting bench');
   PLAN.places.forEach((p, i) => {
     const cx = p.x + p.w / 2, cy = p.y + p.h / 2, want = /container|storage bay/i.test(p.n) ? 'storage container' : /wind turbine/i.test(p.n) ? 'wind turbine' : /hypertube/i.test(p.n) ? 'hypertube entrance' : norm(p.n), reach = Math.max(6, Math.min(p.w, p.h) / 2 + 3);
-    placeBuilt[i] = everything.some(b => Math.hypot(b.x - cx, b.y - cy) < reach && (norm(b.n).indexOf(want) >= 0 || want.indexOf(norm(b.n)) >= 0));
+    placeBuilt[i] = everything.some(b => Math.hypot(b.x - cx, b.y - cy) < reach && (norm(b.n).indexOf(want) >= 0 || want.indexOf(norm(b.n)) >= 0 || (want === 'storage container' && /container/i.test(b.n))));
   });
   const by = {}; let run2 = 0, idle = 0, off = 0; const stalled = [];
   W.machines.forEach(m => { by[m.n] = (by[m.n] || 0) + 1; if (m.state === 1) run2++; else if (m.state === 0) { idle++; if (m.recipe) stalled.push(m); } else if (m.state === 2 || m.state === 3) { off++; stalled.push(m); } });
@@ -1022,6 +1023,9 @@ document.addEventListener('keydown', e => {
 
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
+// the map is rebuilt often: say so when the copy on screen is no longer the newest
+const BUILD = '2026-11-15 00:25:52'; let told = false;
+setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get run(){ return run; }, planBuilt, sprites };
 })();
