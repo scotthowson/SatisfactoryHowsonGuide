@@ -663,7 +663,7 @@ function onState(st, how){
   const blind = (st.pickups && !has(st.pickups)) && !(st.seen && st.seen.gone);
   const bits = []; if (st.session) bits.push(st.session); if (st.phaseName) bits.push(st.phaseName); if (st.playSeconds) bits.push(Math.floor(st.playSeconds / 3600) + ' h ' + Math.floor(st.playSeconds % 3600 / 60) + ' min played');
   setPill('on', /^Linked/.test(how) ? 'Live' : 'From a file', streaming ? 'real time' : live.v2 ? 'fast' : 'every few seconds');
-  $('live-long').innerHTML = '<b>' + esc(how) + '.</b> ' + esc(bits.join(' · ')) + (st.pickups === null ? ' No save loaded yet.' : '') + (blind ? ' Joined to a server, the game gives this PC no list of what is collected: tick by hand, or wait for the mod\'s server part.' : '') + (live.mismatch ? ' The game\'s list does not line up with this map; tell Claude.' : '') + (st.mode === 'client' ? ' On a server the mod only knows what your own character has been near: unvisited places stay as they are.' : '') + (!live.v2 ? ' This version of Map Link refreshes every few seconds; the next one moves you in real time.' : '');
+  $('live-long').innerHTML = '<b>' + esc(how) + '.</b> ' + esc(bits.join(' · ')) + (st.pickups === null ? ' No save loaded yet.' : '') + (blind ? ' Joined to a server, the game gives this PC no list of what is collected: tick by hand, or wait for the mod\'s server part.' : '') + (live.mismatch ? ' The game\'s list does not line up with this map; tell Claude.' : '') + (st.serverLink && st.serverLink.fresh ? ' The server part is answering: collectibles, power and builds are exact.' : st.mode === 'client' ? ' Joined to a server without the mod\'s server part: collectibles are known only where your character has been, power and machine states are not known.' : '') + (!live.v2 ? ' This version of Map Link refreshes every few seconds; the next one moves you in real time.' : '');
   $('clock').textContent = (st.dayPct !== undefined ? 'day ' + Math.round(st.dayPct) + '% · ' : '') + (st.session || '');
   if (st.worldRev !== undefined && (!W || W.rev !== st.worldRev) && !worldBusy) fetchWorld();
   changed(); if (sel && sel.kind === 'm') select(sel);
@@ -682,7 +682,7 @@ function listGM(){
 let worldBusy = false;
 function onWorld(w){
   const names = w.names || [], f = a => a || [];
-  W = { rev: w.rev, counts: w.counts || {}, classes: w.classes || [], names, belts: f(w.belts), pipes: f(w.pipes), wires: f(w.wires), floors: f(w.floors), note: w.floorsNote || '',
+  W = { rev: w.rev, counts: w.counts || {}, classes: w.classes || [], names, belts: f(w.belts), pipes: f(w.pipes), wires: f(w.wires), floors: f(w.floors), note: w.floorsNote || w.note || '', source: w.source || '', floorsTotal: w.floorsTotal,
         machines: f(w.machines).map(a => ({ kind: 'b', n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: a[4], recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
   const cell = {}; W.machines.forEach(m => { const k = Math.floor(m.x / 16) + ',' + Math.floor(m.y / 16); (cell[k] = cell[k] || []).push(m); });
   PLAN.mach.forEach((pm, i) => {
@@ -692,9 +692,10 @@ function onWorld(w){
   });
   const by = {}; let run2 = 0, idle = 0, off = 0; const stalled = [];
   W.machines.forEach(m => { by[m.n] = (by[m.n] || 0) + 1; if (m.state === 1) run2++; else if (m.state === 0) { idle++; if (m.recipe) stalled.push(m); } else if (m.state === 2 || m.state === 3) { off++; stalled.push(m); } });
-  $('f-n').textContent = fmt(W.machines.length); $('f-run').textContent = run2; $('f-idle').textContent = idle; $('f-off').textContent = off; $('f-rev').textContent = 'update ' + W.rev;
-  $('f-note').textContent = fmt(W.machines.length) + ' machines, ' + fmt(W.belts.length) + ' belts, ' + fmt(W.pipes.length) + ' pipes, ' + fmt(W.wires.length) + ' power lines and ' + fmt(W.floors.length) + ' foundations as this PC sees them.' + (W.note ? ' ' + W.note : '');
-  const sb = $('f-stalled'); sb.innerHTML = ''; if (!stalled.length) sb.innerHTML = '<div class="none">Everything with a recipe is producing, or the state is not known on this PC.</div>';
+  const known = W.machines.some(m => m.state >= 0);
+  $('f-n').textContent = fmt(W.machines.length); $('f-run').textContent = known ? run2 : '–'; $('f-idle').textContent = known ? idle : '–'; $('f-off').textContent = known ? off : '–'; $('f-rev').textContent = 'update ' + W.rev;
+  $('f-note').textContent = fmt(W.machines.length) + ' machines, ' + fmt(W.belts.length) + ' belts, ' + fmt(W.pipes.length) + ' pipes, ' + fmt(W.wires.length) + ' power lines and ' + fmt(W.floors.length) + ' foundations' + (W.floorsTotal > W.floors.length ? ' (of ' + fmt(W.floorsTotal) + ')' : '') + (W.source === 'server' ? ', straight from the server: complete.' : W.source === 'client' ? ' as this PC sees them. Joined to a server, a machine\'s state is not known here, and far-away builds may be missing, until the server part is installed.' : '.') + (W.note ? ' ' + W.note : '');
+  const sb = $('f-stalled'); sb.innerHTML = ''; if (!stalled.length) sb.innerHTML = '<div class="none">' + (known ? 'Everything with a recipe is producing.' : 'Machine states are not known on this PC.') + '</div>';
   stalled.slice(0, 40).forEach(m => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(m.n) + ' · ' + STATE[m.state][0] + '</span><em>' + metres(distTo(m.x, m.y)) + '</em>'; b.replaceChild(mini(icon('#243244', bglyph(m.n), 's', { ring: STATE[m.state][1] })), b.querySelector('i')); b.addEventListener('click', () => select(m, true)); sb.appendChild(b); });
   const cb = $('f-counts'); cb.innerHTML = ''; const turn = {};
   Object.keys(by).sort((a, b) => by[b] - by[a]).forEach(n => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(n) + '</span><em>' + by[n] + '</em>'; b.replaceChild(mini(icon('#243244', bglyph(n), 's')), b.querySelector('i'));
