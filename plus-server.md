@@ -15,7 +15,7 @@ A Mod Manager profile can only name mods released on ficsit.app. Howson Plus als
 | MAM Enhancer 1.9.2 | The released 1.9.1 cannot start research; the fix is an unmerged pull request | Optional, each player's own PC |
 | Ten Satisfactory Plus fixes | Text files read by Satisfactory Plus's own library, not mods ([what they fix](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/dataforge/README.md)) | Server and every player |
 | Four settings files | Faster Manual Crafting, Move Tool, Smart! and Infinite Zoop must be set the same everywhere | Server and every player |
-| Howson Map Link 2.4.0 | Our own mod for the [World map](world-map.html); it is not released anywhere | Optional, each player's own PC (in the client overlay) |
+| Howson Map Link 2.5.0 | Our own mod for the [World map](world-map.html); it is not released anywhere | Optional, each player's own PC (in the client overlay) |
 | Slug egg text | One more text file for Satisfactory Plus's library: the twelve slug eggs show `UNKNOWN_KEY(...)` where their hatching values should be, and this puts one plain sentence there | Optional, each player's own PC (in the client overlay) |
 
 ## The files
@@ -73,7 +73,7 @@ Howson Map Link is our own read-only mod for the [World map](world-map.html). It
 ## Check it worked
 
 - **Server console or log:** `FicsItNetworks: 1.3.0` in the list of loaded mods, and a line `KDataForge: … pack(s), … document(s) applied` with no error naming a file from `Mods/DataForge`. On the server expect 33 packs and 171 documents (one fewer of each than on Scott's PC, because Road Maker is not on the server).
-- **Player:** `FicsItNetworks: 1.3.0` in `%LOCALAPPDATA%\FactoryGame\Saved\Logs\FactoryGame.log`, and `KDataForge: 34 pack(s), 172 document(s) applied` (the slug egg text is one pack; 33 without it), plus `MAMTips: 1.9.2` and `HowsonMapLink: 2.4.0` if you kept them. The nine errors that line counts are Satisfactory Plus's own and were there before any of ours.
+- **Player:** `FicsItNetworks: 1.3.0` in `%LOCALAPPDATA%\FactoryGame\Saved\Logs\FactoryGame.log`, and `KDataForge: 34 pack(s), 172 document(s) applied` (the slug egg text is one pack; 33 without it), plus `MAMTips: 1.9.2` and `HowsonMapLink: 2.5.0` if you kept them. The nine errors that line counts are Satisfactory Plus's own and were there before any of ours.
 - **In the game:** under tier 1 in the HUB there is a "Covered Conveyor Belt Mk.1" milestone.
 
 ## When something changes
@@ -85,6 +85,6 @@ Howson Map Link is our own read-only mod for the [World map](world-map.html). It
 ## Status
 
 - The profiles are checked against ficsit.app for this game build; every mod in the server profile has a Linux server build.
-- Scott plays on the dedicated server with the client profile and the client overlay. Seen in his game on 15 Nov 2026 while joined to it: FicsIt-Networks 1.3.0, MAM Enhancer 1.9.2, Howson Map Link 2.4.0 and 34 data packs loaded, three and a half hours into the world.
+- Scott plays on the dedicated server with the client profile and the client overlay. Seen in his game on 15 Nov 2026 while joined to it: FicsIt-Networks 1.3.0, MAM Enhancer 1.9.2, Howson Map Link 2.5.0 and 34 data packs loaded, three and a half hours into the world.
 - **No second PC has joined yet.** What is installed on the server itself was put there by Scott and cannot be checked from this repository. Satisfactory Plus's own page calls multiplayer experimental.
 - Built but left out on purpose: a Linux server build of Road Maker (Road Maker stays solo-only), and rebuilt copies of SML, ContentLib and More Sign Spots that are only for faults we have not seen. They are listed in the manifest.
