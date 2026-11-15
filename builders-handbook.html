@@ -10,23 +10,17 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a drafting sheet. Spec strip, then two measured drawings (site, plant) with the build steps beside and below them. */
-:root{
-  --bg:#e9edf1; --panel:#f7f9fb; --ink:#16222d; --muted:#566573; --line:#c3ccd6; --grid:#d3dae2;
-  --mach:#dde3ea; --pond:#b8dcf4; --void:#c6ccd4; --ledge:#dcdccf;
-  --coal:#b85a00; --water:#0a6fbd; --power:#a3238a; --tube:#17786a; --ok:#1c7446; --okbg:#e0f1e7;
+/* The guides share the Howson Atlas look: one deliberately dark palette, set here; the skin in tools/tabs.py dresses the parts.
+   Layout: a drafting sheet. Spec strip, then two measured drawings (site, plant) with the build steps beside and below them. */
+:root{ color-scheme:dark;
+  --bg:#0b1118; --panel:#121a25; --ink:#eef3f8; --muted:#93a1b3; --line:#263445; --grid:#1b2836;
+  --mach:#22344a; --pond:#16425e; --void:#070c12; --ledge:#1b2d33;
+  --coal:#ff9d47; --water:#58baff; --power:#f27ad8; --tube:#4fd1b8; --ok:#3ddc84; --okbg:#10291f;
+  --accent:#fa9549; --accent2:#35d6c2; --glass:rgba(16,23,33,.88); --soft:rgba(255,255,255,.035); --r:10px;
   --display:"Saira Condensed","Arial Narrow",sans-serif;
   --body:"IBM Plex Sans",system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,monospace;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#0e1922; --panel:#15232e; --ink:#e4ecf2; --muted:#9bafbf; --line:#2c3f4e; --grid:#213341;
-  --mach:#24384a; --pond:#16425e; --void:#081017; --ledge:#1b2d33;
-  --coal:#ff9d47; --water:#58baff; --power:#f27ad8; --tube:#4fd1b8; --ok:#62d394; --okbg:#143326; color-scheme:dark } }
-:root[data-theme="dark"]{
-  --bg:#0e1922; --panel:#15232e; --ink:#e4ecf2; --muted:#9bafbf; --line:#2c3f4e; --grid:#213341;
-  --mach:#24384a; --pond:#16425e; --void:#081017; --ledge:#1b2d33;
-  --coal:#ff9d47; --water:#58baff; --power:#f27ad8; --tube:#4fd1b8; --ok:#62d394; --okbg:#143326; color-scheme:dark }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
@@ -153,13 +147,6 @@ footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:
 
 #world svg text{pointer-events:none}#world svg .tp{font-size:13px}
 
-.tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:2px solid var(--ink);margin-bottom:-12px}
-.tabs a{display:flex;align-items:baseline;gap:8px;padding:9px 16px;color:var(--ink);text-decoration:none;font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:.01em;border:1px solid transparent;border-bottom:0}
-.tabs a:hover{background:var(--panel)}
-.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
-.tabs a:focus-visible{outline:2px solid var(--water);outline-offset:-2px}
-.tabs small{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.7}
-
 #region svg{width:100%;height:auto;max-width:1120px}
 #site{max-height:78vh;overflow:auto;cursor:grab}
 #site.drag{cursor:grabbing;user-select:none}
@@ -213,9 +200,102 @@ footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:
 .sw.dot{width:16px;border-radius:50%;background:var(--power);border-color:var(--panel)}
 .stage{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:18px 4px 6px;border-bottom:1px solid var(--line)}
 .steps + .stage{border-top:0}
+
+/* ---- the Howson Atlas look, shared with the world map ---- */
+body{font-size:15.5px;line-height:1.55;padding-block:14px 64px;background:radial-gradient(1100px 520px at 50% -160px,rgba(53,214,194,.09),transparent 70%),radial-gradient(900px 480px at 100% 0,rgba(250,149,73,.06),transparent 70%),var(--bg);background-attachment:fixed}
+.wrap{gap:26px}
+a{color:var(--accent2);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.glass{background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.topbar{position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:30;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.brand{display:flex;align-items:center;gap:9px;padding:6px 14px 6px 10px;text-decoration:none;color:var(--ink);white-space:nowrap;height:44px}
+.brand svg{width:26px;height:26px;flex:none}
+.brand b{display:block;font:600 19px/1 var(--display);letter-spacing:.07em}
+.brand small{display:block;font:500 9.5px/1.3 var(--mono);letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+.links{display:flex;flex-wrap:wrap;gap:2px;padding:4px;min-height:44px;align-items:center;min-width:0}
+.links a{padding:7px 11px;border-radius:7px;color:var(--muted);text-decoration:none;font-weight:500;font-size:14px;white-space:nowrap}
+.links a:hover{color:var(--ink);background:rgba(255,255,255,.07)}
+.links a[aria-current]{color:var(--ink);background:rgba(250,149,73,.16)}
+.find{flex:1 1 280px;position:relative;min-width:0}
+.find input{width:100%;height:44px;padding:0 14px 0 40px;border-radius:var(--r);border:1px solid rgba(255,255,255,.1);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font:400 15px var(--body);color:var(--ink);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.find input::placeholder{color:#64717f}
+.find>svg{position:absolute;left:12px;top:12px;width:20px;height:20px;color:var(--muted);pointer-events:none;z-index:2}
+.find #found{position:absolute;top:50px;left:0;right:0;max-height:min(60vh,460px);overflow:auto;display:flex;flex-direction:column;padding:4px;border-radius:var(--r);border:1px solid rgba(255,255,255,.1);background:var(--glass)}
+.find #found:empty{display:none}
+.find #found button{all:unset;cursor:pointer;padding:8px 11px;border-radius:7px;display:flex;flex-direction:column;gap:1px;border-bottom:0}
+.find #found button:hover,.find #found button:focus-visible{background:rgba(255,255,255,.08)}
+@media (max-width:760px){.topbar{position:static}.brand small{display:none}.links a{padding:6px 9px}.finder .jump{flex-basis:100%}}
+header{gap:12px;padding-top:6px}
+h1{font-size:46px;letter-spacing:.015em}
+h2{font-size:26px}
+.eyebrow{color:var(--accent);letter-spacing:.14em;font-size:11px}
+header>p{color:var(--muted);font-size:16.5px}
+.lede{font-size:16px;color:var(--muted)}
+/* tiles */
+.spec{border:0;background:none;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.spec div{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:10px 12px}
+.spec div:last-child{border-right:1px solid var(--line)}
+.spec b{font-size:26px}
+.spec span{font-size:12px}
+/* cards */
+.sheet,.tablebox,.track,.flow,#sf-out,.tier,.cards{border-radius:var(--r);border-color:var(--line);background:#0f1722}
+.tablebox{background:var(--soft)}
+.tier+.tier{border-top:1px solid var(--line);margin-top:6px}
+th{color:var(--accent2);font-size:11px;letter-spacing:.1em;background:rgba(255,255,255,.03)}
+tr:hover td{background:rgba(255,255,255,.025)}
+.verdict{border-radius:var(--r);background:rgba(61,220,132,.08);border-color:rgba(61,220,132,.5)}
+.note{border-left-color:var(--accent);min-height:0;padding:10px 14px;background:var(--soft);border-radius:0 8px 8px 0}
+.pop{border:1px solid rgba(255,255,255,.14);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 14px 44px rgba(0,0,0,.55)}
+.pop h3{font-size:20px}
+.pop-x{border-radius:7px;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+kbd{border-radius:5px;background:rgba(255,255,255,.06)}
+/* buttons and chips */
+.layers button,.phases button,.zoom button,.jump a,.finder button,#sf-more{font:500 13.5px var(--body);padding:7px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer;text-decoration:none;white-space:nowrap}
+.layers button:hover,.phases button:hover,.zoom button:hover,.jump a:hover,.finder button:hover,#sf-more:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.22)}
+.layers button[aria-pressed="true"],.phases button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#10161f;font-weight:600}
+.leg[aria-pressed="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.track input,.sf-bar input[type=search],.sf-bar select{border-radius:7px;background:#0f1722;border-color:rgba(255,255,255,.16)}
+.track > div{border-color:var(--line)}
+.track .bar{border-radius:5px;overflow:hidden;height:7px;background:rgba(255,255,255,.09)}
+.sf-bar input[type=checkbox]{accent-color:var(--accent)}
+/* the section strip under the header */
+.finder{position:static;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:none;border:0;padding:0}
+.finder .jump{flex:1 1 0;flex-basis:0;gap:6px;min-width:min(100%,280px)}
+/* folded sections: one card each */
+details.sec{border:1px solid var(--line);border-radius:12px;background:rgba(18,26,37,.72);padding:14px 18px}
+details.sec[open]{padding-bottom:20px}
+details.sec>summary h2{font-size:25px}
+details.sec>summary::before,details.sub>summary::before{content:"";width:9px;height:9px;flex:none;border-right:2.5px solid var(--accent);border-bottom:2.5px solid var(--accent);transform:rotate(-45deg);margin:0 6px 3px 2px;align-self:center;transition:transform .15s}
+details.sec[open]>summary::before,details.sub[open]>summary::before{content:"";transform:rotate(45deg)}
+@media (prefers-reduced-motion:reduce){details.sec>summary::before,details.sub>summary::before{transition:none}}
+details.sub{border-radius:9px;background:var(--soft);border-color:var(--line);margin-top:8px}
+details.sub+details.sub{border-top:1px solid var(--line)}
+.sfhall+.sfhall details.sub{border-top:1px solid var(--line)}
+details .sum{font-size:13.5px}
+section{gap:14px}
+/* steps: a number, a box to tick, what to do, and one line of how */
+.steps{counter-reset:st;border-top:0;gap:0}
+.steps li{counter-increment:st;grid-template-columns:26px 20px minmax(0,1fr);gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:start}
+.steps li:last-child{border-bottom:0}
+.steps li::before{content:counter(st);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:500 11.5px var(--mono);color:var(--muted);border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04)}
+.steps li:has(input:checked)::before{content:"\2713";color:#0b1118;background:var(--ok);border-color:var(--ok);font-weight:600}
+.steps input{width:17px;height:17px;margin:4px 0 0;accent-color:var(--accent)}
+.steps b{font-weight:600;font-size:15px}
+.steps span{font-size:14px;line-height:1.5;max-width:78ch}
+.steps li:has(input:checked) b{text-decoration:none;color:var(--muted)}
+.steps li:has(input:checked) span{opacity:.55}
+.stage{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);margin-top:6px}
+.flow li::before{color:var(--accent);font-size:20px}
+.flow li{border-color:var(--line)}
+dl{font-size:14.5px}
+footer{font-size:13px}
+.cards{border:0!important;background:none!important;gap:10px!important}
+.cards a{border:1px solid var(--line)!important;border-radius:var(--r);background:rgba(18,26,37,.72)}
+.cards a:hover{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.22)!important}
+.cards b{font-size:22px!important}
 </style>
 
-<div class="wrap"><nav class="tabs" aria-label="Guides"><a href="satisfactory-plus.html">Satisfactory Plus<small>the server now</small></a><a href="world-map.html">World map<small>live</small></a><a href="rocky-desert-works.html">Rocky Desert Works<small>base game</small></a><a href="builders-handbook.html" aria-current="page">Builder's Handbook<small>base game</small></a><a href="index.html">All guides</a></nav>
+<div class="wrap"><div class="topbar"><a class="brand glass" href="index.html" title="All guides"><svg viewBox="0 0 24 24" fill="none" stroke="#fa9549" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 21 7v10l-9 5-9-5V7l9-5Z"/><path d="M12 7v10M7.5 9.5l9 5M16.5 9.5l-9 5" stroke="#35d6c2" stroke-width="1.4"/></svg><span><b>HOWSON ATLAS</b><small>builder's handbook</small></span></a><nav class="links glass" aria-label="Guides"><a href="satisfactory-plus.html">Satisfactory Plus</a><a href="world-map.html">World map</a><a href="rocky-desert-works.html">Rocky Desert Works</a><a href="builders-handbook.html" aria-current="page">Builder's Handbook</a><a href="index.html">All guides</a></nav></div>
 <header>
   <div class="eyebrow">Satisfactory · first builds, basic to advanced · drawn to scale</div>
   <h1>Builder's Handbook</h1>
