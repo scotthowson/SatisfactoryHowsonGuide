@@ -443,7 +443,7 @@ function paint(ctx, b){
   if (W && fset.show) W.machines.forEach(m => {
     if (!inb(m.x, m.y)) return; const px = X(m.x), py = Y(m.y), col = m.state >= 0 ? STATE[m.state][1] : '#ffffff';
     if (z < 3.5) { ctx.fillStyle = '#0b1118'; ctx.fillRect(px - 2.6, py - 2.6, 5.2, 5.2); ctx.fillStyle = col; ctx.fillRect(px - 1.8, py - 1.8, 3.6, 3.6); return; }
-    const fp2 = m.w && m.l ? [m.w, m.l] : PLAN.size[m.n];
+    const fp2 = m.w && m.l ? [m.w, m.l] : m.part ? null : PLAN.size[m.n];
     if (z >= 5 && fp2 && fp2[0] * s > 9) {                // its real footprint, turned the way it stands, with an arrow on its front
       const w = fp2[0] * s, l = fp2[1] * s, a = Math.min(8, w / 3, l / 3);
       ctx.save(); ctx.translate(px, py); ctx.rotate((m.yaw || 0) * Math.PI / 180); ctx.fillStyle = 'rgba(30,42,58,.62)'; ctx.strokeStyle = col; ctx.lineWidth = m === sel ? 3.5 : 2; ctx.fillRect(-l / 2, -w / 2, l, w); ctx.strokeRect(-l / 2, -w / 2, l, w);
@@ -451,7 +451,7 @@ function paint(ctx, b){
       const k = Math.min(20, w - 4, l - 4); if (k > 9) ctx.drawImage(icon('#243244', bglyph(m.n), 's', { ring: col }), px - k / 2, py - k / 2, k, k);
       return;
     }
-    const k = z < 5 ? 18 : z < 6.5 ? 24 : 30; ctx.drawImage(icon('#243244', bglyph(m.n), 's', { ring: col }), px - k / 2, py - k / 2, k, k);
+    const k = (z < 5 ? 18 : z < 6.5 ? 24 : 30) * (m.part ? 0.72 : 1); ctx.drawImage(icon('#243244', bglyph(m.n), 's', { ring: col }), px - k / 2, py - k / 2, k, k);
   });
   if (cellOn && live.me && z >= 4.75) {                   // the grid cell you stand in
     const cx = Math.floor(live.me.x / 8) * 8, cy = Math.floor(live.me.y / 8) * 8; ctx.setLineDash([6, 4]); ctx.lineWidth = 2; ctx.strokeStyle = '#fa9549'; ctx.strokeRect(X(cx), Y(cy), 8 * s, 8 * s); ctx.setLineDash([]);
@@ -533,9 +533,10 @@ function select(o, fly){
     if (tracked(c)) { body += '<p class="' + (d ? 'tagok' : '') + '">' + (who ? 'Collected by ' + esc(who[0]) + (who[1] ? ', ' + new Date(who[1] * 1000).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '') + '.' : o.live ? 'Collected, says the game.' : o.gone ? 'Collected: the mod saw it go.' : ticks[o.id] ? 'Collected, ticked by you.' : live.covered[c.t] ? (live.state && live.state.mode === 'client' ? (o.there ? 'Still there when you were last near it.' : 'Not known: you have not been near it since the mod was installed.') : 'Not collected, says the game.') : 'Not collected.') + '</p>'; if (!o.live && !o.gone) acts.push('<button type="button" class="btn" data-act="tick">' + (ticks[o.id] ? 'Untick' : 'Tick as collected') + '</button>'); }
     acts.unshift(nav); acts.push(copy);
   } else if (o.kind === 'b') {
-    const st = o.state >= 0 ? STATE[o.state] : ['state not known on this PC', '#ffffff']; ic = icon('#243244', bglyph(o.n), 's', { ring: st[1] }); title = o.n; sub = 'Built · ' + st[0];
+    const st = o.state >= 0 ? STATE[o.state] : ['state not known on this PC', '#ffffff']; ic = icon('#243244', bglyph(o.n), 's', { ring: st[1] }); title = o.n; sub = (o.part ? 'Built into the HUB · ' : 'Built · ') + st[0];
     const bd = PLAN.bld[o.n];
-    if (bd && bd.gen) body += '<p>Makes up to <b>' + bd.gen + ' MW</b>.' + (bd.fuel ? ' At full load it burns ' + bd.fuel.map(f => fmt(f[1]) + ' ' + esc(f[0])).join(', or ') + ' a minute; less when less power is asked for.' : '') + '</p>';
+    if (o.part && bd && bd.gen) body += '<p>One of the HUB\'s own burners: they come with the HUB and stand side by side at its end. What one of them makes is not in the Satisfactory Plus data; a Biomass Burner you build yourself makes up to ' + bd.gen + ' MW.</p>';
+    else if (bd && bd.gen) body += '<p>Makes up to <b>' + bd.gen + ' MW</b>.' + (bd.fuel ? ' At full load it burns ' + bd.fuel.map(f => fmt(f[1]) + ' ' + esc(f[0])).join(', or ') + ' a minute; less when less power is asked for.' : '') + '</p>';
     else if (bd && bd.mw) body += '<p>Draws <b>' + (bd.mw * Math.pow((o.clock || 100) / 100, PLAN.exp)).toFixed(1) + ' MW</b> at its ' + (o.clock || 100) + '% clock speed (' + bd.mw + ' MW at 100%).</p>';
     body += '<p>Facing <b>' + facing(o.yaw || 0) + '</b> (the arrow on its footprint), turned ' + Math.round(o.yaw || 0) + '°.</p>' + (o.recipe ? '<p>Recipe: <b>' + esc(o.recipe.replace(/^Recipe_|_C$/g, '').replace(/_/g, ' ')) + '</b> at ' + o.clock + '% clock speed' + (o.prod >= 0 ? ', productivity ' + o.prod + '%' : '') + '.</p>' : '') + posLine(o.x, o.y, o.z); acts = [nav, copy];
   } else if (o.kind === 'bline') { const q = o.q, len = Math.hypot(q[2] - q[0], q[3] - q[1]) / 100, mk = q[4] || 1, cap = { 1: 60, 2: 120, 3: 270, 4: 480, 5: 780, 6: 1200 }[mk];
@@ -666,7 +667,7 @@ function sample(key, o, isMe){
   if (!p) {
     p = PL[key] = { key, name: o.name || (isMe ? 'You' : 'Player'), isMe, color: isMe ? '#fa9549' : COLORS[nPal++ % COLORS.length], cur: [x, y], from: [x, y], to: [x, y], yawCur: o.yaw || 0, yawFrom: o.yaw || 0, yawTo: o.yaw || 0, t0: now, dur: 1, last: now, pts: [[x, y]], dist: 0 };
     p.mk = L.marker(ll(x, y), { icon: plIcon(p), interactive: false, keyboard: false, zIndexOffset: isMe ? 1000 : 900 }).addTo(map);
-    p.line = L.polyline([], { color: p.color, weight: 2.5, opacity: .7, interactive: false }).addTo(trails); listPlayers();
+    p.line = L.polyline([], { color: p.color, weight: 1.6, opacity: .5, interactive: false }).addTo(trails); listPlayers();
   } else {
     const dt = now - p.last, jump = Math.hypot(x - p.cur[0], y - p.cur[1]);
     p.from = (jump > 250 || calm) ? [x, y] : p.cur.slice(); p.to = [x, y]; p.yawFrom = p.yawCur; p.yawTo = o.yaw === undefined ? p.yawCur : o.yaw; p.t0 = now; p.dur = Math.max(70, Math.min(1600, dt * 1.08)); p.last = now;
@@ -687,7 +688,7 @@ function tick(now){
     const dy = ((p.yawTo - p.yawFrom + 540) % 360) - 180; p.yawCur = p.yawFrom + dy * t;
     p.mk.setLatLng(ll(p.cur[0], p.cur[1])); const el = p.mk.getElement(); if (el) { const g = el.querySelector('.rot'); if (g) g.setAttribute('transform', 'rotate(' + p.yawCur.toFixed(1) + ' 17 17)'); }
     const lastPt = p.pts[p.pts.length - 1], d = Math.hypot(p.cur[0] - lastPt[0], p.cur[1] - lastPt[1]);
-    if (d > 1.5) { if (d < 250) p.dist += d; p.pts.push(p.cur.slice()); if (p.pts.length > 4000) p.pts.splice(0, 500); if (trailOn) p.line.setLatLngs(p.pts.map(q => ll(q[0], q[1]))); }
+    if (d > 1.5) { if (d < 250) p.dist += d; p.pts.push(p.cur.slice()); if (p.pts.length > 700) p.pts.splice(0, 100); if (trailOn) p.line.setLatLngs(p.pts.map(q => ll(q[0], q[1]))); }
     if (t < 1) moving = true;
     if (p.isMe) { live.me = { x: p.cur[0], y: p.cur[1], z: p.z }; const ck = Math.floor(p.cur[0] / 8) + ',' + Math.floor(p.cur[1] / 8); if (ck !== myCell) { myCell = ck; if (cellOn) redraw(); } if (follow) { const cp = map.latLngToContainerPoint(ll(p.cur[0], p.cur[1])), sz = map.getSize(); if (cp.x < sz.x * .3 || cp.x > sz.x * .7 || cp.y < sz.y * .3 || cp.y > sz.y * .7) map.panTo(ll(p.cur[0], p.cur[1]), { animate: !calm, duration: .5 }); } }
   }
@@ -853,7 +854,7 @@ let worldBusy = false;
 function onWorld(w){
   const names = w.names || [], f = a => a || [];
   W = { rev: w.rev, counts: w.counts || {}, classes: w.classes || [], names, belts: f(w.belts), pipes: f(w.pipes), wires: f(w.wires), floors: f(w.floors), note: w.floorsNote || w.note || '', source: w.source || '', floorsTotal: w.floorsTotal,
-        machines: f(w.machines).map(a => ({ kind: 'b', l: a[9] ? a[9] / 100 : 0, w: a[10] ? a[10] / 100 : 0, n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: a[4], recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
+        machines: f(w.machines).map(a => ({ kind: 'b', cls: (w.classes || [])[a[0]] || '', part: /Integrated|HubTerminal/i.test((w.classes || [])[a[0]] || ''), l: a[9] ? a[9] / 100 : 0, w: a[10] ? a[10] / 100 : 0, n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: a[4], recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
   const cell = {}; W.machines.forEach(m => { const k = Math.floor(m.x / 16) + ',' + Math.floor(m.y / 16); (cell[k] = cell[k] || []).push(m); });
   PLAN.mach.forEach((pm, i) => {
     const cx = pm[3] + pm[5] / 2, cy = pm[4] + pm[6] / 2, want = pm[2].toLowerCase(); let ok = false;
@@ -869,10 +870,11 @@ function onWorld(w){
   stalled.slice(0, 40).forEach(m => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(m.n) + ' · ' + STATE[m.state][0] + '</span><em>' + metres(distTo(m.x, m.y)) + '</em>'; b.replaceChild(mini(icon('#243244', bglyph(m.n), 's', { ring: STATE[m.state][1] })), b.querySelector('i')); b.addEventListener('click', () => select(m, true)); sb.appendChild(b); });
   // power: what the generators can make against what the machines draw with everything running
   let cap = 0, draw = 0; const gens = {};
-  W.machines.forEach(m => { const bd = PLAN.bld[m.n]; if (!bd) return; if (bd.gen) { cap += bd.gen; gens[m.n] = (gens[m.n] || 0) + 1; } else if (bd.mw) draw += bd.mw * Math.pow((m.clock || 100) / 100, PLAN.exp); });
+  let builtIn = 0;
+  W.machines.forEach(m => { const bd = PLAN.bld[m.n]; if (!bd) return; if (bd.gen && m.part) { builtIn++; return; } if (bd.gen) { cap += bd.gen; gens[m.n] = (gens[m.n] || 0) + 1; } else if (bd.mw) draw += bd.mw * Math.pow((m.clock || 100) / 100, PLAN.exp); });
   const real = live.state && live.state.power && live.state.power.capacity > 0 ? live.state.power : null, firstGen = Object.keys(gens)[0], fuel = firstGen && PLAN.bld[firstGen].fuel, share = firstGen ? draw / PLAN.bld[firstGen].gen : 0;
   $('f-power').innerHTML = '<div class="stat"><div><b>' + cap.toFixed(0) + ' MW</b><span>your generators can make</span></div><div><b>' + draw.toFixed(1) + ' MW</b><span>your machines draw, all running</span></div></div><div class="meter' + (draw <= cap ? ' ok' : '') + '" style="margin-top:8px"><i style="width:' + (cap ? Math.min(100, 100 * draw / cap) : 0).toFixed(1) + '%"></i></div>'
-    + '<p style="margin-top:8px">' + (Object.keys(gens).length ? Object.keys(gens).map(n => gens[n] + ' ' + esc(n) + (gens[n] > 1 ? 's' : '')).join(', ') + '. ' : 'No generator in sight. ') + (cap && draw > cap ? '<b>Not enough: ' + (draw - cap).toFixed(1) + ' MW short with everything running.</b> ' : cap ? (cap - draw).toFixed(1) + ' MW to spare. ' : '')
+    + '<p style="margin-top:8px">' + (Object.keys(gens).length ? Object.keys(gens).map(n => gens[n] + ' ' + esc(n) + (gens[n] > 1 ? 's' : '')).join(', ') + '. ' : 'No generator in sight. ') + (builtIn ? 'The HUB\'s ' + builtIn + ' built-in burners add to that; what they make is not in the data. ' : '') + (cap && draw > cap ? '<b>Not enough: ' + (draw - cap).toFixed(1) + ' MW short with everything running.</b> ' : cap ? (cap - draw).toFixed(1) + ' MW to spare. ' : '')
     + (fuel && draw > 0 ? 'At that draw the burners eat about ' + fuel.filter(f => /Leaves|Wood|Biomass|Solid Biofuel|Mycelia/.test(f[0])).map(f => fmt(Math.ceil(f[1] * share)) + ' ' + esc(f[0])).join(', or ') + ' a minute.' : '') + (real ? ' The game says: ' + Math.round(real.consumed) + ' of ' + Math.round(real.produced) + ' MW in use.' : ' Worked out from the Satisfactory Plus data; the game\'s own meter needs the server part.') + '</p>';
   // logistics: belts, pipes, lines and what holds them up
   const lg = $('f-logi'); lg.innerHTML = ''; const row = (ic, text, right) => { const d = document.createElement('div'); d.className = 'collrow'; d.innerHTML = '<i></i><span>' + text + '</span><em class="mono">' + right + '</em>'; d.replaceChild(mini(ic), d.querySelector('i')); lg.appendChild(d); };
