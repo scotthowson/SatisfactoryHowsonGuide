@@ -430,7 +430,7 @@ function select(o, fly){
     else if (c.t === 'well') body += '<p>' + esc(o.ex.charAt(0).toUpperCase() + o.ex.slice(1)) + '.</p>';
     else if (c.t === 'pod') body += '<p>A crash site with a Hard Drive.' + (o.ex ? ' In the base game it opens for <b>' + esc(o.ex) + '</b>; Satisfactory Plus may ask for something else.' : ' In the base game it opens without parts.') + '</p>';
     body += posLine(o.x, o.y, o.z);
-    if (tracked(c)) { body += '<p class="' + (d ? 'tagok' : '') + '">' + (o.live ? 'Collected, says the game.' : o.gone ? 'Collected: the mod saw it go.' : ticks[o.id] ? 'Collected, ticked by you.' : live.covered[c.t] ? 'Not collected, says the game.' : 'Not collected.') + '</p>'; if (!o.live && !o.gone) acts.push('<button type="button" class="btn" data-act="tick">' + (ticks[o.id] ? 'Untick' : 'Tick as collected') + '</button>'); }
+    if (tracked(c)) { body += '<p class="' + (d ? 'tagok' : '') + '">' + (o.live ? 'Collected, says the game.' : o.gone ? 'Collected: the mod saw it go.' : ticks[o.id] ? 'Collected, ticked by you.' : live.covered[c.t] ? (live.state && live.state.mode === 'client' ? (o.there ? 'Still there when you were last near it.' : 'Not known: you have not been near it since the mod was installed.') : 'Not collected, says the game.') : 'Not collected.') + '</p>'; if (!o.live && !o.gone) acts.push('<button type="button" class="btn" data-act="tick">' + (ticks[o.id] ? 'Untick' : 'Tick as collected') + '</button>'); }
     acts.unshift(nav); acts.push(copy);
   } else if (o.kind === 'b') {
     const st = o.state >= 0 ? STATE[o.state] : ['state not known on this PC', '#ffffff']; ic = icon('#243244', bglyph(o.n), 's', { ring: st[1] }); title = o.n; sub = 'Built · ' + st[0];
@@ -636,7 +636,7 @@ function match(list, kind, ix){
   list.forEach(e => {
     let m = byId[e[0]];
     if (!m || m.c.t !== kind) { m = null; const x = e[ix] / 100, y = e[ix + 1] / 100; let best = 3.5; for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) (grid[(Math.floor(x / G) + i) + ',' + (Math.floor(y / G) + j)] || []).forEach(c2 => { const d = Math.hypot(c2.x - x, c2.y - y); if (c2.c.t === kind && d < best) { best = d; m = c2; } }); }
-    if (m) { hit[m.id] = 1; n++; }
+    if (m) { hit[m.id] = 1; n++; m.there = e[ix + 4] === 1 || e[ix + 3] === 1 && ix === 1; }
   });
   return { hit, n };
 }
@@ -647,7 +647,7 @@ function onState(st, how){
     const o = st[q[0]], mine = all.filter(m => m.c.t === q[1]);
     if (!has(o)) { mine.forEach(m => { m.live = false; }); return; }
     const r = match(o.left, q[1], q[2]); if (o.left.length && r.n < 0.5 * Math.min(o.left.length, mine.length)) { mine.forEach(m => { m.live = false; }); live.mismatch = true; return; }
-    mine.forEach(m => { m.live = !r.hit[m.id]; }); live.covered[q[1]] = true;
+    mine.forEach(m => { m.live = !r.hit[m.id]; if (m.live) m.there = false; }); live.covered[q[1]] = true;
   });
   all.forEach(m => { m.gone = false; });
   if (st.seen && st.seen.gone) { const r = match(st.seen.gone.map(e => [e[0], 0, e[1], e[2]]), 'pickup', 2), r2 = match(st.seen.gone.map(e => [e[0], e[1], e[2]]), 'pod', 1); all.forEach(m => { if (r.hit[m.id] || r2.hit[m.id]) m.gone = true; }); }
