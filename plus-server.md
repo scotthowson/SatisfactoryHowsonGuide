@@ -52,6 +52,14 @@ If you would rather not have MAM Enhancer, delete `FactoryGame/Mods/MAMTips` aft
 
 Already has all of it, put there piece by piece on 14 Nov 2026: FicsIt-Networks, MAM Enhancer, the patched Megaprojects Library files, the ten fixes and the settings. The client overlay is built from exactly those files.
 
+## The live map (optional)
+
+Howson Map Link is our own read-only mod for the [World map](world-map.html). It is not in any profile and nobody needs it to join.
+
+- **On a PC that plays:** with it, the map on that PC shows where you are in real time, what you have built and what is collected. It answers on that PC only, at `127.0.0.1:8765`. Scott's PC has it.
+- **On the server:** with it, the map gets the exact picture for both players: every collectible, power, and every machine with its state. It listens on TCP port 8765 on the server, so that port has to be given to the server in the panel, and should not be forwarded to the internet. It has not run on the server yet.
+- The files, laid out ready to copy with their own steps, are written to `dist/map-link/` on Scott's PC (`server/` for the server, `client/` for a PC).
+
 ## Check it worked
 
 - **Server console or log:** `FicsItNetworks: 1.3.0` in the list of loaded mods, and a line `KDataForge: … pack(s), … document(s) applied` with no error naming a file from `Mods/DataForge`. On the server expect 33 packs and 171 documents (one fewer of each than on Scott's PC, because Road Maker is not on the server).
