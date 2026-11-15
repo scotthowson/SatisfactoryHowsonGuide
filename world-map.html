@@ -429,7 +429,8 @@ function floorsOf(w){
       }));
     }); });
   const decks = {}; slabs.forEach(s => { const r = find(s.i); s.deck = r; (decks[r] = decks[r] || { under: new Set(), st: 0 }); });
-  below.forEach(pq => { const a = find(pq[0].i), b = find(pq[1].i); if (a !== b) decks[a].under.add(b); });
+  const lap = {}; below.forEach(pq => { const a = find(pq[0].i), b = find(pq[1].i), k = a + '>' + b; if (a !== b) lap[k] = (lap[k] || 0) + 1; });
+  Object.keys(lap).forEach(k => { if (lap[k] >= 2) { const ab = k.split('>'); decks[ab[0]].under.add(+ab[1]); } });      // one buried block under a floor is a support, not a storey
   const rank = (r, seen) => { const d = decks[r]; if (d.st) return d.st; if (seen[r]) return 1; seen[r] = 1; let m = 0; d.under.forEach(u => { m = Math.max(m, rank(u, seen)); }); return (d.st = m + 1); };
   const st = [];
   slabs.forEach(s => { s.st = rank(s.deck, {}); const e = st[s.st] = st[s.st] || { k: s.st, n: 0, area: 0, lo: 1e9, hi: -1e9 }; e.n++; e.area += s.sp.w * s.sp.d * (s.sp.tri ? 0.5 : 1); e.lo = Math.min(e.lo, s.top); e.hi = Math.max(e.hi, s.top); });
@@ -1306,7 +1307,7 @@ document.addEventListener('keydown', e => {
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-15 00:59:32'; let told = false;
+const BUILD = '2026-11-15 01:07:32'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, guideDoc, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, get run(){ return run; }, planBuilt, sprites };
