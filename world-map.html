@@ -443,7 +443,7 @@ function paint(ctx, b){
   if (W && fset.show) W.machines.forEach(m => {
     if (!inb(m.x, m.y)) return; const px = X(m.x), py = Y(m.y), col = m.state >= 0 ? STATE[m.state][1] : '#ffffff';
     if (z < 3.5) { ctx.fillStyle = '#0b1118'; ctx.fillRect(px - 2.6, py - 2.6, 5.2, 5.2); ctx.fillStyle = col; ctx.fillRect(px - 1.8, py - 1.8, 3.6, 3.6); return; }
-    const fp2 = PLAN.size[m.n] || (m.w ? [m.w, m.l] : null);
+    const fp2 = m.w && m.l ? [m.w, m.l] : PLAN.size[m.n];
     if (z >= 5 && fp2 && fp2[0] * s > 9) {                // its real footprint, turned the way it stands, with an arrow on its front
       const w = fp2[0] * s, l = fp2[1] * s, a = Math.min(8, w / 3, l / 3);
       ctx.save(); ctx.translate(px, py); ctx.rotate((m.yaw || 0) * Math.PI / 180); ctx.fillStyle = 'rgba(30,42,58,.62)'; ctx.strokeStyle = col; ctx.lineWidth = m === sel ? 3.5 : 2; ctx.fillRect(-l / 2, -w / 2, l, w); ctx.strokeRect(-l / 2, -w / 2, l, w);
@@ -853,7 +853,7 @@ let worldBusy = false;
 function onWorld(w){
   const names = w.names || [], f = a => a || [];
   W = { rev: w.rev, counts: w.counts || {}, classes: w.classes || [], names, belts: f(w.belts), pipes: f(w.pipes), wires: f(w.wires), floors: f(w.floors), note: w.floorsNote || w.note || '', source: w.source || '', floorsTotal: w.floorsTotal,
-        machines: f(w.machines).map(a => ({ kind: 'b', w: a[9] ? a[9] / 100 : 0, l: a[10] ? a[10] / 100 : 0, n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: a[4], recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
+        machines: f(w.machines).map(a => ({ kind: 'b', l: a[9] ? a[9] / 100 : 0, w: a[10] ? a[10] / 100 : 0,      // the mod's own footprint: sizeX runs along the way the building faces, sizeY across it n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: a[4], recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
   const cell = {}; W.machines.forEach(m => { const k = Math.floor(m.x / 16) + ',' + Math.floor(m.y / 16); (cell[k] = cell[k] || []).push(m); });
   PLAN.mach.forEach((pm, i) => {
     const cx = pm[3] + pm[5] / 2, cy = pm[4] + pm[6] / 2, want = pm[2].toLowerCase(); let ok = false;
