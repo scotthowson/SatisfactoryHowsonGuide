@@ -653,7 +653,8 @@ function onState(st, how){
   if (st.seen && st.seen.gone) { const r = match(st.seen.gone.map(e => [e[0], 0, e[1], e[2]]), 'pickup', 2), r2 = match(st.seen.gone.map(e => [e[0], e[1], e[2]]), 'pod', 1); all.forEach(m => { if (r.hit[m.id] || r2.hit[m.id]) m.gone = true; }); }
   const fresh = performance.now() - lastLive > 2500;
   if (st.player && fresh) sample('me', Object.assign({ name: (st.me && st.me.name) || 'You' }, st.player), true); else if (!st.player && fresh && st.pickups === null) drop('me');
-  if (st.players && fresh) { const seen = {}; st.players.forEach(o => { seen['p:' + o.name] = 1; sample('p:' + o.name, o, false); }); for (const k in PL) if (k !== 'me' && !seen[k]) drop(k); }
+  const myName = (PL.me && PL.me.name) || '';
+  if (st.players && fresh) { const seen = {}; st.players.forEach(o => { if (o.x == null || o.y == null || o.name === myName) return; seen['p:' + o.name] = 1; sample('p:' + o.name, o, false); }); for (const k in PL) if (k !== 'me' && !seen[k]) drop(k); }
   GM = (st.markers || []).map(a => ({ kind: 'g', type: String(a[0]), name: a[1], x: a[2] / 100, y: a[3] / 100, z: a[4] / 100, color: /^#[0-9a-f]{6}$/i.test(a[5] || '') ? a[5] : '' })); listGM();
   if (st.purchased) progress(st.purchased, st.phaseName);
   const pw = st.power && (st.power.capacity > 0 || st.power.produced > 0) ? st.power : null;
@@ -661,7 +662,7 @@ function onState(st, how){
   const blind = (st.pickups && !has(st.pickups)) && !(st.seen && st.seen.gone);
   const bits = []; if (st.session) bits.push(st.session); if (st.phaseName) bits.push(st.phaseName); if (st.playSeconds) bits.push(Math.floor(st.playSeconds / 3600) + ' h ' + Math.floor(st.playSeconds % 3600 / 60) + ' min played');
   setPill('on', how, streaming ? 'real time' : live.v2 ? 'fast' : 'every few seconds');
-  $('live-long').innerHTML = '<b>' + esc(how) + '.</b> ' + esc(bits.join(' · ')) + (st.pickups === null ? ' No save loaded yet.' : '') + (blind ? ' Joined to a server, the game gives this PC no list of what is collected: tick by hand, or wait for the mod\'s server part.' : '') + (live.mismatch ? ' The game\'s list does not line up with this map; tell Claude.' : '') + (!live.v2 ? ' This is Map Link 1.0: it refreshes every few seconds. Version 1.1 moves you in real time.' : '');
+  $('live-long').innerHTML = '<b>' + esc(how) + '.</b> ' + esc(bits.join(' · ')) + (st.pickups === null ? ' No save loaded yet.' : '') + (blind ? ' Joined to a server, the game gives this PC no list of what is collected: tick by hand, or wait for the mod\'s server part.' : '') + (live.mismatch ? ' The game\'s list does not line up with this map; tell Claude.' : '') + (st.mode === 'client' ? ' On a server the mod only knows what your own character has been near: unvisited places stay as they are.' : '') + (!live.v2 ? ' This version of Map Link refreshes every few seconds; the next one moves you in real time.' : '');
   $('clock').textContent = (st.dayPct !== undefined ? 'day ' + Math.round(st.dayPct) + '% · ' : '') + (st.session || '');
   if (st.worldRev !== undefined && (!W || W.rev !== st.worldRev) && !worldBusy) fetchWorld();
   changed(); if (sel && sel.kind === 'm') select(sel);
@@ -670,7 +671,7 @@ let lastLive = -1e9, streaming = false;
 function onLive(d){
   lastLive = performance.now(); live.v2 = true; live.at = Date.now();
   if (d.me) sample('me', d.me, true);
-  const seen = {}; (d.players || []).forEach(o => { seen['p:' + o.name] = 1; sample('p:' + o.name, o, false); });
+  const seen = {}; (d.players || []).forEach(o => { if (o.x == null || o.y == null) return; seen['p:' + o.name] = 1; sample('p:' + o.name, o, false); });
   for (const k in PL) if (k !== 'me' && !seen[k]) drop(k);
 }
 function listGM(){
