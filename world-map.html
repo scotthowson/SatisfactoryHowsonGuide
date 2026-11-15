@@ -342,6 +342,8 @@ const DIR8 = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'], facing = yaw => DIR8[
 const arrowOf = yaw => facing(yaw + 90);                 // a building's build arrow points along its own +Y axis: a quarter turn on from its yaw
 const boxOf = m => m.w && m.l ? [m.l, m.w] : m.part ? null : PLAN.size[m.n] || null;      // [size along the building's X, size along its Y] in metres
 const placeBuilt = {};
+// which way parts go through a building, in its own frame, where it has been measured in Scott's game (his belts, and his word for the container): 0 = out along +X, 90 = out along +Y, 180 = out along -X
+const FLOW = { 'Storage Container': 90, 'Constructor': 90, 'Crusher': 0, 'Sorter': 180 };
 let planOn = store.get('howson-map-plan', true), stage = store.get('howson-map-stage', 4), stageSet = store.get('howson-map-stage', null) !== null;
 const planSet = Object.assign({ floors: true, mach: true, lanes: true, fit: true, places: true, routes: true, power: true }, store.get('howson-map-planset', {}));
 const txt = t => t ? '<div class="txt">' + String(t).split('\n').map(l => '<p>' + esc(l) + '</p>').join('') + '</div>' : '';
@@ -392,6 +394,7 @@ function paint(ctx, b){
     if (p.w) {
       if (z < 4.25) return; const pw = p.w * s, ph = p.h * s, got = placeBuilt[pi];
       ctx.setLineDash(got ? [] : [4, 3]); ctx.lineWidth = got ? 2 : 1.3; ctx.strokeStyle = got ? '#3ddc84' : p.c; ctx.fillStyle = got ? 'rgba(61,220,132,.16)' : p.c + '38'; ctx.fillRect(X(p.x), Y(p.y), pw, ph); ctx.strokeRect(X(p.x), Y(p.y), pw, ph); ctx.setLineDash([]);
+      if (got) return;                                    // built: the real thing's own icon and name stand here now
       if (z >= 6 && pw > 58) { ctx.fillStyle = '#fff'; ctx.font = '600 11px "IBM Plex Sans",sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(8,12,18,.7)'; const nm = p.n.replace(/^Storage bay \d: /, ''); ctx.strokeText(nm, X(p.x) + pw / 2, Y(p.y) + ph / 2 + 4, pw - 4); ctx.fillText(nm, X(p.x) + pw / 2, Y(p.y) + ph / 2 + 4, pw - 4); }
       else if (z >= 5 && pw > 13 && ph > 13) { const k = Math.min(18, pw - 2, ph - 2); ctx.drawImage(icon(p.c, p.i, 'c'), X(p.x) + pw / 2 - k / 2, Y(p.y) + ph / 2 - k / 2, k, k); }
     } else if (z < 3.5) { ctx.fillStyle = '#0b1118'; ctx.fillRect(X(p.x) - 2.4, Y(p.y) - 2.4, 4.8, 4.8); ctx.fillStyle = p.c; ctx.fillRect(X(p.x) - 1.6, Y(p.y) - 1.6, 3.2, 3.2); }
@@ -450,8 +453,16 @@ function paint(ctx, b){
     if (z >= 5 && fp2 && fp2[0] * s > 9) {                // its real footprint, turned the way it stands, with its build arrow
       const w = fp2[0] * s, l = fp2[1] * s, a = Math.min(8, w / 3, l / 3);
       ctx.save(); ctx.translate(px, py); ctx.rotate((m.yaw || 0) * Math.PI / 180); ctx.fillStyle = 'rgba(30,42,58,.62)'; ctx.strokeStyle = col; ctx.lineWidth = m === sel ? 3.5 : 2; ctx.fillRect(-w / 2, -l / 2, w, l); ctx.strokeRect(-w / 2, -l / 2, w, l);
-      ctx.beginPath(); ctx.moveTo(-a, l / 2 - a - 3); ctx.lineTo(0, l / 2 - 3); ctx.lineTo(a, l / 2 - a - 3); ctx.stroke(); ctx.restore();
-      const k = Math.min(20, w - 4, l - 4); if (k > 9) ctx.drawImage(icon('#243244', bglyph(m.n), 's', { ring: col }), px - k / 2, py - k / 2, k, k);
+      const fl = FLOW[m.n];
+      if (fl === undefined) { ctx.globalAlpha = .55; ctx.beginPath(); ctx.moveTo(-a, l / 2 - a - 3); ctx.lineTo(0, l / 2 - 3); ctx.lineTo(a, l / 2 - a - 3); ctx.stroke(); ctx.globalAlpha = 1; }
+      else {                                              // outlet: an arrow leaving the box; inlet: a bar across the other end
+        ctx.rotate(fl * Math.PI / 180); const h = (fl === 90 ? l : w) / 2, c2 = (fl === 90 ? w : l) / 2; ctx.strokeStyle = '#ffd447'; ctx.lineWidth = 2.4;
+        ctx.beginPath(); ctx.moveTo(h - a - 2, -a); ctx.lineTo(h + 3, 0); ctx.lineTo(h - a - 2, a); ctx.moveTo(h - a * 2 - 2, 0); ctx.lineTo(h + 3, 0); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-h + 3, -Math.min(a * 1.4, c2 - 2)); ctx.lineTo(-h + 3, Math.min(a * 1.4, c2 - 2)); ctx.stroke();
+      }
+      ctx.restore();
+      const k = Math.min(22, w - 4, l - 4); if (k > 9) ctx.drawImage(icon('#243244', bglyph(m.n), 's', { ring: col }), px - k / 2, py - k / 2, k, k);
+      if (z >= 6.75 && w > 40) { ctx.font = '600 11px "IBM Plex Sans",sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(8,12,18,.8)'; ctx.strokeText(m.n, px, py + k / 2 + 12); ctx.fillStyle = '#fff'; ctx.fillText(m.n, px, py + k / 2 + 12); }
       return;
     }
     const k = (z < 5 ? 18 : z < 6.5 ? 24 : 30) * (m.part ? 0.72 : 1); ctx.drawImage(icon('#243244', bglyph(m.n), 's', { ring: col }), px - k / 2, py - k / 2, k, k);
@@ -460,7 +471,14 @@ function paint(ctx, b){
     const cx = Math.floor(live.me.x / 8) * 8, cy = Math.floor(live.me.y / 8) * 8; ctx.setLineDash([6, 4]); ctx.lineWidth = 2; ctx.strokeStyle = '#fa9549'; ctx.strokeRect(X(cx), Y(cy), 8 * s, 8 * s); ctx.setLineDash([]);
     if (z >= 6.25) { ctx.fillStyle = '#fa9549'; ctx.font = '500 10.5px "IBM Plex Mono",monospace'; ctx.textAlign = 'left'; ctx.fillText(cx + ', ' + cy, X(cx) + 3, Y(cy) - 4); }
   }
-  if (W && fset.show && z >= 4.5) W.others.forEach(o => { if (!inb(o.x, o.y)) return; const k = z < 6 ? 14 : 20; ctx.drawImage(icon('#33445a', bglyph(o.n), 'c'), X(o.x) - k / 2, Y(o.y) - k / 2, k, k); });
+  if (W && fset.show && z >= 4.5) {                      // benches, poles, the MAM and other placed things: an icon, and a name when close
+    ctx.font = '600 11px "IBM Plex Sans",sans-serif'; ctx.textAlign = 'center';
+    W.others.forEach(o => {
+      if (!inb(o.x, o.y)) return; const small = /Pole|Stool|Light/i.test(o.n), k = (z < 5.5 ? 16 : z < 6.5 ? 22 : 28) * (small ? 0.7 : 1), px = X(o.x), py = Y(o.y);
+      ctx.drawImage(icon(small ? '#33445a' : '#1f6f8f', bglyph(o.n), 'c'), px - k / 2, py - k / 2, k, k);
+      if (z >= 6.5 && !small) { ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(8,12,18,.8)'; ctx.strokeText(o.n, px, py + k / 2 + 12); ctx.fillStyle = '#fff'; ctx.fillText(o.n, px, py + k / 2 + 12); }
+    });
+  }
   const k2 = z < 3 ? 16 : 24;
   GM.forEach(g => { if (inb(g.x, g.y)) { const t = mtype(g.type); ctx.drawImage(icon(g.color || t[1], t[0], 'c'), X(g.x) - k2 / 2, Y(g.y) - k2 / 2, k2, k2); } });
   pins.forEach(p => { if (inb(p.x, p.y)) ctx.drawImage(icon('#35d6c2', 'pin', 'c'), X(p.x) - k2 / 2, Y(p.y) - k2 / 2, k2, k2); });
@@ -543,7 +561,8 @@ function select(o, fly){
     if (o.part && bd && bd.gen) body += '<p>One of the HUB\'s own burners: they come with the HUB and stand side by side at its end. What one of them makes is not in the Satisfactory Plus data; a Biomass Burner you build yourself makes up to ' + bd.gen + ' MW.</p>';
     else if (bd && bd.gen) body += '<p>Makes up to <b>' + bd.gen + ' MW</b>.' + (bd.fuel ? ' At full load it burns ' + bd.fuel.map(f => fmt(f[1]) + ' ' + esc(f[0])).join(', or ') + ' a minute; less when less power is asked for.' : '') + '</p>';
     else if (bd && bd.mw) body += '<p>Draws <b>' + (bd.mw * Math.pow((o.clock || 100) / 100, PLAN.exp)).toFixed(1) + ' MW</b> at its ' + (o.clock || 100) + '% clock speed (' + bd.mw + ' MW at 100%).</p>';
-    if (!o.other) body += '<p>The arrow on its footprint points <b>' + arrowOf(o.yaw || 0) + '</b>: the way the build pointer faced when it was placed. Which side takes parts and which gives them is not known to the map yet.</p>' + (o.recipe ? '<p>Recipe: <b>' + esc(o.recipe.replace(/^Recipe_|_C$/g, '').replace(/_/g, ' ')) + '</b> at ' + o.clock + '% clock speed' + (o.prod >= 0 ? ', productivity ' + o.prod + '%' : '') + '.</p>' : '') + posLine(o.x, o.y, o.z); acts = [nav, copy];
+    if (!o.other && FLOW[o.n] !== undefined) body += '<p>Parts come out on its <b>' + facing((o.yaw || 0) + FLOW[o.n]) + '</b> side (the yellow arrow) and go in on its <b>' + facing((o.yaw || 0) + FLOW[o.n] + 180) + '</b> side (the yellow bar). Measured in your game.</p>';
+    else if (!o.other) body += '<p>The faint arrow on its footprint points <b>' + arrowOf(o.yaw || 0) + '</b>: the way the build pointer faced when it was placed. Which side takes parts and which gives them is not known to the map yet for this building.</p>' + (o.recipe ? '<p>Recipe: <b>' + esc(o.recipe.replace(/^Recipe_|_C$/g, '').replace(/_/g, ' ')) + '</b> at ' + o.clock + '% clock speed' + (o.prod >= 0 ? ', productivity ' + o.prod + '%' : '') + '.</p>' : '') + posLine(o.x, o.y, o.z); acts = [nav, copy];
   } else if (o.kind === 'bline') { const q = o.q, len = Math.hypot(q[2] - q[0], q[3] - q[1]) / 100, mk = q[4] || 1, cap = { 1: 60, 2: 120, 3: 270, 4: 480, 5: 780, 6: 1200 }[mk];
     ic = icon(o.t === 'belt' ? '#ffb347' : o.t === 'pipe' ? '#49b8ff' : '#d678ff', o.t === 'wire' ? 'pole' : o.t === 'pipe' ? 'drop' : 'arrow', 'c'); title = o.t === 'belt' ? 'Conveyor Belt Mk.' + mk : o.t === 'pipe' ? 'Pipeline Mk.' + mk : 'Power Line'; sub = 'Built';
     body = '<p>' + (len < 1 ? 'A Conveyor Lift or a very short piece' : metres(len) + ' from end to end') + '.' + (o.t === 'belt' ? ' Carries up to <b>' + cap + ' a minute</b>.' : o.t === 'pipe' ? ' Carries up to <b>' + ({ 1: 150, 2: 300, 3: 450 }[mk] || 150) + ' m³ a minute</b>.' : ' A Power Pole Mk.1 takes four of these.') + '</p><p class="mono">from ' + Math.round(q[0] / 100) + ', ' + Math.round(q[1] / 100) + ' to ' + Math.round(q[2] / 100) + ', ' + Math.round(q[3] / 100) + '</p>'; acts = [nav, copy];
