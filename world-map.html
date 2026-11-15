@@ -529,7 +529,8 @@ function select(o, fly){
     else if (c.t === 'well') body += '<p>' + esc(o.ex.charAt(0).toUpperCase() + o.ex.slice(1)) + '.</p>';
     else if (c.t === 'pod') body += '<p>A crash site with a Hard Drive.' + (o.ex ? ' In the base game it opens for <b>' + esc(o.ex) + '</b>; Satisfactory Plus may ask for something else.' : ' In the base game it opens without parts.') + '</p>';
     body += posLine(o.x, o.y, o.z);
-    if (tracked(c)) { body += '<p class="' + (d ? 'tagok' : '') + '">' + (o.live ? 'Collected, says the game.' : o.gone ? 'Collected: the mod saw it go.' : ticks[o.id] ? 'Collected, ticked by you.' : live.covered[c.t] ? (live.state && live.state.mode === 'client' ? (o.there ? 'Still there when you were last near it.' : 'Not known: you have not been near it since the mod was installed.') : 'Not collected, says the game.') : 'Not collected.') + '</p>'; if (!o.live && !o.gone) acts.push('<button type="button" class="btn" data-act="tick">' + (ticks[o.id] ? 'Untick' : 'Tick as collected') + '</button>'); }
+    const who = live.by && live.by[o.id];
+    if (tracked(c)) { body += '<p class="' + (d ? 'tagok' : '') + '">' + (who ? 'Collected by ' + esc(who[0]) + (who[1] ? ', ' + new Date(who[1] * 1000).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '') + '.' : o.live ? 'Collected, says the game.' : o.gone ? 'Collected: the mod saw it go.' : ticks[o.id] ? 'Collected, ticked by you.' : live.covered[c.t] ? (live.state && live.state.mode === 'client' ? (o.there ? 'Still there when you were last near it.' : 'Not known: you have not been near it since the mod was installed.') : 'Not collected, says the game.') : 'Not collected.') + '</p>'; if (!o.live && !o.gone) acts.push('<button type="button" class="btn" data-act="tick">' + (ticks[o.id] ? 'Untick' : 'Tick as collected') + '</button>'); }
     acts.unshift(nav); acts.push(copy);
   } else if (o.kind === 'b') {
     const st = o.state >= 0 ? STATE[o.state] : ['state not known on this PC', '#ffffff']; ic = icon('#243244', bglyph(o.n), 's', { ring: st[1] }); title = o.n; sub = 'Built · ' + st[0];
@@ -609,6 +610,7 @@ function counts(){
   $('lcount').textContent = fmt(dn) + ' of ' + fmt(tot) + ' collected';
   const pl = CATS.filter(c => c.t === 'plant'), pd = pl.reduce((a, c) => a + c.ms.filter(done).length, 0), pt = pl.reduce((a, c) => a + c.ms.length, 0);
   const box = $('p-coll'); box.innerHTML = '';
+  const tl = live.tally ? Object.keys(live.tally) : [];
   rows.push([{ n: 'Plants picked', f: '#f07a5c', i: 'berry', sh: 'c', ms: { length: pt } }, pd]);
   rows.forEach(r => { const c = r[0], el = document.createElement('div'); el.className = 'collrow'; el.innerHTML = '<i></i><span>' + esc(c.n) + '</span><em class="mono">' + r[1] + ' / ' + c.ms.length + '</em><div class="meter ok"><i style="width:' + (100 * r[1] / c.ms.length).toFixed(1) + '%"></i></div>'; el.replaceChild(mini(icon(c.f, c.i, c.sh)), el.querySelector('i')); box.appendChild(el); });
 }
@@ -788,12 +790,18 @@ function onState(st, how){
     if (st.seen && st.seen.gone) { const any = { pickup: 1, plant: 1, pod: 1 }, r = match(st.seen.gone.map(e => [e[0], e[1], e[2]]), any, 1); all.forEach(m => { if (r.hit[m.id]) m.gone = true; }); }
   }
   live.covered = live.cov || {};
+  const bySig = (st.pickups && st.pickups.by ? st.pickups.by.length : 0) + ':' + (st.dropPods && st.dropPods.by ? st.dropPods.by.length : 0);
+  if (bySig !== live.bySig) {                              // who took what, where the mod recorded it
+    live.bySig = bySig; live.by = {}; live.tally = {};
+    [st.pickups, st.dropPods].forEach(o => (o && o.by || []).forEach(e => { live.by[e[0]] = [e[1], e[2]]; live.tally[e[1]] = (live.tally[e[1]] || 0) + 1; }));
+  }
   const fresh = performance.now() - lastLive > 2500;
   if (st.player && fresh) sample('me', Object.assign({ name: (st.me && st.me.name) || 'You' }, st.player), true); else if (!st.player && fresh && st.pickups === null) drop('me');
   const myName = (PL.me && PL.me.name) || '';
   if (st.players && fresh) { const seen = {}; st.players.forEach(o => { if (o.x == null || o.y == null || o.name === myName) return; seen['p:' + o.name] = 1; sample('p:' + o.name, o, false); }); for (const k in PL) if (k !== 'me' && !seen[k]) drop(k); }
   GM = (st.markers || []).map(a => ({ kind: 'g', type: String(a[0]), name: a[1], x: a[2] / 100, y: a[3] / 100, z: a[4] / 100, color: /^#[0-9a-f]{6}$/i.test(a[5] || '') ? a[5] : '' })); listGM();
   if (st.purchased) progress(st.purchased, st.phaseName);
+  if (live.tally && Object.keys(live.tally).length) $('p-coll').insertAdjacentHTML('afterbegin', '<p style="margin-bottom:6px"><b>Collected by:</b> ' + Object.keys(live.tally).sort((a, b) => live.tally[b] - live.tally[a]).map(n => esc(n) + ' ' + live.tally[n]).join(' · ') + '</p>');
   modExtras(st);
   const pw = st.power && (st.power.capacity > 0 || st.power.produced > 0) ? st.power : null;
   $('s-power').textContent = pw ? Math.round(pw.consumed) + ' / ' + Math.round(pw.produced) + ' MW' : '–'; $('s-power-l').textContent = pw && pw.fuse ? 'THE FUSE HAS BLOWN' : pw ? 'power in use, largest circuit' : 'power: not known on this PC';
@@ -806,11 +814,35 @@ function onState(st, how){
   changed(); if (sel && sel.kind === 'm') select(sel);
 }
 let lastLive = -1e9, streaming = false;
+const holos = {}, holoLayer = L.layerGroup().addTo(map); let builtRev = null;
+function holo(key, color, h){
+  let g = holos[key];
+  if (!h) { if (g) { holoLayer.removeLayer(g.poly); delete holos[key]; } return; }
+  const sz = PLAN.size[h.n] || [8, 8], x = h.x / 100, y = h.y / 100, a = (h.yaw || 0) * Math.PI / 180, fx = Math.cos(a) * sz[1] / 2, fy = Math.sin(a) * sz[1] / 2, sx = -Math.sin(a) * sz[0] / 2, sy = Math.cos(a) * sz[0] / 2;
+  const pts = [ll(x + fx + sx, y + fy + sy), ll(x + fx - sx, y + fy - sy), ll(x - fx - sx, y - fy - sy), ll(x - fx + sx, y - fy + sy)];
+  if (!g) { g = holos[key] = { poly: L.polygon(pts, { color, weight: 2.5, dashArray: '6 5', fillColor: color, fillOpacity: .25, interactive: false }).addTo(holoLayer), n: '' }; g.poly.bindTooltip('', { permanent: true, direction: 'top', className: 'ptip' }); }
+  else g.poly.setLatLngs(pts);
+  g.poly.setStyle({ color: h.ok === false ? '#ff5d5d' : color, fillColor: h.ok === false ? '#ff5d5d' : color });
+  if (g.n !== h.n) { g.n = h.n; g.poly.setTooltipContent('placing ' + esc(h.n)); }
+}
+function builtFeed(list){
+  if (!list || !list.length) return; const top = list.reduce((a, e) => Math.max(a, e[0]), 0);
+  if (builtRev === null) { builtRev = top; return; }       // do not replay what happened before the map was opened
+  list.filter(e => e[0] > builtRev).slice(-5).forEach(e => {
+    const gone = String(e[2]).charAt(0) === '-', name = String(e[2]).replace(/^-/, ''), x = e[3] / 100, y = e[4] / 100;
+    toast('<b>' + esc(e[1] || 'Someone') + '</b> ' + (gone ? 'took down a ' : 'placed a ') + esc(name), 3500);
+    const c = L.circleMarker(ll(x, y), { radius: 16, color: gone ? '#ff5d5d' : '#3ddc84', weight: 3, fill: false, interactive: false }).addTo(holoLayer); setTimeout(() => holoLayer.removeLayer(c), 2600);
+  });
+  builtRev = top;
+}
 function onLive(d){
   lastLive = performance.now(); live.v2 = true; live.at = Date.now();
   if (d.worldRev !== undefined) { live.revInLive = true; if ((!W || W.rev !== d.worldRev) && !worldBusy) fetchWorld(); }
   if (d.me) sample('me', d.me, true);
-  const seen = {}; (d.players || []).forEach(o => { if (o.x == null || o.y == null) return; seen['p:' + o.name] = 1; sample('p:' + o.name, o, false); });
+  holo('me', '#fa9549', d.me && d.me.holo);
+  const seen = {}; (d.players || []).forEach(o => { if (o.x == null || o.y == null) return; seen['p:' + o.name] = 1; sample('p:' + o.name, o, false); holo('p:' + o.name, PL['p:' + o.name] ? PL['p:' + o.name].color : '#35d6c2', o.holo); });
+  for (const k in holos) if (k !== 'me' && !seen[k]) holo(k, '', null);
+  builtFeed(d.built);
   for (const k in PL) if (k !== 'me' && !seen[k]) drop(k);
 }
 function listGM(){
@@ -956,7 +988,7 @@ document.addEventListener('keydown', e => {
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
-window.HOWSON_MAP = { map, plan: PLAN, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get run(){ return run; }, planBuilt, sprites };
+window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get run(){ return run; }, planBuilt, sprites };
 })();
 
 </script>
