@@ -60,8 +60,10 @@ button,input,select{font:inherit;color:inherit}
 input[type=range]{width:100%;accent-color:var(--accent);margin:12px 0 8px;min-width:0}
 .tl-on .leaflet-marker-pane{display:none}
 [hidden]{display:none!important}
+#map img.leaflet-tile{object-fit:none;object-position:left top}   /* an edge tile of a low zoom level is smaller than 1024 px: draw it at its own size */
 #tl-marks button.later{opacity:.42}
-#g-game:empty,#snap-note:empty,#f-storey-note:empty{display:none}
+#g-game:empty,#snap-note:empty,#f-storey-note:empty,#mod-cost:empty,#ev-note:empty,#p-elev:empty{display:none}
+#ev-log{max-height:340px;overflow:auto}
 .dock button::after{content:attr(data-tip);position:absolute;left:54px;top:9px;padding:4px 9px;border-radius:6px;background:#05080c;border:1px solid var(--line);color:var(--ink);font-size:12.5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:5}
 .dock button:hover::after,.dock button:focus-visible::after{opacity:1}
 .panel{position:absolute;z-index:24;left:calc(max(16px,env(safe-area-inset-left,0px)) + 66px);top:calc(66px + env(safe-area-inset-top,0px));width:min(350px,calc(100vw - 110px));max-height:calc(100vh - 140px - env(safe-area-inset-top,0px));overflow:auto;padding:14px 14px 16px}
@@ -198,7 +200,7 @@ label.ck input{width:17px;height:17px;accent-color:var(--accent);flex:none}
  <div class="tab" id="t-layers"><h2>Layers <small id="lcount"></small></h2><label class="ck"><input type="checkbox" id="hide"> Hide what is collected</label><div id="layers"></div></div>
  <div class="tab" id="t-live"><h2>Live</h2><p id="live-long">Looking for the game on this PC.</p>
   <div class="stat"><div><b id="s-pos">–</b><span id="s-pos-l">your position</span></div><div><b id="s-speed">–</b><span>speed · height</span></div><div><b id="s-walk">–</b><span>travelled this visit</span></div><div><b id="s-power">–</b><span id="s-power-l">power</span></div></div>
-  <p id="srv-health"></p>
+  <p id="srv-health"></p><p id="mod-cost"></p>
   <div class="row" id="iam-row" hidden><span>I am</span><select class="sel" id="iam" aria-label="Which player you are"><option value="">nobody: just watching</option></select></div>
   <h3>Players</h3><div class="rows" id="players"><div class="none">Nobody yet.</div></div>
   <label class="ck"><input type="checkbox" id="follow"> Follow me: keep me in the middle</label><label class="ck"><input type="checkbox" id="trail" checked> Draw where we have been</label>
@@ -227,8 +229,9 @@ label.ck input{width:17px;height:17px;accent-color:var(--accent);flex:none}
   <div class="row"><button type="button" class="btn go" id="tl-play" disabled>Play</button><select class="sel" id="tl-speed" aria-label="Speed" disabled><option value="60">1 minute a second</option><option value="300" selected>5 minutes a second</option><option value="1800">30 minutes a second</option><option value="7200">2 hours a second</option></select><button type="button" class="btn" id="tl-live" disabled>Back to now</button></div>
   <input type="range" id="tl-slider" min="0" max="1" value="1" step="1" aria-label="Moment shown" disabled>
   <div class="stat"><div><b id="tl-when">now</b><span id="tl-in">–</span></div><div><b id="tl-built">–</b><span>things standing then</span></div></div>
+  <h3>Event log</h3><p id="ev-note"></p><div class="rows" id="ev-log"><div class="none">Who joined, what was bought, what went wrong and when it was put right: with Map Link 2.6.</div></div>
   <h3>Stops on the way</h3><div class="rows" id="tl-marks"><div class="none">Milestones and research you buy appear here as stops on the way.</div></div></div>
- <div class="tab" id="t-progress"><h2>Progress</h2><div class="stat" id="p-stat"></div><h3>Next on the path</h3><div id="p-next"></div><h3>Collectibles</h3><div id="p-coll"></div><h3>The kit for Tiers 3 and 4: in stock</h3><p id="kit-note">What the two tiers cost in all. With the mod's server part the bars fill with what your containers hold.</p><div id="p-kit"></div></div>
+ <div class="tab" id="t-progress"><h2>Progress</h2><div class="stat" id="p-stat"></div><h3 id="p-elev-h" hidden>Space Elevator</h3><div id="p-elev"></div><h3>Next on the path</h3><div id="p-next"></div><h3>Collectibles</h3><div id="p-coll"></div><h3>The kit for Tiers 3 and 4: in stock</h3><p id="kit-note">What the two tiers cost in all. With the mod's server part the bars fill with what your containers hold.</p><div id="p-kit"></div></div>
  <div class="tab" id="t-settings"><h2>Settings</h2><h3>Map picture</h3><label class="ck"><input type="radio" name="style" value="real"> Real ground</label><label class="ck"><input type="radio" name="style" value="game"> Contour lines</label><label class="ck"><input type="radio" name="style" value="plain"> Plain</label>
   <h3>Building aids</h3><label class="ck"><input type="checkbox" id="grid"> The 8 m build grid when zoomed in</label><label class="ck"><input type="checkbox" id="cell"> A square round the grid cell I stand in</label>
   <p id="hdnote">This copy has only the plain base. The real map picture is in the private copy.</p>
@@ -396,7 +399,7 @@ const hallOn = h => h.st <= stage && !(h.un && stage >= h.un);
 const hallOf = {}; PLAN.halls.forEach(h => { hallOf[h.k] = h; });
 
 // ---- foundations: one drawing per spot, and the storeys worked out from what stands on what ----
-let FL = { spots: [], hash: {}, storeys: [], pieces: 0, stacks: 0, exact: false }, storeyPick = 0, ALERTS = [];
+let FL = { spots: [], hash: {}, storeys: [], pieces: 0, stacks: 0, exact: false }, storeyPick = 0, ALERTS = [], MOVERS = [], moversAt = 0;
 const tl = { on: false, ev: [], next: 0, lines: 0, start: 0, end: 0, classes: [], names: [], players: [], T: 0, Tf: 0, play: false, speed: 300, cur: 0, alive: new Map(), pos: {}, marks: [], held: null, doc: null, live: null, busy: false, want: false, info: null, src: '' };
 const FLCOL = [null, '150,205,255', '110,235,212', '205,170,255', '255,205,140'];
 const ALCOL = { 1: '#d9a514', 2: '#ef7d2d', 3: '#e5484d' }, ALGLYPH = { fuse: 'bolt', power: 'bolt', fuel: 'flame', full: 'box', idle: 'gear', norecipe: 'wrench', nopower: 'pole', extractor: 'drill' };
@@ -485,12 +488,20 @@ function paint(ctx, b){
       ctx.stroke();
     }
     if (fset.lines && z >= 3) {
-      [[W.wires, 'rgba(214,120,255,.75)', 1.2], [W.pipes, '#49b8ff', 2.2], [W.belts, '#ffb347', 2.2]].forEach(L3 => {
+      [[W.wires, 'rgba(214,120,255,.75)', 1.2]].concat(W.paths.length ? [] : [[W.pipes, '#49b8ff', 2.2], [W.belts, '#ffb347', 2.2]]).forEach(L3 => {
         ctx.strokeStyle = L3[1]; ctx.lineWidth = z >= 5.5 ? L3[2] * 1.5 : L3[2]; ctx.beginPath();
         L3[0].forEach(q => { const ax = q[0] / 100, ay = q[1] / 100, bx = q[2] / 100, by = q[3] / 100; if (!inb(ax, ay) && !inb(bx, by)) return; ctx.moveTo(X(ax), Y(ay)); ctx.lineTo(X(bx), Y(by)); });
         ctx.stroke();
       });
     }
+  }
+  if (W && fset.lines && z >= 3 && W.paths.length) {       // belts, lifts, pipes, tubes and rails along their real course (Map Link 2.6)
+    const PC = { belt: ['#ffb347', 2.2], lift: ['#ffb347', 2.2], pipe: ['#49b8ff', 2.4], hyper: ['#9b7cf0', 2.6], rail: ['#d5dde6', 3] }; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ['rail', 'hyper', 'pipe', 'belt', 'lift'].forEach(kind => { const c = PC[kind]; ctx.strokeStyle = c[0]; ctx.fillStyle = c[0]; ctx.lineWidth = z >= 5.5 ? c[1] * 1.5 : c[1]; ctx.beginPath();
+      W.paths.forEach(p => { if (p.k !== kind || p.x1 < gx0 || p.x0 > gx1 || p.y1 < gy0 || p.y0 > gy1) return;
+        if (kind === 'lift') { if (z >= 5) { const k = 3.2; ctx.rect(X(p.pts[0]) - k, Y(p.pts[1]) - k, k * 2, k * 2); } return; }
+        ctx.moveTo(X(p.pts[0]), Y(p.pts[1])); for (let i = 2; i < p.pts.length; i += 2) ctx.lineTo(X(p.pts[i]), Y(p.pts[i + 1])); });
+      if (kind === 'rail') { ctx.setLineDash([7, 4]); ctx.stroke(); ctx.setLineDash([]); } else ctx.stroke(); });
   }
   if (planOn && planSet.places) PLAN.places.forEach((p, pi) => {  // every single thing with a place of its own
     if (p.st > stage || (p.un && stage >= p.un) || !inb(p.x, p.y)) return;
@@ -604,6 +615,7 @@ function paint(ctx, b){
     ctx.font = '600 11.5px "IBM Plex Sans",sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(8,12,18,.85)'; const nm = tl.players[k] || 'Player'; ctx.strokeText(nm, px, py + 22); ctx.fillStyle = '#fff'; ctx.fillText(nm, px, py + 22);
   });
   const k2 = z < 3 ? 16 : 24;
+  MOVERS.forEach(m => { const x = m[2] / 100, y = m[3] / 100; if (!inb(x, y)) return; ctx.drawImage(icon(m[0] === 'Train' ? '#d5dde6' : m[0] === 'Drone' ? '#b08cff' : '#35d6c2', m[0] === 'Drone' ? 'rocket' : 'car', m[0] === 'Train' ? 's' : 'c'), X(x) - k2 / 2, Y(y) - k2 / 2, k2, k2); });
   GM.forEach(g => { if (inb(g.x, g.y)) { const t = mtype(g.type); ctx.drawImage(icon(g.color || t[1], t[0], 'c'), X(g.x) - k2 / 2, Y(g.y) - k2 / 2, k2, k2); } });
   pins.forEach(p => { if (inb(p.x, p.y)) ctx.drawImage(icon('#35d6c2', 'pin', 'c'), X(p.x) - k2 / 2, Y(p.y) - k2 / 2, k2, k2); });
   if (sel && sel.x !== undefined && inb(sel.x, sel.y)) { ctx.beginPath(); ctx.arc(X(sel.x), Y(sel.y), Math.max(16, sz * 0.8), 0, 7); ctx.strokeStyle = '#fa9549'; ctx.lineWidth = 2.5; ctx.stroke(); }
@@ -881,7 +893,7 @@ $('trail').addEventListener('change', e => { trailOn = e.target.checked; if (tra
 // ---- navigation: a waypoint, and runs through what is not collected ----
 let way = null, wayLine = null, run = [], runMarks = [];
 const DIRS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-const post = (path, body) => SITE ? Promise.resolve(null) : fetch(BASE + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json()).catch(() => null);
+const post = (path, body) => SITE || window.HOWSON_READONLY ? Promise.resolve(null) : fetch(BASE + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json()).catch(() => null);
 const can = k => live.ok && live.state && live.state[k] !== undefined;      // does this Map Link know about ghosts, waypoints?
 function setWay(w){
   if (can('waypoint')) post('/waypoint', w ? { x: Math.round(w.x * 100), y: Math.round(w.y * 100), z: w.o && w.o.z !== undefined ? Math.round(w.o.z * 100) : null, name: w.name, color: (w.o && w.o.c && w.o.c.f) || '#fa9549' } : { clear: true });
@@ -969,7 +981,7 @@ function onState(st, how){
   GM = (st.markers || []).map(a => ({ kind: 'g', type: String(a[0]), name: a[1], x: a[2] / 100, y: a[3] / 100, z: a[4] / 100, color: /^#[0-9a-f]{6}$/i.test(a[5] || '') ? a[5] : '' })); listGM();
   if (st.purchased) progress(st.purchased, st.phaseName);
   if (live.tally && Object.keys(live.tally).length) $('p-coll').insertAdjacentHTML('afterbegin', '<p style="margin-bottom:6px"><b>Collected by:</b> ' + Object.keys(live.tally).sort((a, b) => live.tally[b] - live.tally[a]).map(n => esc(n) + ' ' + live.tally[n]).join(' · ') + '</p>');
-  modExtras(st); if (st.alerts) onAlerts(st.alerts); autoSteps(); guideSync(st); tlState(st);
+  modExtras(st); alertsFrom(st); autoSteps(); guideSync(st); tlState(st); planSync(st); extras26(st);
   const pw = st.power && (st.power.capacity > 0 || st.power.produced > 0) ? st.power : null;
   $('s-power').textContent = pw ? Math.round(pw.consumed) + ' / ' + Math.round(pw.produced) + ' MW' : '–'; $('s-power-l').textContent = pw && pw.fuse ? 'THE FUSE HAS BLOWN' : pw ? 'power in use, largest circuit' : 'power: not known on this PC';
   const blind = (st.pickups && !has(st.pickups)) && !(st.seen && st.seen.gone);
@@ -1020,6 +1032,7 @@ function onLive(d){
   const seen = {}; (d.players || []).forEach(o => { if (o.x == null || o.y == null) return; seen['p:' + o.name] = 1; sample('p:' + o.name, o, false); holo('p:' + o.name, PL['p:' + o.name] ? PL['p:' + o.name].color : '#35d6c2', o.holo); });
   for (const k in holos) if (k !== 'me' && !seen[k]) holo(k, '', null);
   builtFeed(d.built);
+  if (d.movers && (d.movers.length || MOVERS.length) && performance.now() - moversAt > 300) { MOVERS = d.movers; moversAt = performance.now(); redraw(); }
   if (d.alertsRev !== undefined && d.alertsRev !== alertsRev) { alertsRev = d.alertsRev; stateAt = 0; }     // something went wrong or was put right: fetch the list now
   for (const k in PL) if (k !== 'me' && !seen[k]) drop(k);
 }
@@ -1040,9 +1053,12 @@ function onNodes(d){
   live.nodes = { count: (d.nodes || []).length, known, added, taken, source: d.source };
   counts(); redraw();
 }
+function pathsOf(list){                                   // [kind, classIndex, mark, [x, y, z, ...]] in centimetres -> metres, with a box to cull by
+  return (list || []).map(p => { const q = p[3] || [], pts = []; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (let i = 0; i + 2 < q.length + 0; i += 3) { const x = q[i] / 100, y = q[i + 1] / 100; pts.push(x, y); if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } return { k: p[0], ci: p[1], mk: p[2] || 1, pts, x0, y0, x1, y1, up: q.length >= 6 ? Math.abs(q[q.length - 1] - q[2]) / 100 : 0 }; }).filter(p => p.pts.length >= 4);
+}
 function buildWorld(w){
   const names = w.names || [], f = a => a || [];
-  return { rev: w.rev, walls: f(w.walls), counts: w.counts || {}, classes: w.classes || [], names, belts: f(w.belts), pipes: f(w.pipes), wires: f(w.wires), floors: f(w.floors), note: w.floorsNote || w.note || '', source: w.source || '', floorsTotal: w.floorsTotal,
+  return { rev: w.rev, walls: f(w.walls), paths: pathsOf(w.paths), counts: w.counts || {}, classes: w.classes || [], names, belts: f(w.belts), pipes: f(w.pipes), wires: f(w.wires), floors: f(w.floors), note: w.floorsNote || w.note || '', source: w.source || '', floorsTotal: w.floorsTotal,
         shape: w.shape || [],
         others: f(w.others).map(a => ({ kind: 'b', other: true, ci: a[0], yaw: a[4] || 0, n: names[a[0]] || String((w.classes || [])[a[0]] || 'Building').replace(/^Build_|_C$/gi, '').replace(/_/g, ' '), cls: (w.classes || [])[a[0]] || '', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, state: -1, prod: -1, recipe: '', clock: 100 })).filter(o => !/EmptyActor/.test(o.cls)),
         machines: f(w.machines).map(a => ({ kind: 'b', ci: a[0], cls: (w.classes || [])[a[0]] || '', part: /Integrated|HubTerminal/i.test((w.classes || [])[a[0]] || ''), l: a[9] ? a[9] / 100 : 0, w: a[10] ? a[10] / 100 : 0, n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: a[4], recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
@@ -1167,13 +1183,49 @@ $('f-storey').addEventListener('change', e => { storeyPick = +e.target.value; re
 var alertsRev = -1, alertSeen = {};
 const ALHELP = { fuse: 'A power circuit drew more than its generators make and the fuse cut everything on it. Add power or switch machines off, then pull the lever on any generator or Power Switch on that circuit.', power: 'The circuit is close to its limit. One more machine and the fuse goes.', fuel: 'A generator that burns something. Fill it, or put a belt on it.', full: 'Every slot is a full stack, so the belt behind it has stopped. Take parts out, or send the overflow on.', idle: 'It has a recipe and is not making anything.', norecipe: 'It has power and no recipe.', nopower: 'Nothing powers it: no Power Line, or a line to a circuit without a generator.', extractor: 'What it digs has nowhere to go.' };
 const ago = t => { const m = Math.max(0, Math.round((Date.now() / 1000 - t) / 60)); return m < 1 ? 'under a minute' : m < 90 ? m + ' min' : Math.floor(m / 60) + ' h ' + (m % 60) + ' min'; };
+function alertsFrom(st){                                  // the mod's list, plus a blown fuse the game admits to when the list does not have one
+  const a = st.alerts, list = ((a && a.list) || []).slice();
+  if (st.power && st.power.fuse && !list.some(o => o.kind === 'fuse')) {
+    const gen = W && W.machines.find(m => !m.part && PLAN.bld[m.n] && PLAN.bld[m.n].gen), hub = GM.find(g => /hub/i.test(g.type)), at = gen || hub || live.me || { x: PLAN.hub[0], y: PLAN.hub[1] };
+    list.unshift({ id: 'fuse:page', kind: 'fuse', sev: 3, n: gen ? gen.n : 'Power', x: at.x * 100, y: at.y * 100, z: at.z !== undefined ? at.z * 100 : null, since: fuseSince || (fuseSince = Math.round(Date.now() / 1000)), text: 'A fuse has blown: the power is off', more: gen ? 'shown at one of your generators; the game does not tell this PC which circuit' : '' });
+  } else if (!(st.power && st.power.fuse)) fuseSince = 0;
+  if (a || list.length || ALERTS.length) onAlerts({ rev: a && a.rev, note: a && a.note, list, known: !!a });
+}
+var fuseSince = 0, planSent = '', planAt = 0;
+function planSync(st){                                     // F9 in the game shows what the map last sent: send the plan by itself, and again when the stage or the layers change
+  const g = st.ghosts; if (!g || SITE || window.HOWSON_READONLY) return; const p = ghostPlan(), sig = p.name + '|' + p.boxes.length + '|' + p.lines.length + '|' + JSON.stringify(planSet), now = Date.now();
+  if ((sig === planSent && !(g.boxes === 0 && p.boxes.length && now - planAt > 30000)) || now - planAt < 4000) return;
+  planAt = now; post('/plan', p).then(r => { if (r && r.ok !== false) planSent = sig; });
+}
+function extras26(st){
+  const c = st.cost, sv = st.server; $('mod-cost').textContent = c && c.msPerSec !== undefined ? 'Map Link ' + (st.modVersion || '') + ' uses ' + (+c.msPerSec).toFixed(1) + ' ms of each second of the game on this PC' + (sv && sv.modMs !== undefined ? ', and ' + (+sv.modMs).toFixed(1) + ' ms on the server' : '') + '.' : '';
+  const e = st.elevator, box = $('p-elev'); $('p-elev-h').hidden = !e; box.innerHTML = '';
+  if (e) { box.innerHTML = '<p>' + (e.phase ? 'Next delivery: <b>' + esc(e.phase) + '</b>' : 'No delivery waiting.') + '</p>'; (e.items || []).forEach(it => { const el = document.createElement('div'); el.className = 'collrow'; el.innerHTML = '<i></i><span>' + esc(it.n) + '</span><em class="mono">' + fmt(it.paid || 0) + ' / ' + fmt(it.need || 0) + '</em><div class="meter' + ((it.paid || 0) >= (it.need || 0) ? ' ok' : '') + '"><i style="width:' + (it.need ? Math.min(100, 100 * (it.paid || 0) / it.need) : 0).toFixed(1) + '%"></i></div>'; el.replaceChild(mini(icon('#b08cff', 'rocket', 'c')), el.querySelector('i')); box.appendChild(el); }); }
+  if (st.history || st.alerts) evWant();
+}
+// ---- the event log (Map Link 2.6): who joined, what was bought, what went wrong and when it was put right ----
+var evAt = 0, evBusy = false, evRev = -2;
+function evWant(){ const open = !$('panel').hidden && $('t-time').classList.contains('on'); if (evBusy || !open || (Date.now() - evAt < 15000 && evRev === alertsRev)) return; evBusy = true; evAt = Date.now(); evRev = alertsRev;
+  fetch(BASE + '/events', { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => { evBusy = false; onEvents(d); }).catch(() => { evBusy = false; }); }
+function onEvents(d){
+  const box = $('ev-log'), ev = (d.events || []).filter(Array.isArray), who = i => (d.players || [])[i] || '', nice = c => String(c).replace(/^Desc_|_C$/g, '').replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2');
+  box.innerHTML = ev.length ? '' : '<div class="none">Nothing has happened since the mod began its log.</div>';
+  ev.slice(-200).reverse().forEach(e => { const k = e[1]; let ic = ['#566273', 'pin'], text = '', at = null;
+    if (k === 'j') { ic = ['#35d6c2', 'pin']; text = (who(e[2]) || 'A player') + ' joined'; } else if (k === 'l') { ic = ['#566273', 'pin']; text = (who(e[2]) || 'A player') + ' left'; }
+    else if (k === 's') { ic = ['#2f9e68', 'flag']; text = 'Bought ' + e[2]; } else if (k === 'c') { ic = ['#a45fe0', 'slug']; text = (who(e[5]) ? who(e[5]) + ' took ' : 'Taken: ') + nice(e[2]); at = [e[3] / 100, e[4] / 100]; }
+    else if (k === 'g') { ic = ['#b08cff', 'rocket']; text = 'Space Elevator: ' + e[2]; } else if (k === 'a') { ic = [ALCOL[e[2]] || ALCOL[1], ALGLYPH[e[3]] || 'wrench']; text = e[4]; at = e[5] !== undefined ? [e[5] / 100, e[6] / 100] : null; }
+    else if (k === 'r') { ic = ['#2f9e68', ALGLYPH[e[2]] || 'wrench']; text = 'Put right: ' + e[3]; } else if (k === 'i') { ic = ['#566273', 'gear']; text = e[2]; } else return;
+    const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(text) + '</span><em>' + new Date(((d.start || 0) + e[0]) * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</em>'; b.replaceChild(mini(icon(ic[0], ic[1], 'c')), b.querySelector('i'));
+    if (at) b.addEventListener('click', () => select({ kind: 'spot', x: Math.round(at[0]), y: Math.round(at[1]) }, true)); box.appendChild(b); });
+  $('ev-note').textContent = ev.length ? 'The last ' + Math.min(200, ev.length) + ' things, newest first' + (d.source === 'server' ? ', from the server: everyone.' : d.source === 'client' ? ', as this PC saw them.' : '.') : '';
+}
 function onAlerts(a){
   if (a && a.rev !== undefined) alertsRev = a.rev;
   ALERTS = ((a && a.list) || []).map(o => ({ kind: 'al', k: o.kind, id: o.id, sev: o.sev || 1, n: o.n || '', text: o.text || o.kind, more: o.more || '', since: o.since || 0, x: (o.x || 0) / 100, y: (o.y || 0) / 100, z: o.z === undefined || o.z === null ? undefined : o.z / 100 })).sort((p, q) => q.sev - p.sev || p.since - q.since);
   const fresh = ALERTS.filter(o => !alertSeen[o.id] && o.sev >= 2); alertSeen = {}; ALERTS.forEach(o => { alertSeen[o.id] = 1; });
   if (fresh.length) toast('<b>' + esc(fresh[0].text) + '</b> · ' + metres(distTo(fresh[0].x, fresh[0].y)) + ' away' + (fresh.length > 1 ? ' · and ' + (fresh.length - 1) + ' more' : ''), 7000);
   const box = $('f-alerts'); box.innerHTML = '';
-  if (!ALERTS.length) box.innerHTML = '<div class="none">' + esc((a && a.note) || 'All clear: no blown fuse, no burner out of fuel, no full container, no idle machine.') + '</div>';
+  if (!ALERTS.length) box.innerHTML = '<div class="none">' + esc((a && a.note) || (a && a.known === false ? 'No blown fuse. Warnings for burners out of fuel, full containers and idle machines come with Map Link 2.6.' : 'All clear: no blown fuse, no burner out of fuel, no full container, no idle machine.')) + '</div>';
   ALERTS.slice(0, 60).forEach(o => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(o.text) + (o.more ? ' · ' + esc(o.more) : '') + '</span><em>' + metres(distTo(o.x, o.y)) + '</em>'; b.replaceChild(mini(icon(ALCOL[o.sev] || ALCOL[1], ALGLYPH[o.k] || 'wrench', 'd')), b.querySelector('i')); b.addEventListener('click', () => select(o, true)); box.appendChild(b); });
   const fb = document.querySelector('.dock button[data-tab=factory]'), bad = ALERTS.filter(o => o.sev >= 2).length; if (bad) fb.setAttribute('data-n', bad); else fb.removeAttribute('data-n');
   redraw();
@@ -1217,7 +1269,7 @@ function guideSync(st){
 // ---- the timelapse (Map Link 2.4): the mod records what is built and where everyone walks; the map plays it back ----
 const when = t => new Date(t * 1000).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }), span = t => t < 3600 ? Math.round(t / 60) + ' min' : Math.floor(t / 3600) + ' h ' + Math.round(t % 3600 / 60) + ' min';
 function tlState(st){ tl.info = st.history || null; if (tl.info) { tl.lines = tl.info.lines || 0; tl.src = tl.info.source || ''; if (tl.want && tl.lines > tl.next && !tl.busy) fetchHistory(); } if (!tl.on) tlReadout(); }
-function tlOpen(){ tl.want = true; if (tl.info && tl.lines > tl.next && !tl.busy) fetchHistory(); drawTl(); }
+function tlOpen(){ evAt = 0; evWant(); tl.want = true; if (tl.info && tl.lines > tl.next && !tl.busy) fetchHistory(); drawTl(); }
 function fetchHistory(){ tl.busy = true; fetch(BASE + '/history?from=' + tl.next + '&max=20000', { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(onHistory).catch(() => { setTimeout(() => { tl.busy = false; }, 30000); }); }
 function onHistory(d){
   tl.busy = false; if (!d || !Array.isArray(d.events)) return;
@@ -1238,8 +1290,8 @@ function tlSeek(T){
   tl.cur = i; tl.T = T;
   const shp = {}; if (tl.live && tl.live.shape) (tl.live.classes || []).forEach((c, k) => { shp[c] = tl.live.shape[k]; });
   const raw = { rev: -1, source: 'history', classes: tl.classes, names: tl.names, shape: tl.classes.map(c => shp[c] || null), machines: [], others: [], belts: [], pipes: [], wires: [], floors: [], walls: [], counts: {} };
-  tl.alive.forEach(e => { const k = e[3], ci = e[4], x = e[5], y = e[6], z = e[7], yaw = e[8], a = e[9], b = e[10], cl = tl.classes[ci] || '', mk = +((cl.match(/Mk\.?(\d)/i) || [0, 1])[1]);
-    raw.counts[cl] = (raw.counts[cl] || 0) + 1;
+  tl.alive.forEach(e => { const k = e[3], ci = e[4], x = e[5], y = e[6], z = e[7], yaw = e[8], a = e[9], b = e[10], cl = tl.classes[ci] || '', mk = ci < 0 ? (yaw || 1) : +((cl.match(/Mk\.?(\d)/i) || [0, 1])[1]);
+    if (cl) raw.counts[cl] = (raw.counts[cl] || 0) + 1;
     if (k === 'f') raw.floors.push([x, y, a, b, yaw, Math.round(z / 400), ci, z]); else if (k === 'm') raw.machines.push([ci, x, y, z, yaw, '', 100, -1, -1]); else if (k === 'o') raw.others.push([ci, x, y, z, yaw]);
     else if (k === 'w') raw.walls.push([ci, x, y, z, yaw]); else if (k === 'b') raw.belts.push([x, y, a, b, mk]); else if (k === 'p') raw.pipes.push([x, y, a, b, mk]); else if (k === 'e') raw.wires.push([x, y, a, b]); });
   adopt(raw); redraw(); tlReadout();
@@ -1329,10 +1381,10 @@ document.addEventListener('keydown', e => {
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-15 01:16:15'; let told = false;
+const BUILD = '2026-11-15 02:00:02'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
-window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, get run(){ return run; }, planBuilt, sprites };
+window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, get run(){ return run; }, planBuilt, sprites };
 })();
 
 </script>
