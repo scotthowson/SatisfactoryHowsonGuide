@@ -483,10 +483,12 @@ footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:
     pals.clearLayers();
     (st.players || []).forEach(function(o){ L.marker(ll(o.x / 100, o.y / 100), { icon: L.divIcon({ className: 'pal', iconSize: [14, 14], iconAnchor: [7, 7] }) }).bindTooltip(o.name || 'Player', { className: 'ptip', direction: 'top' }).addTo(pals); });
     var bits = [how + (st.session ? ': ' + st.session : '')];
+    if (!st.pickups && !st.dropPods && !p) bits.push('no save loaded yet');
+    if (st.phaseName) bits.push(st.phaseName);
     if (p) bits.push('you are at ' + Math.round(live.me.x) + ', ' + Math.round(live.me.y));
     if (okP === false || okD === false) { setLive('bad', bits.join(' · ') + '. The game\'s list does not line up with this map, so collected items are not shown. Tell Claude.'); }
     else setLive('on', bits.join(' · '));
-    if (st.power) $('live-p').textContent = 'Power: ' + Math.round(st.power.consumed) + ' of ' + Math.round(st.power.produced) + ' MW in use' + (st.power.fuse ? ' · THE FUSE HAS BLOWN' : ''); else $('live-p').textContent = '';
+    if (st.power) $('live-p').textContent = 'Power, largest circuit: ' + Math.round(st.power.consumed) + ' of ' + Math.round(st.power.produced) + ' MW in use' + (st.power.fuse ? ' · THE FUSE HAS BLOWN' : ''); else $('live-p').textContent = '';
     counts(); if (pop.isOpen() && pop._m) pop.setContent(popHtml(pop._m));
   }
   var URLS = ['http://127.0.0.1:8765/state'], failed = 0;
