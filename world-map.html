@@ -853,7 +853,7 @@ let worldBusy = false;
 function onWorld(w){
   const names = w.names || [], f = a => a || [];
   W = { rev: w.rev, counts: w.counts || {}, classes: w.classes || [], names, belts: f(w.belts), pipes: f(w.pipes), wires: f(w.wires), floors: f(w.floors), note: w.floorsNote || w.note || '', source: w.source || '', floorsTotal: w.floorsTotal,
-        machines: f(w.machines).map(a => ({ kind: 'b', l: a[9] ? a[9] / 100 : 0, w: a[10] ? a[10] / 100 : 0,      // the mod's own footprint: sizeX runs along the way the building faces, sizeY across it n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: a[4], recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
+        machines: f(w.machines).map(a => ({ kind: 'b', l: a[9] ? a[9] / 100 : 0, w: a[10] ? a[10] / 100 : 0, n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: a[4], recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
   const cell = {}; W.machines.forEach(m => { const k = Math.floor(m.x / 16) + ',' + Math.floor(m.y / 16); (cell[k] = cell[k] || []).push(m); });
   PLAN.mach.forEach((pm, i) => {
     const cx = pm[3] + pm[5] / 2, cy = pm[4] + pm[6] / 2, want = pm[2].toLowerCase(); let ok = false;
