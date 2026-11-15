@@ -887,7 +887,7 @@ function drawStock(){
 }
 function modExtras(st){
   const g = st.ghosts; $('ghost-on').disabled = $('ghost-off').disabled = !g;
-  $('ghost-note').textContent = g ? (g.on ? 'Ghosts are on in the game: ' + g.drawn + ' of ' + g.boxes + ' outlines near you' + (g.plan ? ', from "' + g.plan + '".' : '.') : 'Send the stage and layers chosen above into the game as outlines you can build onto.') : 'Plan ghosts need Map Link 2.1: outlines of the plan drawn in the world.';
+  $('ghost-note').textContent = g ? (g.on ? 'Ghosts are on in the game (' + (g.key || 'F9') + ' switches them): ' + g.drawn + ' of ' + g.boxes + ' outlines near you' + (g.plan ? ', from "' + g.plan + '".' : '.') : 'Send the stage and layers chosen above into the game as outlines you can build onto. In the game, ' + (g.key || 'F9') + ' switches them on and off; they start off each time the game starts.') : 'Plan ghosts need Map Link 2.1: outlines of the plan drawn in the world.';
   const sv = st.server; $('srv-health').innerHTML = sv ? '<b>Server:</b> ' + (sv.tickRate !== undefined ? sv.tickRate.toFixed(1) + ' ticks a second' : '') + (sv.players ? ' · ' + sv.players.length + ' online' : '') + (sv.lastSave ? ' · saved ' + Math.max(0, Math.round((Date.now() / 1000 - sv.lastSave) / 60)) + ' min ago' : '') + (sv.upSeconds ? ' · up ' + Math.floor(sv.upSeconds / 3600) + ' h' : '') : '';
   if (st.stockRev !== undefined && (!STOCK || STOCK.rev !== st.stockRev) && !stockBusy) fetchStock();
 }
