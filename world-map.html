@@ -1358,7 +1358,7 @@ function planYaw(name, w, d, dir){                        // the turn the plan w
   if (fl !== null && DIRANG[dir] !== undefined) { const y = ((DIRANG[dir] - fl) % 360 + 360) % 360; if (fits(y)) return { yaw: y }; }
   const ys = sz ? [0, 90, 180, 270].filter(fits) : []; return ys.length ? { yaw: null, yaws: ys } : { yaw: null };
 }
-const placeName = p => /container|storage bay/i.test(p.n) ? ['Storage Container', 'Container Screen Mk1', 'Container Screen Mk.1'] : /wind turbine/i.test(p.n) ? 'Wind Turbine' : /hypertube/i.test(p.n) ? 'Hypertube Entrance' : /plaza|terrace|bay$|pad$|street/i.test(p.n) ? null : p.n.replace(/^The /, '').replace(/^Craft Bench$/, 'Crafting Bench');
+const placeName = p => /container|storage bay/i.test(p.n) ? ['Storage Container', 'Container Screen Mk1'] : /wind turbine/i.test(p.n) ? 'Wind Turbine' : /hypertube/i.test(p.n) ? 'Hypertube Entrance' : /plaza|terrace|bay$|pad$|street/i.test(p.n) ? null : p.n.replace(/^The /, '').replace(/^Craft Bench$/, 'Crafting Bench');
 function ghostPlan(){
   const cm = v => Math.round(v * 100), boxes = [], lines = [];
   if (planSet.floors) PLAN.floors.forEach(f => { if (f.st <= stage) boxes.push({ id: 'f:' + f.n, n: f.n, sub: f.w + ' by ' + f.h + ' m', k: 'floor', x: cm(f.x), y: cm(f.y), w: cm(f.w), d: cm(f.h), h: 0, yaw: 0, c: '#35d07f', z: null }); });
@@ -1683,7 +1683,7 @@ document.addEventListener('keydown', e => {
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-16 13:59:30'; let told = false;
+const BUILD = '2026-11-16 14:03:37'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 (() => { const at = /[?&]at=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.search); if (!at) return; follow = false; map.setView(ll(+at[1], +at[2]), 6.5, { animate: false }); setTimeout(() => toast('Opened at ' + Math.round(+at[1]) + ', ' + Math.round(+at[2]) + '.', 4000), 600); })();
