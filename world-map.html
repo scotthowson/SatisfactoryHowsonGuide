@@ -281,6 +281,7 @@ const WORLD_B = [ll(-XO, YO), ll(9375 - XO, -YO)];
 const map = L.map('map', { crs, minZoom: 0, maxZoom: 8.5, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 90, zoomControl: false,
   maxBounds: [ll(-XO - 800, YO + 800), ll(9375 - XO + 800, -YO - 800)], maxBoundsViscosity: 0.8 });
 map.attributionControl.setPrefix('');
+map.createPane('planpane').style.zIndex = 350;      // under the overlay pane (400), where the map's own canvas is
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 L.control.scale({ imperial: false, maxWidth: 140, position: 'bottomleft' }).addTo(map);
 
@@ -617,8 +618,12 @@ function paint(ctx, b){
       const ax = rows.reduce((t, r) => t + r.s[0][0][0], 0) / rows.length, ay = rows.reduce((t, r) => t + r.s[0][0][1], 0) / rows.length, px = X(ax), py = Y(ay);
       ctx.font = '500 10.5px "IBM Plex Mono",monospace'; const txt = rows.map(r => r.L + '  ' + r.item + '  ' + rateText(r.rate));
       const rh = 15, bw = Math.max.apply(null, txt.map(t => ctx.measureText(t).width)) + 52, bh = rows.length * rh + 7, gap = 16;
-      const bx = g.ox ? (g.ox > 0 ? px + gap : px - gap - bw) : px - bw / 2, by = g.oy ? (g.oy > 0 ? py + gap : py - gap - bh) : py - bh / 2;
-      ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + g.ox * gap, py + g.oy * gap); ctx.stroke();
+      const own = hallOf[rows[0].k].fl, busy = PLAN.floors.filter(f => f.st <= stage && f.n !== own).map(f => [X(f.x), Y(f.y), X(f.x + f.w), Y(f.y + f.h)]);
+      const hits = (x, y) => busy.some(r => x < r[2] && x + bw > r[0] && y < r[3] && y + bh > r[1]);
+      const cand = g.ox ? [[g.ox > 0 ? px + gap : px - gap - bw, py - bh / 2], [g.ox > 0 ? px + gap : px - gap - bw, py - bh - 6], [g.ox > 0 ? px + gap : px - gap - bw, py + 6]]
+                        : [[px - bw / 2, g.oy > 0 ? py + gap : py - gap - bh], [px - bw - gap, g.oy > 0 ? py + 6 : py - bh - 6], [px + gap, g.oy > 0 ? py + 6 : py - bh - 6]];
+      const spot = cand.find(c => !hits(c[0], c[1])) || cand[0], bx = spot[0], by = spot[1];
+      ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(Math.max(bx, Math.min(bx + bw, px)), Math.max(by, Math.min(by + bh, py))); ctx.stroke();
       ctx.fillStyle = 'rgba(14,19,27,.93)'; ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 6); else ctx.rect(bx, by, bw, bh); ctx.fill(); ctx.stroke();
       rows.forEach((r, i) => { const y = by + 4 + i * rh + 11; ctx.fillStyle = r.c; ctx.fillRect(bx + 6, y - 8, 3, 9);
         ctx.textAlign = 'left'; ctx.font = '600 9.5px "IBM Plex Mono",monospace'; ctx.fillStyle = r.io === 'in' ? '#35d6c2' : '#fa9549'; ctx.fillText(r.io === 'in' ? 'IN' : 'OUT', bx + 14, y);
@@ -905,7 +910,7 @@ function changed(){ counts(); if (run.length) trimRun(); redraw(); }
 // ---- the plan ----
 function drawPlan(){
   planLayer.clearLayers(); if (!planOn) { redraw(); return; }
-  const s = PLAN.street, off = { interactive: false };
+  const s = PLAN.street, off = { interactive: false, pane: 'planpane' };
   L.rectangle([ll(s[0], s[3]), ll(s[2], s[1])], Object.assign({ color: '#ffffff', weight: 1, dashArray: '3 5', fill: false }, off)).addTo(planLayer);
   if (planSet.floors) PLAN.floors.forEach(f => { if (f.st > stage) return; L.rectangle([ll(f.x, f.y + f.h), ll(f.x + f.w, f.y)], Object.assign({ color: '#ffffff', weight: 2, fillColor: '#35d07f', fillOpacity: 0.1 }, off)).addTo(planLayer).bindTooltip(f.n, { permanent: true, direction: 'top', className: 'ptip', offset: [0, -2] }); });
   if (planSet.power && stage >= 4) L.polyline(PLAN.tube.p.map(p => ll(p[0], p[1])), Object.assign({ color: '#35e0c0', weight: 2.5, dashArray: '2 7' }, off)).addTo(planLayer);
@@ -1569,7 +1574,7 @@ document.addEventListener('keydown', e => {
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-16 02:55:14'; let told = false;
+const BUILD = '2026-11-16 03:05:24'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 (() => { const at = /[?&]at=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.search); if (!at) return; follow = false; map.setView(ll(+at[1], +at[2]), 6.5, { animate: false }); setTimeout(() => toast('Opened at ' + Math.round(+at[1]) + ', ' + Math.round(+at[2]) + '.', 4000), 600); })();

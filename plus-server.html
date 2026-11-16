@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Howson Plus on the server</title>
+</head>
+<body style="margin:0">
+<title>Howson Plus on the server</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* The guides share the SatMap look: one deliberately dark palette, set here; the skin in tools/tabs.py dresses the parts.
+   Layout: a drafting sheet. Spec strip, then two measured drawings (site, plant) with the build steps beside and below them. */
+:root{ color-scheme:dark;
+  --bg:#0b1118; --panel:#121a25; --ink:#eef3f8; --muted:#93a1b3; --line:#263445; --grid:#1b2836;
+  --mach:#22344a; --pond:#16425e; --void:#070c12; --ledge:#1b2d33;
+  --coal:#ff9d47; --water:#58baff; --power:#f27ad8; --tube:#4fd1b8; --ok:#3ddc84; --okbg:#10291f;
+  --accent:#fa9549; --accent2:#35d6c2; --glass:rgba(16,23,33,.88); --soft:rgba(255,255,255,.035); --r:10px;
+  --display:"Saira Condensed","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:44px}
+h2{font-size:28px}
+h3{font-size:20px}
+p{margin:0;max-width:66ch}
+a{color:var(--water)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:14px}
+.spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--line);background:var(--panel)}
+.spec div{padding:12px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.spec div:last-child{border-right:0}
+.spec b{font-family:var(--display);font-size:30px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.spec span{font-size:13px;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:16px}
+.verdict{background:var(--okbg);border:1px solid var(--ok);padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.verdict h2{color:var(--ok)}
+ul,ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+.two{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:minmax(0,1fr)} h1{font-size:34px}}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.sheet{border:1px solid var(--line);background:var(--panel);overflow-x:auto;position:relative}
+.pop{position:absolute;z-index:5;width:min(340px,calc(100% - 16px));background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:12px 44px 12px 14px;display:flex;flex-direction:column;gap:6px}
+.pop h3{font-size:19px}
+.pop p{font-size:15px;line-height:1.5;max-width:none}
+.pop-x{position:absolute;top:6px;right:6px;width:30px;height:30px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:500 20px/1 var(--body);cursor:pointer}
+.pop-x:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+svg [data-sel]{stroke:var(--ok);stroke-width:4px}
+.sheet svg{display:block}
+#plant svg{min-width:760px;width:100%;height:auto}
+#site svg{width:100%;height:auto}
+#side svg{min-width:680px;width:100%;height:auto}
+#flow svg{min-width:680px;width:100%;height:auto}
+svg text{font-family:var(--body);font-size:14.5px;fill:var(--ink)}
+svg .sm{font-size:13.5px;fill:var(--muted)}
+svg .mono{font-family:var(--mono);font-size:13px;fill:var(--muted)}
+svg .h{font-family:var(--display);font-size:19px;font-weight:600}
+svg .tc{fill:var(--coal);font-weight:600}
+svg .tw{fill:var(--water);font-weight:600}
+svg .tp{fill:var(--power);font-weight:600}
+.layers{display:flex;flex-wrap:wrap;gap:8px}
+.layers button{font:500 14px var(--body);padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;border-radius:2px}
+.layers button:hover{border-color:var(--ink)}
+.layers button:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.layers button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.layers .sw{display:inline-block;width:10px;height:10px;margin-right:7px;vertical-align:baseline}
+#plant .L{transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){#plant .L{transition:none}}
+#plant[data-show="place"] .L:not(.L-place), #plant[data-show="coal"] .L:not(.L-coal):not(.L-place),
+#plant[data-show="water"] .L:not(.L-water):not(.L-place), #plant[data-show="power"] .L:not(.L-power):not(.L-place){opacity:.1}
+.note{border-left:3px solid var(--ink);padding:2px 0 2px 14px;display:flex;flex-direction:column;gap:6px;min-height:118px}
+.note[data-k="coal"]{border-color:var(--coal)} .note[data-k="water"]{border-color:var(--water)} .note[data-k="power"]{border-color:var(--power)}
+.steps{list-style:none;padding:0;gap:0;max-width:none;border-top:1px solid var(--line)}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);align-items:start}
+.steps input{width:20px;height:20px;margin:3px 0 0;accent-color:var(--ok)}
+.steps label{display:flex;flex-direction:column;gap:2px;cursor:pointer}
+.steps b{font-weight:600}
+.steps span{color:var(--muted);font-size:15px;max-width:74ch}
+.steps li:has(input:checked) b{text-decoration:line-through;color:var(--muted)}
+.tablebox{overflow-x:auto;border:1px solid var(--line);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.n{text-align:right;font-family:var(--mono)}
+.key{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted)}
+.key i{display:inline-block;width:22px;height:0;border-top:3px solid;margin-right:6px;vertical-align:middle}
+.key .kw{border-color:var(--water)} .key .kc{border-color:var(--coal)} .key .kp{border-color:var(--power);border-top-style:dashed;border-top-width:2px} .key .kt{border-color:var(--tube);border-top-style:dotted}
+#plant [data-part]{cursor:pointer}
+#plant svg text{pointer-events:none}
+.swt{display:inline-block;width:16px;height:16px;vertical-align:-3px;margin-right:8px;border:2.5px solid var(--ink);background:var(--mach)}
+.swt.ln{height:0;width:22px;border-width:3px 0 0;background:none;vertical-align:4px}
+.swt.dot{border-radius:50%;width:13px;height:13px;border:0}
+dl{margin:0;display:grid;grid-template-columns:minmax(110px,max-content) minmax(0,1fr);gap:8px 18px;font-size:15px}
+dt{font-weight:600}
+dd{margin:0;color:var(--muted)}
+kbd{font:500 13px var(--mono);border:1px solid var(--line);border-bottom-width:2px;padding:1px 6px;background:var(--panel);color:var(--ink);white-space:nowrap}
+.halves{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
+footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+
+.hall svg{min-width:900px;width:100%;height:auto}
+#district svg{min-width:760px;width:100%;height:auto}
+#anatomy svg{width:100%;height:auto}
+.hall [data-i],.hall [data-p],.hall [data-q],.hall [data-l],#district [data-d]{cursor:pointer}
+.hall svg text,#district svg text,#anatomy svg text{pointer-events:none}
+.hall svg text{font-size:14px}
+.hall svg .sm{font-size:13.5px}
+.hall svg .mono{font-size:13px}
+.hall svg .tc,.hall svg .tp{font-size:14.5px}
+#district svg .tp{font-size:13.5px}
+#anatomy svg text{font-size:17px}
+#anatomy svg .mono{font-size:15px}
+.sheet .L{transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){.sheet .L{transition:none}}
+.sheet[data-show="place"] .L:not(.L-place),.sheet[data-show="belt"] .L:not(.L-belt):not(.L-place),.sheet[data-show="power"] .L:not(.L-power):not(.L-place){opacity:.08}
+.facts{font-family:var(--mono);font-size:13px;color:var(--muted);max-width:none}
+.jump{display:flex;flex-wrap:wrap;gap:8px}
+.jump a{font:500 14px var(--body);padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;border-radius:2px}
+.jump a:hover{border-color:var(--ink)}
+.jump a:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.track{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border:1px solid var(--line);background:var(--panel)}
+.track > div{padding:14px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:8px;min-width:0}
+.track > div:last-child{border-right:0}
+.track label{font-weight:600}
+.track input{font:500 18px var(--mono);width:8ch;padding:4px 8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.track input:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.track .bar{height:10px;background:var(--grid);position:relative}
+.track .bar i{position:absolute;inset:0 auto 0 0;background:var(--ok)}
+.track .left{font-size:14px;color:var(--muted)}
+.track .err{font-size:13px;color:var(--coal)}
+.note[data-k="belt"]{border-color:var(--coal)}
+.leg{font:inherit;color:inherit;background:none;border:0;border-bottom:1px dashed var(--muted);padding:2px 0;cursor:pointer;text-align:left}
+.leg:hover{border-bottom-color:var(--ink)}
+.leg:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.leg[aria-pressed="true"]{color:var(--ok);border-bottom:2px solid var(--ok);font-weight:600}
+.wrap[data-hl="machine"] .hall [data-i],.wrap[data-hl="split"] .hall [data-q="split"],.wrap[data-hl="merge"] .hall [data-q="merge"],.wrap[data-hl="cross"] .hall [data-q="cross"],.wrap[data-hl="cont"] .hall [data-q="cont"],.wrap[data-hl="pole"] .hall [data-p]{stroke:var(--ok);stroke-width:4px}
+.wrap[data-hl="belt"] .hall [data-lv],.wrap[data-hl="wire"] .hall [data-q="wire"]{stroke:var(--ok)}
+.wrap[data-hl="grid"] .hall .gridlines{stroke:var(--ok)}
+.note[data-k="place"]{border-color:var(--ink)}
+
+#world svg text{pointer-events:none}#world svg .tp{font-size:13px}
+
+/* ---- the SatMap look, shared with the world map ---- */
+body{font-size:15.5px;line-height:1.55;padding-block:14px 64px;background:radial-gradient(1100px 520px at 50% -160px,rgba(53,214,194,.09),transparent 70%),radial-gradient(900px 480px at 100% 0,rgba(250,149,73,.06),transparent 70%),var(--bg);background-attachment:fixed}
+.wrap{gap:26px}
+a{color:var(--accent2);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.glass{background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.topbar{position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:30;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.brand{display:flex;align-items:center;gap:9px;padding:6px 14px 6px 10px;text-decoration:none;color:var(--ink);white-space:nowrap;height:44px}
+.brand svg{width:26px;height:26px;flex:none}
+.brand b{display:block;font:600 19px/1 var(--display);letter-spacing:.07em}
+.brand small{display:block;font:500 9.5px/1.3 var(--mono);letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+.links{display:flex;flex-wrap:wrap;gap:2px;padding:4px;min-height:44px;align-items:center;min-width:0}
+.links a{padding:7px 11px;border-radius:7px;color:var(--muted);text-decoration:none;font-weight:500;font-size:14px;white-space:nowrap}
+.links a:hover{color:var(--ink);background:rgba(255,255,255,.07)}
+.links a[aria-current]{color:var(--ink);background:rgba(250,149,73,.16)}
+.find{flex:1 1 280px;position:relative;min-width:0}
+.find input{width:100%;height:44px;padding:0 14px 0 40px;border-radius:var(--r);border:1px solid rgba(255,255,255,.1);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font:400 15px var(--body);color:var(--ink);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.find input::placeholder{color:#64717f}
+.find>svg{position:absolute;left:12px;top:12px;width:20px;height:20px;color:var(--muted);pointer-events:none;z-index:2}
+.find #found{position:absolute;top:50px;left:0;right:0;max-height:min(60vh,460px);overflow:auto;display:flex;flex-direction:column;padding:4px;border-radius:var(--r);border:1px solid rgba(255,255,255,.1);background:var(--glass)}
+.find #found:empty{display:none}
+.find #found button{all:unset;cursor:pointer;padding:8px 11px;border-radius:7px;display:flex;flex-direction:column;gap:1px;border-bottom:0}
+.find #found button:hover,.find #found button:focus-visible{background:rgba(255,255,255,.08)}
+@media (max-width:760px){.topbar{position:static}.brand small{display:none}.links a{padding:6px 9px}.finder .jump{flex-basis:100%}}
+header{gap:12px;padding-top:6px}
+h1{font-size:46px;letter-spacing:.015em}
+h2{font-size:26px}
+.eyebrow{color:var(--accent);letter-spacing:.14em;font-size:11px}
+header>p{color:var(--muted);font-size:16.5px}
+.lede{font-size:16px;color:var(--muted)}
+/* tiles */
+.spec{border:0;background:none;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.spec div{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:10px 12px}
+.spec div:last-child{border-right:1px solid var(--line)}
+.spec b{font-size:26px}
+.spec span{font-size:12px}
+/* cards */
+.sheet,.tablebox,.track,.flow,#sf-out,.tier,.cards{border-radius:var(--r);border-color:var(--line);background:#0f1722}
+.tablebox{background:var(--soft)}
+.tier+.tier{border-top:1px solid var(--line);margin-top:6px}
+th{color:var(--accent2);font-size:11px;letter-spacing:.1em;background:rgba(255,255,255,.03)}
+tr:hover td{background:rgba(255,255,255,.025)}
+.verdict{border-radius:var(--r);background:rgba(61,220,132,.08);border-color:rgba(61,220,132,.5)}
+.note{border-left-color:var(--accent);min-height:0;padding:10px 14px;background:var(--soft);border-radius:0 8px 8px 0}
+.pop{border:1px solid rgba(255,255,255,.14);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 14px 44px rgba(0,0,0,.55)}
+.pop h3{font-size:20px}
+.pop-x{border-radius:7px;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+kbd{border-radius:5px;background:rgba(255,255,255,.06)}
+/* buttons and chips */
+.layers button,.phases button,.zoom button,.jump a,.finder button,#sf-more{font:500 13.5px var(--body);padding:7px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer;text-decoration:none;white-space:nowrap}
+.layers button:hover,.phases button:hover,.zoom button:hover,.jump a:hover,.finder button:hover,#sf-more:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.22)}
+.layers button[aria-pressed="true"],.phases button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#10161f;font-weight:600}
+.leg[aria-pressed="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.track input,.sf-bar input[type=search],.sf-bar select{border-radius:7px;background:#0f1722;border-color:rgba(255,255,255,.16)}
+.track > div{border-color:var(--line)}
+.track .bar{border-radius:5px;overflow:hidden;height:7px;background:rgba(255,255,255,.09)}
+.sf-bar input[type=checkbox]{accent-color:var(--accent)}
+/* the section strip under the header */
+.finder{position:static;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:none;border:0;padding:0}
+.finder .jump{flex:1 1 0;flex-basis:0;gap:6px;min-width:min(100%,280px)}
+/* folded sections: one card each */
+details.sec{border:1px solid var(--line);border-radius:12px;background:rgba(18,26,37,.72);padding:14px 18px}
+details.sec[open]{padding-bottom:20px}
+details.sec>summary h2{font-size:25px}
+details.sec>summary::before,details.sub>summary::before{content:"";width:9px;height:9px;flex:none;border-right:2.5px solid var(--accent);border-bottom:2.5px solid var(--accent);transform:rotate(-45deg);margin:0 6px 3px 2px;align-self:center;transition:transform .15s}
+details.sec[open]>summary::before,details.sub[open]>summary::before{content:"";transform:rotate(45deg)}
+@media (prefers-reduced-motion:reduce){details.sec>summary::before,details.sub>summary::before{transition:none}}
+details.sub{border-radius:9px;background:var(--soft);border-color:var(--line);margin-top:8px}
+details.sub+details.sub{border-top:1px solid var(--line)}
+.sfhall+.sfhall details.sub{border-top:1px solid var(--line)}
+details .sum{font-size:13.5px}
+section{gap:14px}
+/* steps: a number, a box to tick, what to do, and one line of how */
+.steps{counter-reset:st;border-top:0;gap:0}
+.steps li{counter-increment:st;grid-template-columns:26px 20px minmax(0,1fr);gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:start}
+.steps li:last-child{border-bottom:0}
+.steps li .onmap{grid-column:3;justify-self:start;font:500 11.5px/1 var(--mono);letter-spacing:.04em;padding:6px 9px;border:1px solid var(--line);border-radius:8px;color:var(--accent2);text-decoration:none;margin-top:-2px}
+.steps li .onmap:hover,.steps li .onmap:focus-visible{border-color:var(--accent2);outline:0}
+.stagebox .sum.alldone{color:var(--ok)}
+.stagebox.here>summary h3::after{content:"you are here";margin-left:10px;font:500 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#0b1118;background:var(--accent);padding:4px 7px;border-radius:6px;vertical-align:middle}
+.steps li::before{content:counter(st);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:500 11.5px var(--mono);color:var(--muted);border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04)}
+.steps li:has(input:checked)::before{content:"\2713";color:#0b1118;background:var(--ok);border-color:var(--ok);font-weight:600}
+.steps input{width:17px;height:17px;margin:4px 0 0;accent-color:var(--accent)}
+.steps b{font-weight:600;font-size:15px}
+.steps span{font-size:14px;line-height:1.5;max-width:78ch}
+.steps li:has(input:checked) b{text-decoration:none;color:var(--muted)}
+.steps li:has(input:checked) span{opacity:.55}
+.stage{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);margin-top:6px}
+.flow li::before{color:var(--accent);font-size:20px}
+.flow li{border-color:var(--line)}
+dl{font-size:14.5px}
+footer{font-size:13px}
+.cards{border:0!important;background:none!important;gap:10px!important}
+.cards a{border:1px solid var(--line)!important;border-radius:var(--r);background:rgba(18,26,37,.72)}
+.cards a:hover{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.22)!important}
+.cards b{font-size:22px!important}
+
+.page{max-width:1180px}
+.prose{max-width:880px;display:flow-root}
+.prose h2{font:600 27px/1.2 var(--display);letter-spacing:.02em;margin:40px 0 12px;padding-top:18px;border-top:1px solid var(--line);scroll-margin-top:84px;text-wrap:balance}
+.prose h3{font:600 20px/1.25 var(--display);letter-spacing:.02em;margin:28px 0 8px;scroll-margin-top:84px}
+.prose h4{font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 0 6px}
+.prose p,.prose li{font-size:15.5px;line-height:1.64;color:#cfd8e3}
+.prose p,.prose li{max-width:76ch}.prose td p{max-width:none}
+.prose td:first-child code{white-space:nowrap;overflow-wrap:normal}
+.prose p{margin:0 0 13px}.prose ul,.prose ol{margin:0 0 15px;padding-left:24px}.prose li{margin:5px 0}.prose li>p{margin:0 0 6px}
+.prose strong{color:var(--ink);font-weight:600}
+.prose a{color:var(--accent2);text-decoration-thickness:1px;text-underline-offset:3px}.prose a:hover{color:#7df0e0}
+.prose code{font:500 .88em var(--mono);background:rgba(255,255,255,.07);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.prose pre{position:relative;background:#090e14;border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;margin:0 0 16px;max-height:560px}
+.prose pre code{background:none;padding:0;font-size:12.5px;line-height:1.55;overflow-wrap:normal;white-space:pre;color:#d6dee8}
+.prose ol>li::marker{color:var(--accent);font:600 .92em var(--mono)}
+.prose ul>li::marker{color:var(--accent)}
+.prose blockquote{border-left:3px solid var(--accent);margin:0 0 14px;padding:2px 0 2px 14px}.prose blockquote p{color:var(--muted)}
+.prose hr{border:0;border-top:1px solid var(--line);margin:28px 0}
+.tablewrap{overflow-x:auto;margin:0 0 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.prose table{border-collapse:collapse;width:100%;font-size:14px}
+.prose th{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.025)}
+.prose td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;color:#cfd8e3}
+.prose tr:last-child td{border-bottom:0}.prose td:first-child{color:var(--ink)}
+.prose details{border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:0 0 10px;padding:0 14px}
+.prose summary{cursor:pointer;padding:13px 0;font-weight:600;color:var(--ink)}.prose summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.prose details[open]>summary{border-bottom:1px solid var(--line);margin-bottom:14px}
+.note{border:1px solid rgba(250,149,73,.45);background:rgba(250,149,73,.08);border-radius:12px;padding:11px 14px;margin:0 0 18px;font-size:14.5px;line-height:1.55;color:#e6d3c2;max-width:880px}
+.note a{color:var(--accent)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;max-width:980px}
+.toc a{font:500 13px/1 var(--body);padding:8px 11px;border:1px solid var(--line);border-radius:9px;color:var(--ink);text-decoration:none;background:rgba(255,255,255,.03)}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);outline:0}
+.copy{position:sticky;float:right;top:0;margin:-4px -6px 0 8px;font:500 11.5px var(--mono);padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:#121a25;color:var(--ink);cursor:pointer}
+.copy:hover{border-color:var(--accent)}.copy.done{border-color:var(--accent2);color:var(--accent2)}
+header .lede{max-width:760px}
+@media (max-width:640px){.prose h2{font-size:23px}.prose p,.prose li{font-size:15px}}
+</style>
+<div class="wrap page"><div class="topbar"><a class="brand glass" href="index.html" title="All guides"><svg viewBox="0 0 128 128" aria-hidden="true"><defs><linearGradient id="smbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2733"/><stop offset="1" stop-color="#0d1116"/></linearGradient><clipPath id="smtile"><rect x="4" y="4" width="120" height="120" rx="26"/></clipPath></defs><rect x="4" y="4" width="120" height="120" rx="26" fill="url(#smbg)"/><g clip-path="url(#smtile)" fill="none" stroke-linecap="round"><g stroke="#4f6b7d" stroke-width="2.4" opacity=".7"><path d="M-6 80C16 66 34 70 52 84S98 110 134 92"/><path d="M-6 116C24 126 44 112 64 112S104 128 134 112"/><path d="M70 134C84 120 108 122 134 130"/><path d="M-6 58C8 48 22 48 34 54"/></g><g stroke="#fa9549" stroke-width="5"><path d="M63.7 72.8A13 13 0 0 1 53.2 62.3"/><path d="M61.8 83.6A24 24 0 0 1 42.4 64.2" opacity=".62"/><path d="M59.9 94.5A35 35 0 0 1 31.5 66.1" opacity=".32"/></g></g><g transform="translate(82 44) rotate(45)"><rect x="-39" y="-9" width="24" height="18" rx="2.5" fill="#2f86c9" stroke="#e9eef2" stroke-width="3"/><rect x="15" y="-9" width="24" height="18" rx="2.5" fill="#2f86c9" stroke="#e9eef2" stroke-width="3"/><path d="M-27-9V9M27-9V9" stroke="#e9eef2" stroke-width="2"/><rect x="-15" y="-3" width="30" height="6" fill="#e9eef2"/><rect x="-11" y="-13" width="22" height="26" rx="5" fill="#e9eef2"/><rect x="-2.5" y="12" width="5" height="6" fill="#e9eef2"/><path d="M-9 17Q0 28 9 17Z" fill="#fa9549"/></g><circle cx="28" cy="100" r="14" fill="none" stroke="#fa9549" stroke-width="3" opacity=".45"/><circle cx="28" cy="100" r="7.5" fill="#fa9549" stroke="#0d1116" stroke-width="2.5"/></svg><span><b>SATMAP</b><small>the pack</small></span></a><nav class="links glass" aria-label="Guides"><a href="satisfactory-plus.html">Satisfactory Plus</a><a href="world-map.html">World map</a><a href="rocky-desert-works.html">Rocky Desert Works</a><a href="builders-handbook.html">Builder's Handbook</a><a href="index.html">All guides</a></nav></div><header><div class="eyebrow">The pack</div><h1>Howson Plus on the server</h1><p class="lede">How to put the whole Howson Plus pack on the dedicated server and on a PC that joins it. It takes two things each time: a Mod Manager profile, and an overlay zip with everything the Mod Manager cannot install.</p></header>
+<nav class="toc" aria-label="On this page"><a href="#why-a-profile-is-not-enough">Why a profile is not enough</a><a href="#the-files">The files</a><a href="#the-server">The server</a><a href="#a-pc-that-joins">A PC that joins</a><a href="#scott-s-pc">Scott's PC</a><a href="#the-live-map-optional">The live map (optional)</a><a href="#check-it-worked">Check it worked</a><a href="#when-something-changes">When something changes</a><a href="#status">Status</a></nav>
+<article class="prose">
+<p>Scott's server has run Howson Plus since 14 Nov 2026, with a new world. The older base-recipe pack and its steps are in <a href="install-server.html">server install</a>.</p>
+<h2 id="why-a-profile-is-not-enough">Why a profile is not enough</h2>
+<p>A Mod Manager profile can only name mods released on ficsit.app. Howson Plus also uses:</p>
+<div class="tablewrap"><table><thead><tr><th>What</th><th>Why it is not in the profile</th><th>Needed on</th></tr></thead><tbody><tr><td>FicsIt-Networks 1.3.0, our own build</td><td>The released 1.2.0 does not load in this game version; 1.3.0 is not released yet. Built from the author's development branch with our fixes</td><td>Server and every player, the same build</td></tr><tr><td>Megaprojects Library with the join-crash fix</td><td>The author has not released the fix. Two patched library files replace the released ones</td><td>Every joining player</td></tr><tr><td>MAM Enhancer 1.9.2</td><td>The released 1.9.1 cannot start research; the fix is an unmerged pull request</td><td>Optional, each player's own PC</td></tr><tr><td>Ten Satisfactory Plus fixes</td><td>Text files read by Satisfactory Plus's own library, not mods (<a href="https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/dataforge/README.md">what they fix</a>)</td><td>Server and every player</td></tr><tr><td>Four settings files</td><td>Faster Manual Crafting, Move Tool, Smart! and Infinite Zoop must be set the same everywhere</td><td>Server and every player</td></tr><tr><td>SatMap 3.1.0 (called Howson Map Link before 3.0)</td><td>Our own mod for the <a href="world-map.html">World map</a>; it is not released anywhere</td><td>Optional, each player's own PC (in the client overlay)</td></tr><tr><td>Slug egg text</td><td>One more text file for Satisfactory Plus's library: the twelve slug eggs show <code>UNKNOWN_KEY(...)</code> where their hatching values should be, and this puts one plain sentence there</td><td>Optional, each player's own PC (in the client overlay)</td></tr></tbody></table></div>
+<h2 id="the-files">The files</h2>
+<div class="tablewrap"><table><thead><tr><th>For</th><th>Profile</th><th>Overlay</th></tr></thead><tbody><tr><td>The dedicated server (Linux)</td><td><a href="https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusServer.smmprofile"><code>packs/HowsonPlusServer.smmprofile</code></a></td><td><code>HowsonPlus-server-overlay.zip</code></td></tr><tr><td>A PC that joins (Windows)</td><td><a href="https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusClient.smmprofile"><code>packs/HowsonPlusClient.smmprofile</code></a></td><td><code>HowsonPlus-client-overlay.zip</code></td></tr></tbody></table></div>
+<p>The overlays are compiled files, so they are not in the repository itself. Scott builds them on his PC with <code>python3 tools/make_bundles.py</code>, which writes both zips to the repository's <code>dist/</code> folder and an unpacked copy of the server one, with the server profile beside it, to <code>dist/server-upload/</code>. If they have been attached to this repository's <a href="https://github.com/scotthowson/SatisfactoryHowson/releases">releases</a> they can be downloaded there; otherwise ask Scott for the client one. The script also lays out <code>dist/send-to-friend/</code>: the client profile, the client overlay and a <code>READ ME FIRST.txt</code> with the steps below, numbered in the order they are used. That folder is all a joining player needs. What is inside each, from which build and with which checksum, is in <a href="https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/custom/MANIFEST.md"><code>packs/custom/MANIFEST.md</code></a>.</p>
+<p>Each overlay holds one folder, <code>FactoryGame</code>, laid out like the game's own. Installing it means merging that folder over the real one.</p>
+<h2 id="the-server">The server</h2>
+<ol>
+<li>Stop the server.</li>
+<li>In Satisfactory Mod Manager, pick the server in the install dropdown and import <code>HowsonPlusServer.smmprofile</code>. Wait until it has finished, then switch the install dropdown back to your own game.</li>
+<li>Unzip <code>HowsonPlus-server-overlay.zip</code> on your PC. Over SFTP, upload the contents of its <code>FactoryGame</code> folder into the server's <code>FactoryGame</code> folder, merging and replacing. This adds <code>Mods/GameFeatures/FicsItNetworks</code>, <code>Mods/DataForge</code> and four files in <code>Configs</code>.</li>
+<li>Start the server with a new world: Satisfactory Plus must never be added to an existing one.</li>
+</ol>
+<p>Always the profile first, then the overlay. Importing or changing a profile later leaves <code>FicsItNetworks</code> and <code>DataForge</code> alone (the Mod Manager only removes folders it made itself), but repeat step 3 if in doubt; it does no harm.</p>
+<h2 id="a-pc-that-joins">A PC that joins</h2>
+<ol>
+<li>Close the game.</li>
+<li>In Satisfactory Mod Manager, with your own game in the install dropdown, import <code>HowsonPlusClient.smmprofile</code> and wait until it has finished.</li>
+<li>Unzip <code>HowsonPlus-client-overlay.zip</code>. Copy its <code>FactoryGame</code> folder over the game's <code>FactoryGame</code> folder (Steam: right-click Satisfactory, Manage, Browse local files) and say yes to merging and replacing files.</li>
+<li>Do not add FicsIt-Networks or MAM Enhancer in the Mod Manager as well: the released versions would overwrite these builds.</li>
+<li>Start the game and join.</li>
+</ol>
+<p>Repeat step 3 after every profile import or change: the Mod Manager puts the released Megaprojects Library files back, and the join crash with them.</p>
+<p>Three parts of the overlay are optional and only change your own screen. Delete the folder after step 3 if you would rather not have one; nothing else depends on them:</p>
+<div class="tablewrap"><table><thead><tr><th>Part</th><th>Folder to delete</th></tr></thead><tbody><tr><td>MAM Enhancer</td><td><code>FactoryGame/Mods/MAMTips</code></td></tr><tr><td>SatMap (the live map)</td><td><code>FactoryGame/Mods/SatMap</code>. Coming from Howson Map Link, delete <code>FactoryGame/Mods/HowsonMapLink</code> first: the two would want the same port</td></tr><tr><td>Slug egg text</td><td><code>FactoryGame/Mods/DataForge/SlugEggTooltips</code></td></tr></tbody></table></div>
+<p><strong>Playing without mods</strong> (another server, an unmodded game): click Mods off at the top left of the Mod Manager first. That has not been tried with the overlay's folders in place. If the game then complains about a missing plugin, move <code>GameFeatures/FicsItNetworks</code>, <code>MAMTips</code> and <code>SatMap</code> out of <code>FactoryGame/Mods</code> while you play unmodded, and repeat step 3 afterwards.</p>
+<h2 id="scott-s-pc">Scott's PC</h2>
+<p>Already has all of it, put there piece by piece on 14 and 15 Nov 2026: FicsIt-Networks, MAM Enhancer, the patched Megaprojects Library files, the ten fixes, the settings, the map's mod and the slug egg text. The client overlay is built from exactly those files: on 15 Nov 2026 all 100 files in it were compared with Scott's game folder and are the same, the profile file names the same 102 mods as the profile his Mod Manager uses, and every one of the 122 mods that installs (with the libraries they pull in) was at its newest release on ficsit.app, so an import that day gives the same versions.</p>
+<h2 id="the-live-map-optional">The live map (optional)</h2>
+<p>SatMap is our own read-only mod for the <a href="world-map.html">World map</a>; until version 3.0 it was called Howson Map Link. It is not in any profile and nobody needs it to join.</p>
+<ul>
+<li><strong>On a PC that plays:</strong> with it, the map on that PC shows where you are in real time, what you have built and what is collected. It answers on that PC only, at <code>127.0.0.1:8765</code>. Scott's PC has it, and it is in the client overlay.</li>
+<li><strong>On the server:</strong> with it, the map gets the exact picture for both players: every collectible, power, and every machine with its state. It listens on TCP port 8765 on the server, so that port has to be given to the server in the panel, and should not be reachable from the internet without a login in front. The server has run it with the real save since 15 Nov 2026, as Howson Map Link 2.6.0; from that version on the same port also serves this map and the guides as a site. SatMap 3.1.0 has not run on the server yet.</li>
+<li>The files, laid out ready to copy with their own steps, are written to <code>dist/satmap/</code> on Scott's PC (<code>server/</code> for the server, <code>client/</code> for a PC).</li>
+</ul>
+<h2 id="check-it-worked">Check it worked</h2>
+<ul>
+<li><strong>Server console or log:</strong> <code>FicsItNetworks: 1.3.0</code> in the list of loaded mods, and a line <code>KDataForge: … pack(s), … document(s) applied</code> with no error naming a file from <code>Mods/DataForge</code>. On the server expect 33 packs and 171 documents (one fewer of each than on Scott's PC, because Road Maker is not on the server).</li>
+<li><strong>Player:</strong> <code>FicsItNetworks: 1.3.0</code> in <code>%LOCALAPPDATA%\FactoryGame\Saved\Logs\FactoryGame.log</code>, and <code>KDataForge: 34 pack(s), 172 document(s) applied</code> (the slug egg text is one pack; 33 without it), plus <code>MAMTips: 1.9.2</code> and <code>SatMap: 3.1.0</code> if you kept them. The nine errors that line counts are Satisfactory Plus's own and were there before any of ours.</li>
+<li><strong>In the game:</strong> under tier 1 in the HUB there is a &quot;Covered Conveyor Belt Mk.1&quot; milestone.</li>
+</ul>
+<h2 id="when-something-changes">When something changes</h2>
+<ul>
+<li><strong>A new pack list:</strong> new profile files appear here; import them on the server first, then on each PC, then repeat the overlay step.</li>
+<li><strong>A new overlay:</strong> a new release appears here; replace the folders on the server and on every PC together.</li>
+<li><strong>FicsIt-Networks 1.3.0 is released by its author:</strong> delete <code>Mods/GameFeatures/FicsItNetworks</code> on the server and on every PC together, then add the released mod to the pack. Our build and the release must never be mixed between server and players.</li>
+</ul>
+<h2 id="status">Status</h2>
+<ul>
+<li>The profiles are checked against ficsit.app for this game build; every mod in the server profile has a Linux server build.</li>
+<li>Scott plays on the dedicated server with the client profile and the client overlay. Seen in his game on 15 Nov 2026 while joined to it: FicsIt-Networks 1.3.0, MAM Enhancer 1.9.2, Howson Map Link 2.6.0 and 34 data packs loaded, three and a half hours into the world. SatMap 3.1.0 replaced it in his game folder on 16 Nov and had not been started when this was written.</li>
+<li><strong>No second PC has joined yet.</strong> What is installed on the server itself was put there by Scott and cannot be checked from this repository. Satisfactory Plus's own page calls multiplayer experimental.</li>
+<li>Built but left out on purpose: a Linux server build of Road Maker (Road Maker stays solo-only), and rebuilt copies of SML, ContentLib and More Sign Spots that are only for faults we have not seen. They are listed in the manifest.</li>
+</ul>
+</article></div>
+<script>
+document.querySelectorAll('.prose pre').forEach(function(pre){
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'copy'; b.textContent = 'Copy';
+  b.addEventListener('click', function(){ var text = pre.querySelector('code').textContent, ok = function(){ b.textContent = 'Copied'; b.classList.add('done'); setTimeout(function(){ b.textContent = 'Copy'; b.classList.remove('done'); }, 1600); };
+    var pick = function(){ var r = document.createRange(); r.selectNodeContents(pre.querySelector('code')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selected: press Ctrl+C'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, pick); else pick(); });
+  pre.insertBefore(b, pre.firstChild);
+});
+</script>
+</body>
+</html>

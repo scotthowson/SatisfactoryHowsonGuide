@@ -277,6 +277,10 @@ section{gap:14px}
 .steps{counter-reset:st;border-top:0;gap:0}
 .steps li{counter-increment:st;grid-template-columns:26px 20px minmax(0,1fr);gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:start}
 .steps li:last-child{border-bottom:0}
+.steps li .onmap{grid-column:3;justify-self:start;font:500 11.5px/1 var(--mono);letter-spacing:.04em;padding:6px 9px;border:1px solid var(--line);border-radius:8px;color:var(--accent2);text-decoration:none;margin-top:-2px}
+.steps li .onmap:hover,.steps li .onmap:focus-visible{border-color:var(--accent2);outline:0}
+.stagebox .sum.alldone{color:var(--ok)}
+.stagebox.here>summary h3::after{content:"you are here";margin-left:10px;font:500 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#0b1118;background:var(--accent);padding:4px 7px;border-radius:6px;vertical-align:middle}
 .steps li::before{content:counter(st);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:500 11.5px var(--mono);color:var(--muted);border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04)}
 .steps li:has(input:checked)::before{content:"\2713";color:#0b1118;background:var(--ok);border-color:var(--ok);font-weight:600}
 .steps input{width:17px;height:17px;margin:4px 0 0;accent-color:var(--accent)}
@@ -592,10 +596,14 @@ footer{font-size:13px}
   });
   var boxes = document.querySelectorAll('.steps input'), saved = {};
   try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  function tally(){ var st = document.querySelectorAll('details.stagebox'), next = null; for (var i = 0; i < st.length; i++) { var all = st[i].querySelectorAll('.steps input[type=checkbox]'), n = 0; for (var j = 0; j < all.length; j++) if (all[j].checked) n++;
+      var sum = st[i].querySelector('summary .sum'); if (sum) { sum.textContent = n === all.length && n ? 'all ' + n + ' done' : n + ' of ' + all.length + ' done'; sum.className = 'sum' + (n === all.length && n ? ' alldone' : ''); } if (next === null && n < all.length) next = st[i]; }
+    for (var k = 0; k < st.length; k++) st[k].classList.toggle('here', st[k] === next); }
   for (var c = 0; c < boxes.length; c++) {
     if (saved.hasOwnProperty(boxes[c].id)) boxes[c].checked = !!saved[boxes[c].id];
-    boxes[c].addEventListener('change', function(){ saved[this.id] = this.checked; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} });
+    boxes[c].addEventListener('change', function(){ saved[this.id] = this.checked; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} tally(); });
   }
+  tally();
 })();
 </script>
 </body>

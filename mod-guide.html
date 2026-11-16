@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mod guide</title>
+</head>
+<body style="margin:0">
+<title>Mod guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* The guides share the SatMap look: one deliberately dark palette, set here; the skin in tools/tabs.py dresses the parts.
+   Layout: a drafting sheet. Spec strip, then two measured drawings (site, plant) with the build steps beside and below them. */
+:root{ color-scheme:dark;
+  --bg:#0b1118; --panel:#121a25; --ink:#eef3f8; --muted:#93a1b3; --line:#263445; --grid:#1b2836;
+  --mach:#22344a; --pond:#16425e; --void:#070c12; --ledge:#1b2d33;
+  --coal:#ff9d47; --water:#58baff; --power:#f27ad8; --tube:#4fd1b8; --ok:#3ddc84; --okbg:#10291f;
+  --accent:#fa9549; --accent2:#35d6c2; --glass:rgba(16,23,33,.88); --soft:rgba(255,255,255,.035); --r:10px;
+  --display:"Saira Condensed","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:44px}
+h2{font-size:28px}
+h3{font-size:20px}
+p{margin:0;max-width:66ch}
+a{color:var(--water)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:14px}
+.spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--line);background:var(--panel)}
+.spec div{padding:12px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.spec div:last-child{border-right:0}
+.spec b{font-family:var(--display);font-size:30px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.spec span{font-size:13px;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:16px}
+.verdict{background:var(--okbg);border:1px solid var(--ok);padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.verdict h2{color:var(--ok)}
+ul,ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+.two{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:minmax(0,1fr)} h1{font-size:34px}}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.sheet{border:1px solid var(--line);background:var(--panel);overflow-x:auto;position:relative}
+.pop{position:absolute;z-index:5;width:min(340px,calc(100% - 16px));background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:12px 44px 12px 14px;display:flex;flex-direction:column;gap:6px}
+.pop h3{font-size:19px}
+.pop p{font-size:15px;line-height:1.5;max-width:none}
+.pop-x{position:absolute;top:6px;right:6px;width:30px;height:30px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:500 20px/1 var(--body);cursor:pointer}
+.pop-x:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+svg [data-sel]{stroke:var(--ok);stroke-width:4px}
+.sheet svg{display:block}
+#plant svg{min-width:760px;width:100%;height:auto}
+#site svg{width:100%;height:auto}
+#side svg{min-width:680px;width:100%;height:auto}
+#flow svg{min-width:680px;width:100%;height:auto}
+svg text{font-family:var(--body);font-size:14.5px;fill:var(--ink)}
+svg .sm{font-size:13.5px;fill:var(--muted)}
+svg .mono{font-family:var(--mono);font-size:13px;fill:var(--muted)}
+svg .h{font-family:var(--display);font-size:19px;font-weight:600}
+svg .tc{fill:var(--coal);font-weight:600}
+svg .tw{fill:var(--water);font-weight:600}
+svg .tp{fill:var(--power);font-weight:600}
+.layers{display:flex;flex-wrap:wrap;gap:8px}
+.layers button{font:500 14px var(--body);padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;border-radius:2px}
+.layers button:hover{border-color:var(--ink)}
+.layers button:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.layers button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.layers .sw{display:inline-block;width:10px;height:10px;margin-right:7px;vertical-align:baseline}
+#plant .L{transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){#plant .L{transition:none}}
+#plant[data-show="place"] .L:not(.L-place), #plant[data-show="coal"] .L:not(.L-coal):not(.L-place),
+#plant[data-show="water"] .L:not(.L-water):not(.L-place), #plant[data-show="power"] .L:not(.L-power):not(.L-place){opacity:.1}
+.note{border-left:3px solid var(--ink);padding:2px 0 2px 14px;display:flex;flex-direction:column;gap:6px;min-height:118px}
+.note[data-k="coal"]{border-color:var(--coal)} .note[data-k="water"]{border-color:var(--water)} .note[data-k="power"]{border-color:var(--power)}
+.steps{list-style:none;padding:0;gap:0;max-width:none;border-top:1px solid var(--line)}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);align-items:start}
+.steps input{width:20px;height:20px;margin:3px 0 0;accent-color:var(--ok)}
+.steps label{display:flex;flex-direction:column;gap:2px;cursor:pointer}
+.steps b{font-weight:600}
+.steps span{color:var(--muted);font-size:15px;max-width:74ch}
+.steps li:has(input:checked) b{text-decoration:line-through;color:var(--muted)}
+.tablebox{overflow-x:auto;border:1px solid var(--line);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.n{text-align:right;font-family:var(--mono)}
+.key{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted)}
+.key i{display:inline-block;width:22px;height:0;border-top:3px solid;margin-right:6px;vertical-align:middle}
+.key .kw{border-color:var(--water)} .key .kc{border-color:var(--coal)} .key .kp{border-color:var(--power);border-top-style:dashed;border-top-width:2px} .key .kt{border-color:var(--tube);border-top-style:dotted}
+#plant [data-part]{cursor:pointer}
+#plant svg text{pointer-events:none}
+.swt{display:inline-block;width:16px;height:16px;vertical-align:-3px;margin-right:8px;border:2.5px solid var(--ink);background:var(--mach)}
+.swt.ln{height:0;width:22px;border-width:3px 0 0;background:none;vertical-align:4px}
+.swt.dot{border-radius:50%;width:13px;height:13px;border:0}
+dl{margin:0;display:grid;grid-template-columns:minmax(110px,max-content) minmax(0,1fr);gap:8px 18px;font-size:15px}
+dt{font-weight:600}
+dd{margin:0;color:var(--muted)}
+kbd{font:500 13px var(--mono);border:1px solid var(--line);border-bottom-width:2px;padding:1px 6px;background:var(--panel);color:var(--ink);white-space:nowrap}
+.halves{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
+footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+
+.hall svg{min-width:900px;width:100%;height:auto}
+#district svg{min-width:760px;width:100%;height:auto}
+#anatomy svg{width:100%;height:auto}
+.hall [data-i],.hall [data-p],.hall [data-q],.hall [data-l],#district [data-d]{cursor:pointer}
+.hall svg text,#district svg text,#anatomy svg text{pointer-events:none}
+.hall svg text{font-size:14px}
+.hall svg .sm{font-size:13.5px}
+.hall svg .mono{font-size:13px}
+.hall svg .tc,.hall svg .tp{font-size:14.5px}
+#district svg .tp{font-size:13.5px}
+#anatomy svg text{font-size:17px}
+#anatomy svg .mono{font-size:15px}
+.sheet .L{transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){.sheet .L{transition:none}}
+.sheet[data-show="place"] .L:not(.L-place),.sheet[data-show="belt"] .L:not(.L-belt):not(.L-place),.sheet[data-show="power"] .L:not(.L-power):not(.L-place){opacity:.08}
+.facts{font-family:var(--mono);font-size:13px;color:var(--muted);max-width:none}
+.jump{display:flex;flex-wrap:wrap;gap:8px}
+.jump a{font:500 14px var(--body);padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;border-radius:2px}
+.jump a:hover{border-color:var(--ink)}
+.jump a:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.track{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border:1px solid var(--line);background:var(--panel)}
+.track > div{padding:14px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:8px;min-width:0}
+.track > div:last-child{border-right:0}
+.track label{font-weight:600}
+.track input{font:500 18px var(--mono);width:8ch;padding:4px 8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.track input:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.track .bar{height:10px;background:var(--grid);position:relative}
+.track .bar i{position:absolute;inset:0 auto 0 0;background:var(--ok)}
+.track .left{font-size:14px;color:var(--muted)}
+.track .err{font-size:13px;color:var(--coal)}
+.note[data-k="belt"]{border-color:var(--coal)}
+.leg{font:inherit;color:inherit;background:none;border:0;border-bottom:1px dashed var(--muted);padding:2px 0;cursor:pointer;text-align:left}
+.leg:hover{border-bottom-color:var(--ink)}
+.leg:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.leg[aria-pressed="true"]{color:var(--ok);border-bottom:2px solid var(--ok);font-weight:600}
+.wrap[data-hl="machine"] .hall [data-i],.wrap[data-hl="split"] .hall [data-q="split"],.wrap[data-hl="merge"] .hall [data-q="merge"],.wrap[data-hl="cross"] .hall [data-q="cross"],.wrap[data-hl="cont"] .hall [data-q="cont"],.wrap[data-hl="pole"] .hall [data-p]{stroke:var(--ok);stroke-width:4px}
+.wrap[data-hl="belt"] .hall [data-lv],.wrap[data-hl="wire"] .hall [data-q="wire"]{stroke:var(--ok)}
+.wrap[data-hl="grid"] .hall .gridlines{stroke:var(--ok)}
+.note[data-k="place"]{border-color:var(--ink)}
+
+#world svg text{pointer-events:none}#world svg .tp{font-size:13px}
+
+/* ---- the SatMap look, shared with the world map ---- */
+body{font-size:15.5px;line-height:1.55;padding-block:14px 64px;background:radial-gradient(1100px 520px at 50% -160px,rgba(53,214,194,.09),transparent 70%),radial-gradient(900px 480px at 100% 0,rgba(250,149,73,.06),transparent 70%),var(--bg);background-attachment:fixed}
+.wrap{gap:26px}
+a{color:var(--accent2);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.glass{background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.topbar{position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:30;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.brand{display:flex;align-items:center;gap:9px;padding:6px 14px 6px 10px;text-decoration:none;color:var(--ink);white-space:nowrap;height:44px}
+.brand svg{width:26px;height:26px;flex:none}
+.brand b{display:block;font:600 19px/1 var(--display);letter-spacing:.07em}
+.brand small{display:block;font:500 9.5px/1.3 var(--mono);letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+.links{display:flex;flex-wrap:wrap;gap:2px;padding:4px;min-height:44px;align-items:center;min-width:0}
+.links a{padding:7px 11px;border-radius:7px;color:var(--muted);text-decoration:none;font-weight:500;font-size:14px;white-space:nowrap}
+.links a:hover{color:var(--ink);background:rgba(255,255,255,.07)}
+.links a[aria-current]{color:var(--ink);background:rgba(250,149,73,.16)}
+.find{flex:1 1 280px;position:relative;min-width:0}
+.find input{width:100%;height:44px;padding:0 14px 0 40px;border-radius:var(--r);border:1px solid rgba(255,255,255,.1);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font:400 15px var(--body);color:var(--ink);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.find input::placeholder{color:#64717f}
+.find>svg{position:absolute;left:12px;top:12px;width:20px;height:20px;color:var(--muted);pointer-events:none;z-index:2}
+.find #found{position:absolute;top:50px;left:0;right:0;max-height:min(60vh,460px);overflow:auto;display:flex;flex-direction:column;padding:4px;border-radius:var(--r);border:1px solid rgba(255,255,255,.1);background:var(--glass)}
+.find #found:empty{display:none}
+.find #found button{all:unset;cursor:pointer;padding:8px 11px;border-radius:7px;display:flex;flex-direction:column;gap:1px;border-bottom:0}
+.find #found button:hover,.find #found button:focus-visible{background:rgba(255,255,255,.08)}
+@media (max-width:760px){.topbar{position:static}.brand small{display:none}.links a{padding:6px 9px}.finder .jump{flex-basis:100%}}
+header{gap:12px;padding-top:6px}
+h1{font-size:46px;letter-spacing:.015em}
+h2{font-size:26px}
+.eyebrow{color:var(--accent);letter-spacing:.14em;font-size:11px}
+header>p{color:var(--muted);font-size:16.5px}
+.lede{font-size:16px;color:var(--muted)}
+/* tiles */
+.spec{border:0;background:none;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.spec div{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:10px 12px}
+.spec div:last-child{border-right:1px solid var(--line)}
+.spec b{font-size:26px}
+.spec span{font-size:12px}
+/* cards */
+.sheet,.tablebox,.track,.flow,#sf-out,.tier,.cards{border-radius:var(--r);border-color:var(--line);background:#0f1722}
+.tablebox{background:var(--soft)}
+.tier+.tier{border-top:1px solid var(--line);margin-top:6px}
+th{color:var(--accent2);font-size:11px;letter-spacing:.1em;background:rgba(255,255,255,.03)}
+tr:hover td{background:rgba(255,255,255,.025)}
+.verdict{border-radius:var(--r);background:rgba(61,220,132,.08);border-color:rgba(61,220,132,.5)}
+.note{border-left-color:var(--accent);min-height:0;padding:10px 14px;background:var(--soft);border-radius:0 8px 8px 0}
+.pop{border:1px solid rgba(255,255,255,.14);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 14px 44px rgba(0,0,0,.55)}
+.pop h3{font-size:20px}
+.pop-x{border-radius:7px;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+kbd{border-radius:5px;background:rgba(255,255,255,.06)}
+/* buttons and chips */
+.layers button,.phases button,.zoom button,.jump a,.finder button,#sf-more{font:500 13.5px var(--body);padding:7px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer;text-decoration:none;white-space:nowrap}
+.layers button:hover,.phases button:hover,.zoom button:hover,.jump a:hover,.finder button:hover,#sf-more:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.22)}
+.layers button[aria-pressed="true"],.phases button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#10161f;font-weight:600}
+.leg[aria-pressed="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.track input,.sf-bar input[type=search],.sf-bar select{border-radius:7px;background:#0f1722;border-color:rgba(255,255,255,.16)}
+.track > div{border-color:var(--line)}
+.track .bar{border-radius:5px;overflow:hidden;height:7px;background:rgba(255,255,255,.09)}
+.sf-bar input[type=checkbox]{accent-color:var(--accent)}
+/* the section strip under the header */
+.finder{position:static;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:none;border:0;padding:0}
+.finder .jump{flex:1 1 0;flex-basis:0;gap:6px;min-width:min(100%,280px)}
+/* folded sections: one card each */
+details.sec{border:1px solid var(--line);border-radius:12px;background:rgba(18,26,37,.72);padding:14px 18px}
+details.sec[open]{padding-bottom:20px}
+details.sec>summary h2{font-size:25px}
+details.sec>summary::before,details.sub>summary::before{content:"";width:9px;height:9px;flex:none;border-right:2.5px solid var(--accent);border-bottom:2.5px solid var(--accent);transform:rotate(-45deg);margin:0 6px 3px 2px;align-self:center;transition:transform .15s}
+details.sec[open]>summary::before,details.sub[open]>summary::before{content:"";transform:rotate(45deg)}
+@media (prefers-reduced-motion:reduce){details.sec>summary::before,details.sub>summary::before{transition:none}}
+details.sub{border-radius:9px;background:var(--soft);border-color:var(--line);margin-top:8px}
+details.sub+details.sub{border-top:1px solid var(--line)}
+.sfhall+.sfhall details.sub{border-top:1px solid var(--line)}
+details .sum{font-size:13.5px}
+section{gap:14px}
+/* steps: a number, a box to tick, what to do, and one line of how */
+.steps{counter-reset:st;border-top:0;gap:0}
+.steps li{counter-increment:st;grid-template-columns:26px 20px minmax(0,1fr);gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:start}
+.steps li:last-child{border-bottom:0}
+.steps li .onmap{grid-column:3;justify-self:start;font:500 11.5px/1 var(--mono);letter-spacing:.04em;padding:6px 9px;border:1px solid var(--line);border-radius:8px;color:var(--accent2);text-decoration:none;margin-top:-2px}
+.steps li .onmap:hover,.steps li .onmap:focus-visible{border-color:var(--accent2);outline:0}
+.stagebox .sum.alldone{color:var(--ok)}
+.stagebox.here>summary h3::after{content:"you are here";margin-left:10px;font:500 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#0b1118;background:var(--accent);padding:4px 7px;border-radius:6px;vertical-align:middle}
+.steps li::before{content:counter(st);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:500 11.5px var(--mono);color:var(--muted);border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04)}
+.steps li:has(input:checked)::before{content:"\2713";color:#0b1118;background:var(--ok);border-color:var(--ok);font-weight:600}
+.steps input{width:17px;height:17px;margin:4px 0 0;accent-color:var(--accent)}
+.steps b{font-weight:600;font-size:15px}
+.steps span{font-size:14px;line-height:1.5;max-width:78ch}
+.steps li:has(input:checked) b{text-decoration:none;color:var(--muted)}
+.steps li:has(input:checked) span{opacity:.55}
+.stage{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);margin-top:6px}
+.flow li::before{color:var(--accent);font-size:20px}
+.flow li{border-color:var(--line)}
+dl{font-size:14.5px}
+footer{font-size:13px}
+.cards{border:0!important;background:none!important;gap:10px!important}
+.cards a{border:1px solid var(--line)!important;border-radius:var(--r);background:rgba(18,26,37,.72)}
+.cards a:hover{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.22)!important}
+.cards b{font-size:22px!important}
+
+.page{max-width:1180px}
+.prose{max-width:880px;display:flow-root}
+.prose h2{font:600 27px/1.2 var(--display);letter-spacing:.02em;margin:40px 0 12px;padding-top:18px;border-top:1px solid var(--line);scroll-margin-top:84px;text-wrap:balance}
+.prose h3{font:600 20px/1.25 var(--display);letter-spacing:.02em;margin:28px 0 8px;scroll-margin-top:84px}
+.prose h4{font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 0 6px}
+.prose p,.prose li{font-size:15.5px;line-height:1.64;color:#cfd8e3}
+.prose p,.prose li{max-width:76ch}.prose td p{max-width:none}
+.prose td:first-child code{white-space:nowrap;overflow-wrap:normal}
+.prose p{margin:0 0 13px}.prose ul,.prose ol{margin:0 0 15px;padding-left:24px}.prose li{margin:5px 0}.prose li>p{margin:0 0 6px}
+.prose strong{color:var(--ink);font-weight:600}
+.prose a{color:var(--accent2);text-decoration-thickness:1px;text-underline-offset:3px}.prose a:hover{color:#7df0e0}
+.prose code{font:500 .88em var(--mono);background:rgba(255,255,255,.07);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.prose pre{position:relative;background:#090e14;border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;margin:0 0 16px;max-height:560px}
+.prose pre code{background:none;padding:0;font-size:12.5px;line-height:1.55;overflow-wrap:normal;white-space:pre;color:#d6dee8}
+.prose ol>li::marker{color:var(--accent);font:600 .92em var(--mono)}
+.prose ul>li::marker{color:var(--accent)}
+.prose blockquote{border-left:3px solid var(--accent);margin:0 0 14px;padding:2px 0 2px 14px}.prose blockquote p{color:var(--muted)}
+.prose hr{border:0;border-top:1px solid var(--line);margin:28px 0}
+.tablewrap{overflow-x:auto;margin:0 0 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.prose table{border-collapse:collapse;width:100%;font-size:14px}
+.prose th{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.025)}
+.prose td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;color:#cfd8e3}
+.prose tr:last-child td{border-bottom:0}.prose td:first-child{color:var(--ink)}
+.prose details{border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:0 0 10px;padding:0 14px}
+.prose summary{cursor:pointer;padding:13px 0;font-weight:600;color:var(--ink)}.prose summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.prose details[open]>summary{border-bottom:1px solid var(--line);margin-bottom:14px}
+.note{border:1px solid rgba(250,149,73,.45);background:rgba(250,149,73,.08);border-radius:12px;padding:11px 14px;margin:0 0 18px;font-size:14.5px;line-height:1.55;color:#e6d3c2;max-width:880px}
+.note a{color:var(--accent)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;max-width:980px}
+.toc a{font:500 13px/1 var(--body);padding:8px 11px;border:1px solid var(--line);border-radius:9px;color:var(--ink);text-decoration:none;background:rgba(255,255,255,.03)}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);outline:0}
+.copy{position:sticky;float:right;top:0;margin:-4px -6px 0 8px;font:500 11.5px var(--mono);padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:#121a25;color:var(--ink);cursor:pointer}
+.copy:hover{border-color:var(--accent)}.copy.done{border-color:var(--accent2);color:var(--accent2)}
+header .lede{max-width:760px}
+@media (max-width:640px){.prose h2{font-size:23px}.prose p,.prose li{font-size:15px}}
+</style>
+<div class="wrap page"><div class="topbar"><a class="brand glass" href="index.html" title="All guides"><svg viewBox="0 0 128 128" aria-hidden="true"><defs><linearGradient id="smbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2733"/><stop offset="1" stop-color="#0d1116"/></linearGradient><clipPath id="smtile"><rect x="4" y="4" width="120" height="120" rx="26"/></clipPath></defs><rect x="4" y="4" width="120" height="120" rx="26" fill="url(#smbg)"/><g clip-path="url(#smtile)" fill="none" stroke-linecap="round"><g stroke="#4f6b7d" stroke-width="2.4" opacity=".7"><path d="M-6 80C16 66 34 70 52 84S98 110 134 92"/><path d="M-6 116C24 126 44 112 64 112S104 128 134 112"/><path d="M70 134C84 120 108 122 134 130"/><path d="M-6 58C8 48 22 48 34 54"/></g><g stroke="#fa9549" stroke-width="5"><path d="M63.7 72.8A13 13 0 0 1 53.2 62.3"/><path d="M61.8 83.6A24 24 0 0 1 42.4 64.2" opacity=".62"/><path d="M59.9 94.5A35 35 0 0 1 31.5 66.1" opacity=".32"/></g></g><g transform="translate(82 44) rotate(45)"><rect x="-39" y="-9" width="24" height="18" rx="2.5" fill="#2f86c9" stroke="#e9eef2" stroke-width="3"/><rect x="15" y="-9" width="24" height="18" rx="2.5" fill="#2f86c9" stroke="#e9eef2" stroke-width="3"/><path d="M-27-9V9M27-9V9" stroke="#e9eef2" stroke-width="2"/><rect x="-15" y="-3" width="30" height="6" fill="#e9eef2"/><rect x="-11" y="-13" width="22" height="26" rx="5" fill="#e9eef2"/><rect x="-2.5" y="12" width="5" height="6" fill="#e9eef2"/><path d="M-9 17Q0 28 9 17Z" fill="#fa9549"/></g><circle cx="28" cy="100" r="14" fill="none" stroke="#fa9549" stroke-width="3" opacity=".45"/><circle cx="28" cy="100" r="7.5" fill="#fa9549" stroke="#0d1116" stroke-width="2.5"/></svg><span><b>SATMAP</b><small>the first world</small></span></a><nav class="links glass" aria-label="Guides"><a href="satisfactory-plus.html">Satisfactory Plus</a><a href="world-map.html">World map</a><a href="rocky-desert-works.html">Rocky Desert Works</a><a href="builders-handbook.html">Builder's Handbook</a><a href="index.html">All guides</a></nav></div><header><div class="eyebrow">The first world · base recipes</div><h1>Mod guide</h1><p class="lede">A short guide to the mods you will actually touch. The <a href="mod-list.html">mod list</a> has all 80 with one line each. Keys are each mod's defaults as given on its ficsit.app page; all can be rebound in Options, Keybindings.</p></header>
+<p class="note">This page belongs to the first world, played on the base game's recipes with the 80-mod pack. The server has run <a href="plus-pack.html">Howson Plus</a> on a new world since 14 Nov 2026; it is kept here for reference.</p>
+<nav class="toc" aria-label="On this page"><a href="#start-here-five-tools-for-the-first-evening">Start here: five tools for the first evening</a><a href="#more-building-tools">More building tools</a><a href="#building-pieces">Building pieces</a><a href="#readouts">Readouts</a><a href="#belts-pipes-and-lifts">Belts, pipes and lifts</a><a href="#extra-content-in-the-order-it-turns-up">Extra content, in the order it turns up</a><a href="#small-comforts">Small comforts</a></nav>
+<article class="prose">
+<p>The base game's own machines, recipes and milestones are all still there. The mods add tools, building pieces, readouts and extra branches beside them, and the extra branches can be ignored until you want them.</p>
+<h2 id="start-here-five-tools-for-the-first-evening">Start here: five tools for the first evening</h2>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it gives you</th><th>How</th></tr></thead><tbody><tr><td>Smart!</td><td>Place a whole grid of foundations, machines or storage in one click; copy a working machine row and continue it</td><td>Hold a buildable and press <code>K</code> for the Smart Panel. Hold the same building over an existing row and pick a direction to Extend it</td></tr><tr><td>Infinite Zoop</td><td>Zoop walls and foundations in rows and columns, and longer than the base game allows</td><td>Works by itself. Longer zoops are researched in the MAM</td></tr><tr><td>Infinite Nudge</td><td>Nudge a locked piece in small steps, rotate it on any axis</td><td>With a piece in hand press <code>H</code>, then nudge. Left Ctrl is 20 cm, Left Shift 50 cm, Right Shift 250 cm. <code>Z</code> changes what the scroll wheel rotates</td></tr><tr><td>Move Tool</td><td>Pick a building up and put it down elsewhere instead of rebuilding it</td><td>Left click to pick up, left click to set down, right click to put it back. Ctrl + left click selects several</td></tr><tr><td>Curve Builder</td><td>Curved rows of foundations and walkways</td><td>While placing a foundation press <code>R</code> and choose Curve. Hold Caps Lock and scroll to set the angle</td></tr></tbody></table></div>
+<h2 id="more-building-tools">More building tools</h2>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it gives you</th><th>How</th></tr></thead><tbody><tr><td>Longer Beams</td><td>Beams up to 100 m</td><td>Shift + scroll changes the length 1 m at a time</td></tr><tr><td>Construction Preferences</td><td>Choose the default pole for belts, pipes and hypertubes, and lift heights</td><td><code>Alt</code> + <code>C</code> opens the quick switch. With stackable poles as default, hold Ctrl on a pole to stack onto it</td></tr><tr><td>Pole Position</td><td>Places the next stackable pole at the farthest point a belt or pipe can reach, and shows that range as a ring</td><td>Hold Shift while placing</td></tr><tr><td>Persistent Paintables</td><td>An eyedropper for colours and materials; buildings keep their colour when upgraded</td><td><code>Ctrl</code> + <code>Q</code> samples what you point at</td></tr><tr><td>Progressive Blueprinters</td><td>Small blueprint designers from 1 × 1 × 1 foundations upward, early in the game</td><td>The first one asks for a full stack of every basic material. A design loads only into a designer of the size it was made in</td></tr><tr><td>Blueprint Designer+</td><td>Three very large designers: 80 × 80 × 64 m, 96 × 96 × 48 m and 176 × 176 × 96 m</td><td>Build inside the frame and save as usual. Its page says multiplayer is not tested</td></tr><tr><td>Modular Load Balancers</td><td>Snap-together balancers of any size</td><td>A Tier 4 milestone costing 20 Motors and 20 Modular Frames, then Build Menu, Logistics</td></tr></tbody></table></div>
+<h2 id="building-pieces">Building pieces</h2>
+<p>Twenty-eight mods of walls, floors, roofs, doors, stairs, catwalks, props, lights and signs. They all appear in the normal build menu and the Customizer. The core, in one style that matches the game:</p>
+<ul>
+<li><strong>Structural Solutions:</strong> frames, concrete shapes, beams, automatic doors and shutters.</li>
+<li><strong>Architecture+ 01 to 05:</strong> foundations, walls and windows, round windows, doors, glass roofs.</li>
+<li><strong>Gateways Extension and Spiral Stairs:</strong> stairs, ramps, walkways, catwalks.</li>
+</ul>
+<p>Around that: 2 m walls, two extra wall sets, wood and brick walls, a sci-fi wall set, concrete and painted-roof materials, railings, a small roll-up gate, catwalks with ladders, props (factory, industrial, furniture, plants and rocks), lights, power-cable styles, 3D letters and signs.</p>
+<p>Three more that help when building:</p>
+<ul>
+<li><strong>Universal Swatch Slots:</strong> more paint swatches. Everyone must use the same palette as the server.</li>
+<li><strong>Auto Signs:</strong> a sign placed on a building fills in its own text and icon.</li>
+<li><strong>All Poles with Indicator Light:</strong> every power pole shows white for fine, red for no power, yellow for a tripped fuse.</li>
+</ul>
+<h2 id="readouts">Readouts</h2>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it shows</th></tr></thead><tbody><tr><td>Efficiency Checker</td><td>Whether a belt or pipe is starved or backing up. Also a hand tool</td></tr><tr><td>Power Checker</td><td>Whether a power grid can blow its fuse</td></tr><tr><td>Throughput Counter and Limiter</td><td>Items per minute on a belt, and an optional cap</td></tr><tr><td>Production Stats</td><td>What the factory makes and uses</td></tr><tr><td>MiniMap</td><td>A small map in the corner</td></tr><tr><td>Atlas</td><td>Your buildings on the big map. On a server it shows only the parts of the world your game has loaded</td></tr><tr><td>Miner Status on Map</td><td>A map marker when a miner or extractor is stuck</td></tr><tr><td>GameTime and Speedometer</td><td>A clock; your speed, position and height</td></tr><tr><td>Cable Highlighter</td><td><code>F8</code> shows nearby power cables through walls</td></tr></tbody></table></div>
+<h2 id="belts-pipes-and-lifts">Belts, pipes and lifts</h2>
+<p>Holes through floors for belts, pipes, power and hypertubes, and through walls for belts; more wall supports; covered belts; glass fluid buffers; a small storage box that snaps onto a belt; and <strong>Linear Motion</strong>, which adds elevators.</p>
+<h2 id="extra-content-in-the-order-it-turns-up">Extra content, in the order it turns up</h2>
+<p>You can ignore all of it and play the base game. Each one is its own branch.</p>
+<div class="tablewrap"><table><thead><tr><th>When</th><th>Mod</th><th>What it adds</th></tr></thead><tbody><tr><td>From the start</td><td>Industrial Evolution</td><td>A research tree in the MAM. Each node gives better versions of machines, which can be upgraded where they stand</td></tr><tr><td>Tier 3</td><td>Megaprojects: Water Dam</td><td>A milestone, &quot;Water Dams and Underground Pipelines&quot;. Three fixed sites, named in the mod for the Grass Fields, the Dune Desert and the Titan Forest, so none is near our base. Even an unfinished dam makes 250 MW for free</td></tr><tr><td>Tier 4</td><td>Megaprojects: Power Domain</td><td>After the Expanded Power Infrastructure milestone. One fixed site: a giant battery, 5,000 MW of storage at level 1 and up to 1,000,000 at level 4. Its phases cost Space Elevator parts</td></tr><tr><td>Tier 5</td><td>Pipe Priorities</td><td>Powered pipe splitters and mergers that prefer one pipe over another. Researched in the HUB</td></tr><tr><td>Tier 6 and 7</td><td>Lithium</td><td>A new ore at Tier 7, mined by a Reactive Ore Extractor that burns Packaged Petroleum Ether (Tier 6). Thirteen items, a Jetpack Mk.2. The mod places 22 Lithium nodes in the world; the nearest to our base is at -1610, -539, about 230 m north-east of Hall 1</td></tr><tr><td>Not checked</td><td>Refined Power</td><td>Wind and water turbines, solar panels, a modular boiler-and-turbine power system, reactors. Over 30 buildings</td></tr><tr><td>Not checked</td><td>Ficsit Farming</td><td>Fourteen farming buildings</td></tr><tr><td>AWESOME Shop</td><td>Fluid Extras</td><td>Extra pipe junction shapes in three shop bundles, a mini water extractor. Its T junction appears twice in the build menu</td></tr></tbody></table></div>
+<p>&quot;Not checked&quot; means the mod's page does not say where it unlocks. Megaprojects are built once, at a fixed place, and cannot be dismantled.</p>
+<h2 id="small-comforts">Small comforts</h2>
+<p>Faster hand crafting, mantas that fly above your buildings, lizard doggos you can pick up and carry, and <strong>BoomBox Plus</strong>, which plays the same music for everyone on the server.</p>
+</article></div>
+<script>
+document.querySelectorAll('.prose pre').forEach(function(pre){
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'copy'; b.textContent = 'Copy';
+  b.addEventListener('click', function(){ var text = pre.querySelector('code').textContent, ok = function(){ b.textContent = 'Copied'; b.classList.add('done'); setTimeout(function(){ b.textContent = 'Copy'; b.classList.remove('done'); }, 1600); };
+    var pick = function(){ var r = document.createRange(); r.selectNodeContents(pre.querySelector('code')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selected: press Ctrl+C'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, pick); else pick(); });
+  pre.insertBefore(b, pre.firstChild);
+});
+</script>
+</body>
+</html>

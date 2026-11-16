@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Howson Plus: the mod pack</title>
+</head>
+<body style="margin:0">
+<title>Howson Plus: the mod pack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* The guides share the SatMap look: one deliberately dark palette, set here; the skin in tools/tabs.py dresses the parts.
+   Layout: a drafting sheet. Spec strip, then two measured drawings (site, plant) with the build steps beside and below them. */
+:root{ color-scheme:dark;
+  --bg:#0b1118; --panel:#121a25; --ink:#eef3f8; --muted:#93a1b3; --line:#263445; --grid:#1b2836;
+  --mach:#22344a; --pond:#16425e; --void:#070c12; --ledge:#1b2d33;
+  --coal:#ff9d47; --water:#58baff; --power:#f27ad8; --tube:#4fd1b8; --ok:#3ddc84; --okbg:#10291f;
+  --accent:#fa9549; --accent2:#35d6c2; --glass:rgba(16,23,33,.88); --soft:rgba(255,255,255,.035); --r:10px;
+  --display:"Saira Condensed","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:44px}
+h2{font-size:28px}
+h3{font-size:20px}
+p{margin:0;max-width:66ch}
+a{color:var(--water)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-direction:column;gap:14px}
+.spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--line);background:var(--panel)}
+.spec div{padding:12px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.spec div:last-child{border-right:0}
+.spec b{font-family:var(--display);font-size:30px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.spec span{font-size:13px;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:16px}
+.verdict{background:var(--okbg);border:1px solid var(--ok);padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.verdict h2{color:var(--ok)}
+ul,ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:70ch}
+.two{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:minmax(0,1fr)} h1{font-size:34px}}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.sheet{border:1px solid var(--line);background:var(--panel);overflow-x:auto;position:relative}
+.pop{position:absolute;z-index:5;width:min(340px,calc(100% - 16px));background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:12px 44px 12px 14px;display:flex;flex-direction:column;gap:6px}
+.pop h3{font-size:19px}
+.pop p{font-size:15px;line-height:1.5;max-width:none}
+.pop-x{position:absolute;top:6px;right:6px;width:30px;height:30px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:500 20px/1 var(--body);cursor:pointer}
+.pop-x:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+svg [data-sel]{stroke:var(--ok);stroke-width:4px}
+.sheet svg{display:block}
+#plant svg{min-width:760px;width:100%;height:auto}
+#site svg{width:100%;height:auto}
+#side svg{min-width:680px;width:100%;height:auto}
+#flow svg{min-width:680px;width:100%;height:auto}
+svg text{font-family:var(--body);font-size:14.5px;fill:var(--ink)}
+svg .sm{font-size:13.5px;fill:var(--muted)}
+svg .mono{font-family:var(--mono);font-size:13px;fill:var(--muted)}
+svg .h{font-family:var(--display);font-size:19px;font-weight:600}
+svg .tc{fill:var(--coal);font-weight:600}
+svg .tw{fill:var(--water);font-weight:600}
+svg .tp{fill:var(--power);font-weight:600}
+.layers{display:flex;flex-wrap:wrap;gap:8px}
+.layers button{font:500 14px var(--body);padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;border-radius:2px}
+.layers button:hover{border-color:var(--ink)}
+.layers button:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.layers button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.layers .sw{display:inline-block;width:10px;height:10px;margin-right:7px;vertical-align:baseline}
+#plant .L{transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){#plant .L{transition:none}}
+#plant[data-show="place"] .L:not(.L-place), #plant[data-show="coal"] .L:not(.L-coal):not(.L-place),
+#plant[data-show="water"] .L:not(.L-water):not(.L-place), #plant[data-show="power"] .L:not(.L-power):not(.L-place){opacity:.1}
+.note{border-left:3px solid var(--ink);padding:2px 0 2px 14px;display:flex;flex-direction:column;gap:6px;min-height:118px}
+.note[data-k="coal"]{border-color:var(--coal)} .note[data-k="water"]{border-color:var(--water)} .note[data-k="power"]{border-color:var(--power)}
+.steps{list-style:none;padding:0;gap:0;max-width:none;border-top:1px solid var(--line)}
+.steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);align-items:start}
+.steps input{width:20px;height:20px;margin:3px 0 0;accent-color:var(--ok)}
+.steps label{display:flex;flex-direction:column;gap:2px;cursor:pointer}
+.steps b{font-weight:600}
+.steps span{color:var(--muted);font-size:15px;max-width:74ch}
+.steps li:has(input:checked) b{text-decoration:line-through;color:var(--muted)}
+.tablebox{overflow-x:auto;border:1px solid var(--line);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.n{text-align:right;font-family:var(--mono)}
+.key{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted)}
+.key i{display:inline-block;width:22px;height:0;border-top:3px solid;margin-right:6px;vertical-align:middle}
+.key .kw{border-color:var(--water)} .key .kc{border-color:var(--coal)} .key .kp{border-color:var(--power);border-top-style:dashed;border-top-width:2px} .key .kt{border-color:var(--tube);border-top-style:dotted}
+#plant [data-part]{cursor:pointer}
+#plant svg text{pointer-events:none}
+.swt{display:inline-block;width:16px;height:16px;vertical-align:-3px;margin-right:8px;border:2.5px solid var(--ink);background:var(--mach)}
+.swt.ln{height:0;width:22px;border-width:3px 0 0;background:none;vertical-align:4px}
+.swt.dot{border-radius:50%;width:13px;height:13px;border:0}
+dl{margin:0;display:grid;grid-template-columns:minmax(110px,max-content) minmax(0,1fr);gap:8px 18px;font-size:15px}
+dt{font-weight:600}
+dd{margin:0;color:var(--muted)}
+kbd{font:500 13px var(--mono);border:1px solid var(--line);border-bottom-width:2px;padding:1px 6px;background:var(--panel);color:var(--ink);white-space:nowrap}
+.halves{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
+footer{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+
+.hall svg{min-width:900px;width:100%;height:auto}
+#district svg{min-width:760px;width:100%;height:auto}
+#anatomy svg{width:100%;height:auto}
+.hall [data-i],.hall [data-p],.hall [data-q],.hall [data-l],#district [data-d]{cursor:pointer}
+.hall svg text,#district svg text,#anatomy svg text{pointer-events:none}
+.hall svg text{font-size:14px}
+.hall svg .sm{font-size:13.5px}
+.hall svg .mono{font-size:13px}
+.hall svg .tc,.hall svg .tp{font-size:14.5px}
+#district svg .tp{font-size:13.5px}
+#anatomy svg text{font-size:17px}
+#anatomy svg .mono{font-size:15px}
+.sheet .L{transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){.sheet .L{transition:none}}
+.sheet[data-show="place"] .L:not(.L-place),.sheet[data-show="belt"] .L:not(.L-belt):not(.L-place),.sheet[data-show="power"] .L:not(.L-power):not(.L-place){opacity:.08}
+.facts{font-family:var(--mono);font-size:13px;color:var(--muted);max-width:none}
+.jump{display:flex;flex-wrap:wrap;gap:8px}
+.jump a{font:500 14px var(--body);padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;border-radius:2px}
+.jump a:hover{border-color:var(--ink)}
+.jump a:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.track{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border:1px solid var(--line);background:var(--panel)}
+.track > div{padding:14px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:8px;min-width:0}
+.track > div:last-child{border-right:0}
+.track label{font-weight:600}
+.track input{font:500 18px var(--mono);width:8ch;padding:4px 8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.track input:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.track .bar{height:10px;background:var(--grid);position:relative}
+.track .bar i{position:absolute;inset:0 auto 0 0;background:var(--ok)}
+.track .left{font-size:14px;color:var(--muted)}
+.track .err{font-size:13px;color:var(--coal)}
+.note[data-k="belt"]{border-color:var(--coal)}
+.leg{font:inherit;color:inherit;background:none;border:0;border-bottom:1px dashed var(--muted);padding:2px 0;cursor:pointer;text-align:left}
+.leg:hover{border-bottom-color:var(--ink)}
+.leg:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.leg[aria-pressed="true"]{color:var(--ok);border-bottom:2px solid var(--ok);font-weight:600}
+.wrap[data-hl="machine"] .hall [data-i],.wrap[data-hl="split"] .hall [data-q="split"],.wrap[data-hl="merge"] .hall [data-q="merge"],.wrap[data-hl="cross"] .hall [data-q="cross"],.wrap[data-hl="cont"] .hall [data-q="cont"],.wrap[data-hl="pole"] .hall [data-p]{stroke:var(--ok);stroke-width:4px}
+.wrap[data-hl="belt"] .hall [data-lv],.wrap[data-hl="wire"] .hall [data-q="wire"]{stroke:var(--ok)}
+.wrap[data-hl="grid"] .hall .gridlines{stroke:var(--ok)}
+.note[data-k="place"]{border-color:var(--ink)}
+
+#world svg text{pointer-events:none}#world svg .tp{font-size:13px}
+
+/* ---- the SatMap look, shared with the world map ---- */
+body{font-size:15.5px;line-height:1.55;padding-block:14px 64px;background:radial-gradient(1100px 520px at 50% -160px,rgba(53,214,194,.09),transparent 70%),radial-gradient(900px 480px at 100% 0,rgba(250,149,73,.06),transparent 70%),var(--bg);background-attachment:fixed}
+.wrap{gap:26px}
+a{color:var(--accent2);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.glass{background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.topbar{position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:30;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.brand{display:flex;align-items:center;gap:9px;padding:6px 14px 6px 10px;text-decoration:none;color:var(--ink);white-space:nowrap;height:44px}
+.brand svg{width:26px;height:26px;flex:none}
+.brand b{display:block;font:600 19px/1 var(--display);letter-spacing:.07em}
+.brand small{display:block;font:500 9.5px/1.3 var(--mono);letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+.links{display:flex;flex-wrap:wrap;gap:2px;padding:4px;min-height:44px;align-items:center;min-width:0}
+.links a{padding:7px 11px;border-radius:7px;color:var(--muted);text-decoration:none;font-weight:500;font-size:14px;white-space:nowrap}
+.links a:hover{color:var(--ink);background:rgba(255,255,255,.07)}
+.links a[aria-current]{color:var(--ink);background:rgba(250,149,73,.16)}
+.find{flex:1 1 280px;position:relative;min-width:0}
+.find input{width:100%;height:44px;padding:0 14px 0 40px;border-radius:var(--r);border:1px solid rgba(255,255,255,.1);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font:400 15px var(--body);color:var(--ink);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+.find input::placeholder{color:#64717f}
+.find>svg{position:absolute;left:12px;top:12px;width:20px;height:20px;color:var(--muted);pointer-events:none;z-index:2}
+.find #found{position:absolute;top:50px;left:0;right:0;max-height:min(60vh,460px);overflow:auto;display:flex;flex-direction:column;padding:4px;border-radius:var(--r);border:1px solid rgba(255,255,255,.1);background:var(--glass)}
+.find #found:empty{display:none}
+.find #found button{all:unset;cursor:pointer;padding:8px 11px;border-radius:7px;display:flex;flex-direction:column;gap:1px;border-bottom:0}
+.find #found button:hover,.find #found button:focus-visible{background:rgba(255,255,255,.08)}
+@media (max-width:760px){.topbar{position:static}.brand small{display:none}.links a{padding:6px 9px}.finder .jump{flex-basis:100%}}
+header{gap:12px;padding-top:6px}
+h1{font-size:46px;letter-spacing:.015em}
+h2{font-size:26px}
+.eyebrow{color:var(--accent);letter-spacing:.14em;font-size:11px}
+header>p{color:var(--muted);font-size:16.5px}
+.lede{font-size:16px;color:var(--muted)}
+/* tiles */
+.spec{border:0;background:none;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.spec div{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:10px 12px}
+.spec div:last-child{border-right:1px solid var(--line)}
+.spec b{font-size:26px}
+.spec span{font-size:12px}
+/* cards */
+.sheet,.tablebox,.track,.flow,#sf-out,.tier,.cards{border-radius:var(--r);border-color:var(--line);background:#0f1722}
+.tablebox{background:var(--soft)}
+.tier+.tier{border-top:1px solid var(--line);margin-top:6px}
+th{color:var(--accent2);font-size:11px;letter-spacing:.1em;background:rgba(255,255,255,.03)}
+tr:hover td{background:rgba(255,255,255,.025)}
+.verdict{border-radius:var(--r);background:rgba(61,220,132,.08);border-color:rgba(61,220,132,.5)}
+.note{border-left-color:var(--accent);min-height:0;padding:10px 14px;background:var(--soft);border-radius:0 8px 8px 0}
+.pop{border:1px solid rgba(255,255,255,.14);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 14px 44px rgba(0,0,0,.55)}
+.pop h3{font-size:20px}
+.pop-x{border-radius:7px;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+kbd{border-radius:5px;background:rgba(255,255,255,.06)}
+/* buttons and chips */
+.layers button,.phases button,.zoom button,.jump a,.finder button,#sf-more{font:500 13.5px var(--body);padding:7px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:var(--ink);cursor:pointer;text-decoration:none;white-space:nowrap}
+.layers button:hover,.phases button:hover,.zoom button:hover,.jump a:hover,.finder button:hover,#sf-more:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.22)}
+.layers button[aria-pressed="true"],.phases button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#10161f;font-weight:600}
+.leg[aria-pressed="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.track input,.sf-bar input[type=search],.sf-bar select{border-radius:7px;background:#0f1722;border-color:rgba(255,255,255,.16)}
+.track > div{border-color:var(--line)}
+.track .bar{border-radius:5px;overflow:hidden;height:7px;background:rgba(255,255,255,.09)}
+.sf-bar input[type=checkbox]{accent-color:var(--accent)}
+/* the section strip under the header */
+.finder{position:static;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:none;border:0;padding:0}
+.finder .jump{flex:1 1 0;flex-basis:0;gap:6px;min-width:min(100%,280px)}
+/* folded sections: one card each */
+details.sec{border:1px solid var(--line);border-radius:12px;background:rgba(18,26,37,.72);padding:14px 18px}
+details.sec[open]{padding-bottom:20px}
+details.sec>summary h2{font-size:25px}
+details.sec>summary::before,details.sub>summary::before{content:"";width:9px;height:9px;flex:none;border-right:2.5px solid var(--accent);border-bottom:2.5px solid var(--accent);transform:rotate(-45deg);margin:0 6px 3px 2px;align-self:center;transition:transform .15s}
+details.sec[open]>summary::before,details.sub[open]>summary::before{content:"";transform:rotate(45deg)}
+@media (prefers-reduced-motion:reduce){details.sec>summary::before,details.sub>summary::before{transition:none}}
+details.sub{border-radius:9px;background:var(--soft);border-color:var(--line);margin-top:8px}
+details.sub+details.sub{border-top:1px solid var(--line)}
+.sfhall+.sfhall details.sub{border-top:1px solid var(--line)}
+details .sum{font-size:13.5px}
+section{gap:14px}
+/* steps: a number, a box to tick, what to do, and one line of how */
+.steps{counter-reset:st;border-top:0;gap:0}
+.steps li{counter-increment:st;grid-template-columns:26px 20px minmax(0,1fr);gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:start}
+.steps li:last-child{border-bottom:0}
+.steps li .onmap{grid-column:3;justify-self:start;font:500 11.5px/1 var(--mono);letter-spacing:.04em;padding:6px 9px;border:1px solid var(--line);border-radius:8px;color:var(--accent2);text-decoration:none;margin-top:-2px}
+.steps li .onmap:hover,.steps li .onmap:focus-visible{border-color:var(--accent2);outline:0}
+.stagebox .sum.alldone{color:var(--ok)}
+.stagebox.here>summary h3::after{content:"you are here";margin-left:10px;font:500 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#0b1118;background:var(--accent);padding:4px 7px;border-radius:6px;vertical-align:middle}
+.steps li::before{content:counter(st);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:500 11.5px var(--mono);color:var(--muted);border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04)}
+.steps li:has(input:checked)::before{content:"\2713";color:#0b1118;background:var(--ok);border-color:var(--ok);font-weight:600}
+.steps input{width:17px;height:17px;margin:4px 0 0;accent-color:var(--accent)}
+.steps b{font-weight:600;font-size:15px}
+.steps span{font-size:14px;line-height:1.5;max-width:78ch}
+.steps li:has(input:checked) b{text-decoration:none;color:var(--muted)}
+.steps li:has(input:checked) span{opacity:.55}
+.stage{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);margin-top:6px}
+.flow li::before{color:var(--accent);font-size:20px}
+.flow li{border-color:var(--line)}
+dl{font-size:14.5px}
+footer{font-size:13px}
+.cards{border:0!important;background:none!important;gap:10px!important}
+.cards a{border:1px solid var(--line)!important;border-radius:var(--r);background:rgba(18,26,37,.72)}
+.cards a:hover{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.22)!important}
+.cards b{font-size:22px!important}
+
+.page{max-width:1180px}
+.prose{max-width:880px;display:flow-root}
+.prose h2{font:600 27px/1.2 var(--display);letter-spacing:.02em;margin:40px 0 12px;padding-top:18px;border-top:1px solid var(--line);scroll-margin-top:84px;text-wrap:balance}
+.prose h3{font:600 20px/1.25 var(--display);letter-spacing:.02em;margin:28px 0 8px;scroll-margin-top:84px}
+.prose h4{font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 0 6px}
+.prose p,.prose li{font-size:15.5px;line-height:1.64;color:#cfd8e3}
+.prose p,.prose li{max-width:76ch}.prose td p{max-width:none}
+.prose td:first-child code{white-space:nowrap;overflow-wrap:normal}
+.prose p{margin:0 0 13px}.prose ul,.prose ol{margin:0 0 15px;padding-left:24px}.prose li{margin:5px 0}.prose li>p{margin:0 0 6px}
+.prose strong{color:var(--ink);font-weight:600}
+.prose a{color:var(--accent2);text-decoration-thickness:1px;text-underline-offset:3px}.prose a:hover{color:#7df0e0}
+.prose code{font:500 .88em var(--mono);background:rgba(255,255,255,.07);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.prose pre{position:relative;background:#090e14;border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;margin:0 0 16px;max-height:560px}
+.prose pre code{background:none;padding:0;font-size:12.5px;line-height:1.55;overflow-wrap:normal;white-space:pre;color:#d6dee8}
+.prose ol>li::marker{color:var(--accent);font:600 .92em var(--mono)}
+.prose ul>li::marker{color:var(--accent)}
+.prose blockquote{border-left:3px solid var(--accent);margin:0 0 14px;padding:2px 0 2px 14px}.prose blockquote p{color:var(--muted)}
+.prose hr{border:0;border-top:1px solid var(--line);margin:28px 0}
+.tablewrap{overflow-x:auto;margin:0 0 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.prose table{border-collapse:collapse;width:100%;font-size:14px}
+.prose th{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);white-space:nowrap;background:rgba(255,255,255,.025)}
+.prose td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;color:#cfd8e3}
+.prose tr:last-child td{border-bottom:0}.prose td:first-child{color:var(--ink)}
+.prose details{border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:0 0 10px;padding:0 14px}
+.prose summary{cursor:pointer;padding:13px 0;font-weight:600;color:var(--ink)}.prose summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.prose details[open]>summary{border-bottom:1px solid var(--line);margin-bottom:14px}
+.note{border:1px solid rgba(250,149,73,.45);background:rgba(250,149,73,.08);border-radius:12px;padding:11px 14px;margin:0 0 18px;font-size:14.5px;line-height:1.55;color:#e6d3c2;max-width:880px}
+.note a{color:var(--accent)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;max-width:980px}
+.toc a{font:500 13px/1 var(--body);padding:8px 11px;border:1px solid var(--line);border-radius:9px;color:var(--ink);text-decoration:none;background:rgba(255,255,255,.03)}
+.toc a:hover,.toc a:focus-visible{border-color:var(--accent);outline:0}
+.copy{position:sticky;float:right;top:0;margin:-4px -6px 0 8px;font:500 11.5px var(--mono);padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:#121a25;color:var(--ink);cursor:pointer}
+.copy:hover{border-color:var(--accent)}.copy.done{border-color:var(--accent2);color:var(--accent2)}
+header .lede{max-width:760px}
+@media (max-width:640px){.prose h2{font-size:23px}.prose p,.prose li{font-size:15px}}
+</style>
+<div class="wrap page"><div class="topbar"><a class="brand glass" href="index.html" title="All guides"><svg viewBox="0 0 128 128" aria-hidden="true"><defs><linearGradient id="smbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2733"/><stop offset="1" stop-color="#0d1116"/></linearGradient><clipPath id="smtile"><rect x="4" y="4" width="120" height="120" rx="26"/></clipPath></defs><rect x="4" y="4" width="120" height="120" rx="26" fill="url(#smbg)"/><g clip-path="url(#smtile)" fill="none" stroke-linecap="round"><g stroke="#4f6b7d" stroke-width="2.4" opacity=".7"><path d="M-6 80C16 66 34 70 52 84S98 110 134 92"/><path d="M-6 116C24 126 44 112 64 112S104 128 134 112"/><path d="M70 134C84 120 108 122 134 130"/><path d="M-6 58C8 48 22 48 34 54"/></g><g stroke="#fa9549" stroke-width="5"><path d="M63.7 72.8A13 13 0 0 1 53.2 62.3"/><path d="M61.8 83.6A24 24 0 0 1 42.4 64.2" opacity=".62"/><path d="M59.9 94.5A35 35 0 0 1 31.5 66.1" opacity=".32"/></g></g><g transform="translate(82 44) rotate(45)"><rect x="-39" y="-9" width="24" height="18" rx="2.5" fill="#2f86c9" stroke="#e9eef2" stroke-width="3"/><rect x="15" y="-9" width="24" height="18" rx="2.5" fill="#2f86c9" stroke="#e9eef2" stroke-width="3"/><path d="M-27-9V9M27-9V9" stroke="#e9eef2" stroke-width="2"/><rect x="-15" y="-3" width="30" height="6" fill="#e9eef2"/><rect x="-11" y="-13" width="22" height="26" rx="5" fill="#e9eef2"/><rect x="-2.5" y="12" width="5" height="6" fill="#e9eef2"/><path d="M-9 17Q0 28 9 17Z" fill="#fa9549"/></g><circle cx="28" cy="100" r="14" fill="none" stroke="#fa9549" stroke-width="3" opacity=".45"/><circle cx="28" cy="100" r="7.5" fill="#fa9549" stroke="#0d1116" stroke-width="2.5"/></svg><span><b>SATMAP</b><small>the pack</small></span></a><nav class="links glass" aria-label="Guides"><a href="satisfactory-plus.html">Satisfactory Plus</a><a href="world-map.html">World map</a><a href="rocky-desert-works.html">Rocky Desert Works</a><a href="builders-handbook.html">Builder's Handbook</a><a href="index.html">All guides</a></nav></div><header><div class="eyebrow">The pack</div><h1>Howson Plus: the mod pack</h1></header>
+<nav class="toc" aria-label="On this page"><a href="#read-this-first">Read this first</a><a href="#installing">Installing</a><a href="#settings">Settings</a><a href="#satisfactory-plus-fixes-to-copy-once">Satisfactory Plus fixes to copy once</a><a href="#check-these-in-the-first-hours">Check these in the first hours</a><a href="#warnings-that-the-mods-own-pages-give">Warnings that the mods' own pages give</a><a href="#not-on-the-server-and-why">Not on the server, and why</a><a href="#held-back-for-later">Held back for later</a><a href="#built-by-us-not-from-ficsit-app">Built by us, not from ficsit.app</a><a href="#every-mod">Every mod</a><a href="#dropped-or-not-added-with-the-reason">Dropped or not added, with the reason</a></nav>
+<article class="prose">
+<p style="font-size:12.5px;color:var(--muted)">Written by <code>tools/sync.py</code>; do not edit by hand. Game build 517554.</p>
+<p>One pack built round <a href="satisfactory-plus.html">Satisfactory Plus</a>, in three forms cut from one list so they cannot drift apart. It is the pack for the solo world, and the pack the shared server moves to when it is restarted. Until then the server keeps the base-recipe pack in the <a href="mod-list.html">mod list</a>, and the Rocky Desert Works applies to that pack only.</p>
+<div class="tablewrap"><table><thead><tr><th>File</th><th>For</th><th>Mods</th></tr></thead><tbody><tr><td><a href="https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlus.smmprofile"><code>packs/HowsonPlus.smmprofile</code></a></td><td>Solo play</td><td>107</td></tr><tr><td><a href="https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusServer.smmprofile"><code>packs/HowsonPlusServer.smmprofile</code></a></td><td>The dedicated server</td><td>99</td></tr><tr><td><a href="https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusClient.smmprofile"><code>packs/HowsonPlusClient.smmprofile</code></a></td><td>A PC joining that server</td><td>107</td></tr></tbody></table></div>
+<h2 id="read-this-first">Read this first</h2>
+<ul>
+<li><strong>A new world.</strong> Satisfactory Plus must never be added to a world that was started without it. Solo or server, the pack starts with a fresh save.</li>
+<li><strong>The server is a trial.</strong> Satisfactory Plus's own page: 'The current public build does not officially support multiplayer or dedicated servers. Multiplayer is experimental until the next major release.' Every part of it has a Linux server build, so the pack installs; whether it plays correctly there is untested.</li>
+<li><strong>Everything has been checked on paper, nothing in the game.</strong> Every mod is marked as working for this game build, every dependency version fits, every mod on the server has a Linux server build, and nothing in the pack is on the list that Satisfactory Plus refuses to start beside. That is not the same as having played it: the first launch and the checks below are what prove it.</li>
+</ul>
+<h2 id="installing">Installing</h2>
+<ol>
+<li>Close the game. In Satisfactory Mod Manager, make sure the install dropdown shows the right place: your game for the solo or client file, the <code>sftp://</code> server for the server file.</li>
+<li>Import the file next to the Profile dropdown and wait for it to finish.</li>
+<li>Server: do this with the server stopped, then switch the install dropdown back to your game before touching the Profile dropdown again.</li>
+<li>Start a new world. The <a href="satisfactory-plus.html">Satisfactory Plus page</a> is the guide for it.</li>
+<li>For the server and for anyone joining it there is more than the profile: our own builds of FicsIt-Networks and two fixed mods, the Satisfactory Plus fixes and four settings files come as one overlay zip each. The steps are in <a href="plus-server.html">Howson Plus on the server</a>.</li>
+</ol>
+<h2 id="settings">Settings</h2>
+<p>Nine settings files belong to the pack, in <a href="https://github.com/scotthowson/SatisfactoryHowson/tree/main/packs/configs"><code>packs/configs/</code></a>. To use one, close the game (or stop the server) and copy it into <code>FactoryGame/Configs</code>, replacing the file there.</p>
+<div class="tablewrap"><table><thead><tr><th>File</th><th>What it sets</th><th>Who needs it</th></tr></thead><tbody><tr><td><code>FasterManualCraftingRedux.cfg</code></td><td>Hand crafting speeds up in steps of 0.175 to at most 8 times normal</td><td>Server and every player</td></tr><tr><td><code>MoveTool.cfg</code></td><td>Move Tool's limits; the server's values are the ones that count</td><td>Server and every player</td></tr><tr><td><code>InfiniteZoop.cfg</code></td><td>Infinite Zoop: cheat mode off, ladders and corners on</td><td>Server and every player</td></tr><tr><td><code>SmartFoundations.cfg</code></td><td>Smart!'s behaviour, and its panel moved to the right of the Location and Rotation readout so the two do not overlap</td><td>Server and every player</td></tr><tr><td><code>SmartCamera.cfg</code></td><td>The Smart! Camera box sits under the Smart! panel</td><td>Each player, optional</td></tr><tr><td><code>MiniMap.cfg</code></td><td>Small minimap at the top left, above the readout</td><td>Each player, optional</td></tr><tr><td><code>IndicatorColors.cfg</code></td><td>An overclocked machine shows a magenta lamp</td><td>Each player, optional</td></tr><tr><td><code>BoomBoxPlus.cfg</code></td><td>No lyric line; the &quot;now playing&quot; card stays</td><td>Each player, optional</td></tr><tr><td><code>ModUpdateNotifier.cfg</code></td><td>No &quot;update available&quot; window, because the pack's versions are pinned to match the server</td><td>Each player, optional</td></tr></tbody></table></div>
+<p>The first four are already inside both overlay zips (<a href="plus-server.html">Howson Plus on the server</a>), so installing an overlay puts them in place; nothing more to replace. The other five are a matter of taste.</p>
+<p>Set in the game, not in a file:</p>
+<ul>
+<li><strong>Per save</strong> (Mod Savegame Settings, chosen when the world is made): Shorter Hard Drive Research 300 seconds (its own default is 3); Infinite Zoop &quot;Blueprint Zoops&quot; off. For the server, make the save in single player with the client pack, set them there, then upload the save.</li>
+<li><strong>Key bindings</strong> (Options, Keybindings, on each PC): Infinite Nudge cycle mode from Z to apostrophe, Cable Highlighter from F8 to F5, Smart! Camera &quot;edit layout&quot; from F8 to F4, and optionally Location and Rotation from Alt+X to Alt+L. Smart! swallows Z otherwise, and F7 to F9 belong to SatMap (next step, to-do panel, plan outlines) on a PC that has it.</li>
+<li><strong>Custom Hud</strong> (solo only): hide the version label, from its building in the Special tab.</li>
+<li><strong>Universal Swatch Slots:</strong> players joining the server need the same palette file as the server (its page).</li>
+</ul>
+<h2 id="satisfactory-plus-fixes-to-copy-once">Satisfactory Plus fixes to copy once</h2>
+<p>Ten mods in the pack do not fit Satisfactory Plus by themselves (nine have no official patch, and the one for Storage On Belt misses its unlock): Covered Conveyor Belts, four of the five woods of Wood Walls, two Road Maker fence walls and Storage On Belt can never be unlocked, and Architecture + 01, SciFi 01, 2m Walls, Throughput Counter and Limiter, Lights + and Foundations + cost parts that Satisfactory Plus only makes later. The fixes are ten small folders of text files in <a href="https://github.com/scotthowson/SatisfactoryHowson/tree/main/packs/dataforge"><code>packs/dataforge/</code></a>.</p>
+<ol>
+<li>Close the game (stop the server).</li>
+<li>In the game folder go to <code>FactoryGame/Mods</code> and make a folder named <code>DataForge</code>.</li>
+<li>Copy the ten folders from <code>packs/dataforge/</code> into it and start the game.</li>
+</ol>
+<p>The server and every PC need the same folders. The Mod Manager leaves them alone. What each one changes, how to check it loaded and how to take it out again is in <a href="https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/dataforge/README.md"><code>packs/dataforge/README.md</code></a>. Loaded and checked on Scott's PC on 14 Nov 2026; not yet tried on the server.</p>
+<h2 id="check-these-in-the-first-hours">Check these in the first hours</h2>
+<p>These are the places where two mods meet and only the game can say what happens. Tell Claude what you see and the pack gets corrected.</p>
+<ol>
+<li>The game reaches the main menu with no mod loader error, solo first, then the server's console.</li>
+<li>In the HUB, every milestone is one of Satisfactory Plus's: no second &quot;Logistics&quot; or &quot;Coal Power&quot; left over from the base game.</li>
+<li>With the fixes above copied in: Covered Conveyor Mk.1 is a tier 1 milestone and Mk.2 can be unlocked after Logistics Mk. 2; the Wood Walls pieces are all there after Base Building. The wall pipe supports appear in the AWESOME Shop once the game's own Pipeline Wall Attachments are bought there.</li>
+<li>Snap On: put a Splitter straight onto a Constructor, not onto a Crusher or Sorter (see the warnings).</li>
+<li>Critical Path (F10) lists Satisfactory Plus's milestone, not a base-game one.</li>
+<li>A hard drive in the MAM takes five minutes.</li>
+<li>On the server: your friend can join, place a sign, a Blueprint Designer+ piece and a Modern Railing piece, and see yours.</li>
+</ol>
+<h2 id="warnings-that-the-mods-own-pages-give">Warnings that the mods' own pages give</h2>
+<ul>
+<li><strong>SnapOn:</strong> Snap On, Scott's pick. Its author warns that Splitters and Mergers attached straight to buildings 'could have negative consequences such as random crashes, item duplication, or item loss', more so on buildings with several outputs, which Satisfactory Plus is full of (Crusher, Sorter, Modular Miner). Use it on single-output machines. Its author also says snapped-on Splitters and Mergers will break with the next game patch.</li>
+<li><strong>Pipe Tuner:</strong> changes how fluids behave; its settings name only Mk.1 and Mk.2 pipes and Satisfactory Plus has three tiers</li>
+<li><strong>Shorter Hard Drive Research:</strong> only shortens the base game's hard drive scanner; whether Satisfactory Plus still uses that scanner for its alternates is not verified. Set per save in Mod Savegame Settings (300 seconds for Scott's five minutes); the default is 3 seconds.</li>
+<li><strong>Containers with Screen:</strong> adds four buildables costed in base-game parts; no Satisfactory Plus patch</li>
+<li><strong>Covered Conveyor Belts:</strong> no patch: Mk.2 to Mk.6 hang on base-game milestones that Satisfactory Plus replaced and may never unlock; check in game</li>
+<li><strong>Wall Pipe Supports:</strong> no patch: its page ties the unlock to the base game's Coal Generator milestone; check in game</li>
+<li><strong>Wood Walls (and Roofs):</strong> no patch: some entries hang on a base-game milestone; check in game</li>
+<li><strong>Road Maker:</strong> on the server since 16 Nov 2026 (1.3.1 is the first with a Linux server build); its page says multiplayer support is included but not tested; fence walls are tied to milestones by base-game name; check in game</li>
+<li><strong>Power Checker:</strong> own unlock, cost not patched</li>
+<li><strong>Faster Manual Crafting Redux:</strong> hand-crafting speed; Scott's own cap is step 0.175, maximum 8</li>
+<li><strong>Taj's Graphical Overhaul:</strong> last built for an older game; ficsit.app: 'Allegedly works. Author has not tested it.'</li>
+<li><strong>Snappy Build Menu:</strong> client only</li>
+<li><strong>Storm Lights:</strong> on the server since 16 Nov 2026 (1.0.1 has a Linux server build); not tested in multiplayer or on a dedicated server by its author</li>
+<li><strong>Custom Hud:</strong> on the server since 16 Nov 2026 on Scott's word; its author marks it untested in multiplayer and likely host only, and a dedicated server has no host: take it back out if it misbehaves there</li>
+<li><strong>Bottleneck:</strong> on the server since 16 Nov 2026 on Scott's word; its author marks it untested in multiplayer and likely host only: take it back out if it misbehaves there</li>
+<li><strong>Atlas: Buildings on the map:</strong> building and machine settings from the map work in single player and for the host only</li>
+<li><strong>Megaprojects: Power Domain:</strong> kept on Scott's choice, wireless power links included; a late goal (patched milestone at Tier 4, needs Space Elevator parts)</li>
+<li><strong>Critical Path:</strong> F10 report of what blocks the current milestone. Its page says modded content is measured, not assumed, but it is untested beside Satisfactory Plus's replaced milestones and custom machines: try it solo first</li>
+<li><strong>Depot Sorting:</strong> sorts the Dimensional Depot by the base game's tiers; Satisfactory Plus parts will probably fall outside its order</li>
+<li><strong>Hover Pack Fuse Reminder:</strong> display only</li>
+<li><strong>Indicator Colors:</strong> display only</li>
+<li><strong>KModelerExporter:</strong> after the chat command /modeler-generate the game crashed a few minutes later, both times on 14 Nov: save, export, then restart the game</li>
+</ul>
+<h2 id="not-on-the-server-and-why">Not on the server, and why</h2>
+<ul>
+<li><strong>Location and Rotation:</strong> only changes your own screen, so the server does not need it.</li>
+<li><strong>Outline Loot:</strong> only changes your own screen, so the server does not need it.</li>
+<li><strong>No Z Fighting:</strong> only changes your own screen, so the server does not need it.</li>
+<li><strong>Glass Cleaner:</strong> only changes your own screen, so the server does not need it.</li>
+<li><strong>Snappy Build Menu:</strong> only changes your own screen, so the server does not need it.</li>
+<li><strong>No Splash / Intro Screens:</strong> only changes your own screen, so the server does not need it.</li>
+<li><strong>Taj's Graphical Overhaul:</strong> only changes your own screen, so the server does not need it.</li>
+<li><strong>More Sign Spots:</strong> only changes your own screen, so the server does not need it.</li>
+</ul>
+<p>The profile for this PC when it joins the Plus server: the server pack plus the mods that only change this PC's own screen. Each is client-optional: its plugin file says RequiredOnRemote false, or, where it is not installed here to read, its page says so (client_only_says). Since 16 Nov 2026 every mod that has a Linux server build is in the server pack, on Scott's word (&quot;Everything that has a server build. i realistically want in the server pack and or overlay.&quot;): Road Maker and Storm Lights gained server builds on 15 Nov, and Custom Hud and Bottleneck, which their author marks untested in multiplayer and likely host only, came in under the same rule. The solo pack and the joining client are now the same list.</p>
+<h2 id="held-back-for-later">Held back for later</h2>
+<p>Left out on purpose so the start stays calm. Each comes in by adding it in the Mod Manager on the server and on every PC at the same time.</p>
+<ul>
+<li><strong>Industrial Evolution:</strong> Industrial Evolution, held back on Scott's choice until Satisfactory Plus Tier 6 is running: Mk2 and Mk3 machines (3 and 5 times throughput) and an 18-node research tree that its patch opens from the first hour. Add it together with MkPlusSFPlus.</li>
+<li><strong>Industrial Evolution SF Plus:</strong> the Satisfactory Plus patch and Mk2/Mk3 Satisfactory Plus machines for Industrial Evolution; comes in with MkPlus</li>
+<li><strong>Pneumatic Fracking Machine:</strong> same authors as Satisfactory Plus, has a patch: three oil extractors and a new fluid. Offer at Tier 5 (Oil Processing)</li>
+<li><strong>Locomotives B-Units:</strong> has a patch: one stronger locomotive; its page says multiplayer is untested. Offer when trains arrive (Tier 5)</li>
+<li><strong>Server Join Race Fix:</strong> a runtime patch for crashes when joining a heavily modded server; new, so only if joining actually crashes</li>
+</ul>
+<h2 id="built-by-us-not-from-ficsit-app">Built by us, not from ficsit.app</h2>
+<p>Mods in the pack that the Mod Manager cannot install, because the working version is one we built ourselves with the modding kit in Scott's PC on 14 Nov 2026. They travel in the overlay zips made by tools/make_bundles.py (manifest with checksums: packs/custom/MANIFEST.md), never in a profile. Do not add the released versions of these in the Mod Manager as well.</p>
+<ul>
+<li><strong>FicsIt-Networks:</strong> 1.3.0, built from the author's development branch (d1a1bf2) with twelve local fixes; the released 1.2.0 is marked 'Broken by the update to Unreal Engine 5.6.1'. Server and every player need this same build. When the author releases 1.3.0, remove this build everywhere first, then add the release to groups.</li>
+<li><strong>MAM Enhancer:</strong> MAM Enhancer 1.9.2, built from the unmerged pull request Nogg-aholic/MAMTips #11; the released 1.9.1 is marked Broken since game 1.2.4.0. Client side only, optional for each player.</li>
+<li><strong>Megaprojects Library:</strong> the released 1.2.4 with two library files rebuilt to fix the client crash on join (MegaprojectsLib issue 2). Client side; re-applying a profile in the Mod Manager puts the released files back.</li>
+<li><strong>Satisfactory Plus fixes:</strong> ten Satisfactory Plus fixes as text packs (packs/dataforge): they unlock 157 recipes that were stuck (Covered Conveyor, Wood Walls, Road Maker fence walls, Storage On Belt) and re-cost six misplaced mods. Server and every player.</li>
+</ul>
+<p>How to put them on the server and on a joining PC: <a href="plus-server.html">Howson Plus on the server</a>.</p>
+<h2 id="every-mod">Every mod</h2>
+<h3 id="overhaul-1">Overhaul (1)</h3>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it does</th><th>Where</th></tr></thead><tbody><tr><td><a href="https://ficsit.app/mod/SatisfactoryPlus">SatisfactoryPlus (SF+/SFP)</a></td><td>Content overhaul and recipe rebalancing for Satisfactory.</td><td>Everywhere</td></tr></tbody></table></div>
+<h3 id="build-tools-15">Build tools (15)</h3>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it does</th><th>Where</th></tr></thead><tbody><tr><td><a href="https://ficsit.app/mod/SmartFoundations">Smart!</a></td><td>The Factory Builder's Multitool! Scale up your factory with a number of tools for fast, vanilla-friendly building!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/SmartCamera">Smart! Camera</a></td><td>Companion mod for Smart! Foundations. Picture-in-Picture hologram preview for precise building from multiple angles.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/InfiniteZoop">Infinite Zoop</a></td><td>Upgrade your max Zoop count and Zoop in two dimensions!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/InfiniteNudge">Infinite Nudge</a></td><td>Nudge in smaller increments, scale, and rotate on any axis. Also nudge extractors!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/CurveBuilder">Curve Builder</a></td><td>Now you're zooping with curves!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/KBlueprintDesignPlus">Blueprint Designer+</a></td><td>Extended blueprint designer tools for Satisfactory.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/PersistentPaintables">Persistent Paintables</a></td><td>Customization eyedropper support and optional automatic pipe painting</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/LongerBeams">Longer Beams</a></td><td>Build longer beams!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/MoveTool">Move Tool</a></td><td>A tool that allows for moving structures instead of dismantling and rebuilding them</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ProgressiveBlueprinter">Progressive Blueprinters</a></td><td>A set of tiered blueprinting machines that grow with your progress.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ConstructionPreferences">Construction Preferences</a></td><td>Set a variety of preferences related to construction</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/StackableDistance">Pole Position</a></td><td>Snaps the next stackable pole to max belt/pipe/tube reach from the last one and shows that range as a ring.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/RoadMaker">Road Maker</a></td><td>Curved roads with lane lines and markings, intersections, road tools, fences, fence walls and a sign gantry, plus smart snapping</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/DirectToSplitter">SnapOn</a></td><td>SNAPON, apply directly to the factory. (Attach Splitters, Mergers, and Pipe Junctions directly to factory inputs/outputs)</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/BlueprintHighlighted">Quick Blueprint</a></td><td>Quickly generate a Blueprint from Dismantle mode</td><td>Everywhere</td></tr></tbody></table></div>
+<h3 id="information-8">Information (8)</h3>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it does</th><th>Where</th></tr></thead><tbody><tr><td><a href="https://ficsit.app/mod/PowerChecker">Power Checker</a></td><td>Check if your fuses can blow!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/CounterLimiter">Throughput Counter and Limiter</a></td><td>Belt attachment that displays the actual item throughput per minute. Can optionally limit the IPM.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/MiniMap">MiniMap</a></td><td>Shows a minimap on your hud</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ModUpdateNotifier">Mod Update Notifier</a></td><td>Get notified in-game when one of your mods has an update available.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Cable_Highlighter">Cable Highlighter</a></td><td>Use F8 to toggle highlighting of nearby power cables through walls.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/KModelerExporter">KModelerExporter</a></td><td>Exports your modpack production data for the KMods Production Modeler.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ContainerWithScreen">Containers with Screen</a></td><td>A light version of &quot;Container Screens and more&quot; mod to work on Dedicated Servers.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/CriticalPath">Critical Path</a></td><td>Your factory, explained. What's holding up your objective, which lines are keeping up, and what to build next - in order.</td><td>Everywhere</td></tr></tbody></table></div>
+<h3 id="hud-and-looks-of-the-game-26">HUD and looks of the game (26)</h3>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it does</th><th>Where</th></tr></thead><tbody><tr><td><a href="https://ficsit.app/mod/CustomizableHUD">Custom Hud</a></td><td>Hide and show parts of your HUD</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Velocimeter">Speedometer</a></td><td>Shows the speed/coords and altitude of your character and have an Odometer.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/GameTime">GameTime</a></td><td>Have the game time, system time and session time clock always on your screen.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/HologramLocation">Location and Rotation</a></td><td>Adds a widget which shows you the location and rotation info for the currently highlighted buildable</td><td>Solo and client</td></tr><tr><td><a href="https://ficsit.app/mod/Bottleneck">Bottleneck</a></td><td>A tool to easily see what the machine is doing and how well it is working.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Stats">Production Stats</a></td><td>See production and consumption statistics.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/FactoryAtlas">Atlas: Buildings on the map</a></td><td>See your buildings on the map, and control them!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/StatusMapMarker">Miner Status on MAP</a></td><td>If the extractor/miner is stuck, will show on map as a marker.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/AllPolesHaveLights">All Poles with Indicator Light</a></td><td>Every pole will have an indicator light: White: Ok Red: No Power Yellow: Fuse Triggered.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/AutoSigns">Auto Signs</a></td><td>Automatically sets the text and icon according to the building the sign was placed on</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/AutoSort">Auto - Sort Inventory</a></td><td>Auto Sort your inventory when you open it!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/HighlightScannedObject">Object Scanner Highlighting</a></td><td>Highlight the currently scanned object</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ShowEnemiesHealth">Show Enemy Health</a></td><td>The mod show enemies health bar and data.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/FlashlightSettings">Flashlight Settings</a></td><td>Adds a widget that lets you change some settings on your character's flashlight</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/OutlineLoot">Outline Loot</a></td><td>Gives loot an outline to make it easier to spot</td><td>Solo and client</td></tr><tr><td><a href="https://ficsit.app/mod/NoZFighting">No Z Fighting</a></td><td>Adds miniscule offsets to various architectural pieces to prevent &quot;Z Fighting&quot;</td><td>Solo and client</td></tr><tr><td><a href="https://ficsit.app/mod/GlassCleaner">Glass Cleaner</a></td><td>Cleans up glass windows, foundations, and roofs</td><td>Solo and client</td></tr><tr><td><a href="https://ficsit.app/mod/NoGrassUnderBuildings">No Grass Under Buildings</a></td><td>Hides grass beneath buildings, stairs, and foundations. Restores it after dismantling.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/SnappyBuildMenu">Snappy Build Menu</a></td><td>Performance improvements for the build menu. Instant search, no stutter, fewer clicks.</td><td>Solo and client</td></tr><tr><td><a href="https://ficsit.app/mod/NoSplash">No Splash / Intro Screens</a></td><td>Removes all splash screens from game startup</td><td>Solo and client</td></tr><tr><td><a href="https://ficsit.app/mod/TajsGraph">Taj's Graphical Overhaul</a></td><td>Crank up those graphics and make efficiency look sexy!</td><td>Solo and client</td></tr><tr><td><a href="https://ficsit.app/mod/StormLights">Storm Lights</a></td><td>Your night only lights come on during storms, heavy rain and fog, and flicker when lightning strikes.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/MoreSignSpots">More Sign Spots</a></td><td>Adds more Sign attachment points to vanilla buildings</td><td>Solo and client</td></tr><tr><td><a href="https://ficsit.app/mod/IndicatorColors">Indicator Colors</a></td><td>Change the colors of production indicators</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/HoverpackFuseReminder">Hover Pack Fuse Reminder</a></td><td>Warns you in the Fuse Box UI when you have a Hover Pack equipped.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/DepotSorter">Depot Sorting</a></td><td>Sort Dimensional Depot entries</td><td>Everywhere</td></tr></tbody></table></div>
+<h3 id="walls-floors-and-structure-18">Walls, floors and structure (18)</h3>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it does</th><th>Where</th></tr></thead><tbody><tr><td><a href="https://ficsit.app/mod/SS_Mod">Structural Solutions</a></td><td>Structural Solutions adds 300+ new buildable objects to Satisfactory.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Architecture">Architecture +</a></td><td>Additional architectural elements</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Architecture02">Architecture + 02</a></td><td>Additional architectural elements - Walls &amp; Windows 4x1 - 4x4</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Architecture03">Architecture + 03</a></td><td>Additional architectural elements - Oeil-de-Boeuf</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Architecture04">Architecture + 04 - Doors</a></td><td>Additional architectural elements - Doors</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Architecture05">Architecture + 05 - Roofs</a></td><td>Additional architectural elements - Roofs</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/SciFi01">SciFi 01</a></td><td>Architectural elements for a futuristic base</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/GatewaysExtension">Gateways Extension</a></td><td>Adds gateways types - Catwalks - Walkways</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/SpiralStairs">Spiral Stairs</a></td><td>Always climb higher!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/MoreWalls">More Walls</a></td><td>This Mod adds 2 new Wallsets</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/TwoMeterWalls">2m Walls</a></td><td>2m high walls for the extra efficient builder.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/FoundationMaterialsPlus">Foundations +</a></td><td>15 new colourable foundation styles in three materials over three sizes for you to decorate your factories and more!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ModernRailingExtension">Modern Railing Extension</a></td><td>Modern railing variants for Satisfactory foundations.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/SafeTWalkways">Safe-T-Walkways</a></td><td>Adds a new version of the T walkway with no railing gap.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/CatwalkLadders">Catwalk Ladders</a></td><td>Adds Catwalk variants with climbable ladders cut through them.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/WoodWalls">Wood Walls (and Roofs)</a></td><td>Adds Wood Walls (and Roofs) in several styles!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/SGSmallGarageDoor">Small Roll-Up Gate</a></td><td>Roll-Up Gate, but smaller! (8x4 m)</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/CatwalkTRotation">Catwalk T Rotation Fix</a></td><td>Switches rotation direction of Catwalk T Junctions snapped to catwalks, making it consistent with the rest of the game</td><td>Everywhere</td></tr></tbody></table></div>
+<h3 id="decoration-lights-and-signs-14">Decoration, lights and signs (14)</h3>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it does</th><th>Where</th></tr></thead><tbody><tr><td><a href="https://ficsit.app/mod/Factory_Prop_Mod">Factory Props</a></td><td>Your Ultimate Decorating Toolkit!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/DecorPlus">Decor +</a></td><td>Ficsit approved furniture and decorations galore</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/LightsPlus">Lights +</a></td><td>New lights of all kinds to light up your worlds! Mostly emissives (all colourable), some &quot;fire&quot;!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Letters">3D Text</a></td><td>All letters and numbers paintable in 3D to put in your factory. Ficsit and Satisfactory logo included.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/RSS">RSS2 - Really Simple Signs 2</a></td><td>Really Simple Signs dynamic sign buildables.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/AB_CableMod">Cable Choices Plus</a></td><td>Add some industrial style or something a little more crazy with these alternate power cables/poles. Alt Ficsmas recipe included!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/UniversalSwatchSlots">Universal Swatch Slots</a></td><td>Create your own palette of swatches or modify existing ones. Share your palettes between different session or even with others.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/SGPaintedMetalRoof">Painted Metal Roof Material</a></td><td>Same shape as vanilla Metal Roof but can be painted like FICSIT Roof</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/SGRoughConcreteWallMaterial">Rough Concrete Wall Material</a></td><td>Adds a new wall material that mimics the side texture of a concrete foundation.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/IndustrialPropsPlus">Industrial Storage and Props +</a></td><td>200+ New Industrial Storage Options &amp; Props galore! 3 &amp; 4 Port Fluid Buffers, 4 New Mk1 &amp; 2 Storage Containers &amp; SO Much More!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/CopySampledSign">Copy Sampled Sign</a></td><td>Copies sign data when sampling a sign and applies it to new signs</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ThisSignUp">This Sign Up</a></td><td>Adds arrows to indicate which way is up when building a sign</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/SGIconPackElevator">Elevator Icon Pack</a></td><td>A set of monochrome icons with numbered floors and basements.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/RoadSignIcons">Road Sign Icons</a></td><td>Adds 44 New Icons for Signs!</td><td>Everywhere</td></tr></tbody></table></div>
+<h3 id="belts-pipes-and-lifts-11">Belts, pipes and lifts (11)</h3>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it does</th><th>Where</th></tr></thead><tbody><tr><td><a href="https://ficsit.app/mod/LoadBalancers">Modular Load Balancers</a></td><td>Modular buildable that can be snapped together to form load balancers of any size</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/FloorHole">Floor Hole Ceiling Logistics</a></td><td>Pass Conveyors, Pipes, Power and Hypertubes through Foundations and Ceilings.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/WallHoleConveyor">Conveyor Wall Hole</a></td><td>Put a hole in the wall for conveyors wherever you want.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/WallConveyorSupports">Wall Conveyor Supports</a></td><td>Additional variants of the wall conveyor support</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/WallPipeSupports">Wall Pipe Supports</a></td><td>Additional variants of the wall pipe support</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/CoveredConveyor">Covered Conveyor Belts</a></td><td>A variety of Covered Conveyor Belts Mk1-6! (+ coloured-belt standard conveyors Mk 1-6!)</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/GlassFluidTank">Glass Fluid Buffer</a></td><td>Four fluid buffers that you can see the fluids inside.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/LinearMotion">Linear Motion</a></td><td>Elevators and More!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/StorageOnBelt">Storage On Belt</a></td><td>A small storage container that can be snapped to belts</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ConveyorLogistics">Simple Conveyor Logistics</a></td><td>Adds Conveyor Junctions and Weighted Splitters to minimize early-game load balancing infrastructure</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/PipeTuner">Pipe Tuner</a></td><td>Tune hidden Pipeline variables to improve fluid dynamics.</td><td>Everywhere</td></tr></tbody></table></div>
+<h3 id="more-to-research-and-build-9">More to research and build (9)</h3>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it does</th><th>Where</th></tr></thead><tbody><tr><td><a href="https://ficsit.app/mod/RefinedPower">Refined Power</a></td><td>A Satisfactory Mod that adds 30+ hand made buildings to produce power!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/FicsitFarming">Ficsit Farming</a></td><td>Get your Fingers Dirty with the ficsit farming mod!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/AB_FluidExtras">Fluid Extras</a></td><td>Several new pipe junctions, alternate Mini Water Extractor, and new A.I. Packing machine.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Megaprojects_PowerDomain">Megaprojects: Power Domain</a></td><td>A Megaproject resulting in a colossal Power Storage capable of storing up to 1.000.000MW of power (and more)</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/Lithium">Lithium - Expansion Mod</a></td><td>Adds a new raw resource - Lithium together with new items, buildings and Space Elevator Parts</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/PriorityPipes">Pipe Priorities</a></td><td>Adds priority pipe splitters and mergers</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/TrainSignalBridge">Signal Bridge</a></td><td>Alternative for the Path and Block Signals</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ModularStations">Modular Stations</a></td><td>Provides modular pieces for building train stations</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ModularStationsSFPlus">Modular Stations SF Plus</a></td><td>Compatibility patch for Modular Stations and Satisfactory Plus</td><td>Everywhere</td></tr></tbody></table></div>
+<h3 id="small-comforts-5">Small comforts (5)</h3>
+<div class="tablewrap"><table><thead><tr><th>Mod</th><th>What it does</th><th>Where</th></tr></thead><tbody><tr><td><a href="https://ficsit.app/mod/FasterManualCraftingRedux">Faster Manual Crafting Redux</a></td><td>Are you tired of the early game crafting grind? Speed up your manual crafting!</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/MantaRaise">Manta Raise</a></td><td>Adjusts Flying Manta heights to keep them from flying through your buildings</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/DoggoTransportation">Doggo Transportation</a></td><td>Pick up and place Doggos</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/BoomBoxPlus">BoomBox Plus</a></td><td>The Boom Box plays your music: local files, YouTube, SoundCloud, Spotify playlists and internet radio, synced in multiplayer.</td><td>Everywhere</td></tr><tr><td><a href="https://ficsit.app/mod/ShortenHardDriveResearch">Shorter Hard Drive Research</a></td><td>Configure how long it takes to research Hard Drives for alternates! Make it instant, longer, or in the middle.</td><td>Everywhere</td></tr></tbody></table></div>
+<h2 id="dropped-or-not-added-with-the-reason">Dropped or not added, with the reason</h2>
+<ul>
+<li><code>BetterGrass</code>: removed 2026-11-12 when Taj's Graphical Overhaul went in: Taj's sets grass density itself</li>
+<li><code>SFPFactoryPlanner</code>: removed 2026-11-12: the KBFL library that Satisfactory Plus runs on refuses to start beside it (fatal 'Could not loaded SFPContentDescriptor' at boot; the library names SFPFactoryPlanner and ModelerModRecipes next to that message). Never add either to a Satisfactory Plus pack.</li>
+<li><code>SimpleCodex</code>: removed 2026-11-12: its menu re-reads the recipe list every frame; with this pack the game fell to about 19 frames a second while it was open (ten 'FGRecipe::GetRecipeName: class was nullpeter' warnings per frame in the log). No settings file, 1.0.9 was the latest. The game's own Codex covers it.</li>
+<li><code>Megaprojects_WaterDam</code>: removed 2026-11-14 on Scott's choice: its page calls it 'a source of unconditionally free power' (up to 50,000 MW) and Satisfactory Plus has its own Hydroelectric Power milestone and limits free power on purpose</li>
+<li><code>Cartograph</code>: removed 2026-11-14: marked Damaged on ficsit.app (texture blurring from video memory use) and Atlas does the same job</li>
+<li><code>Decoration</code>: removed 2026-11-14: the Factory Props page lists it as a known incompatibility (duplicate foliage, buildings that cannot be dismantled)</li>
+<li><code>ExtraFinishes</code>: removed 2026-11-14: its page names Universal Swatch Slots as incompatible, ficsit.app warns of a multiplayer crash, and removing it later can stop a save loading</li>
+<li><code>EfficiencyCheckerMod</code>: removed 2026-11-14: its page says it ignores Refined Power and other custom machines, which is most of a Satisfactory Plus factory</li>
+<li><code>FicsitWiremod</code>: removed 2026-11-14: Scott has no use for circuitry</li>
+<li><code>SmallTrainStation</code>: removed 2026-11-14, one mod per job: Modular Stations is the station mod</li>
+<li><code>DoorsAnywhere</code>: removed 2026-11-14, one mod per job: Architecture+ 04 is doors and has a Satisfactory Plus patch</li>
+<li><code>DI_MoreGlassAndWalls</code>: removed 2026-11-14, one mod per job: Architecture+ 02 is windows and has a patch; this one has a known missing wall preview</li>
+<li><code>DI_More_Lights</code>: removed 2026-11-14, one mod per job: Lights+ stays</li>
+<li><code>BigWalls</code>: removed 2026-11-14: the game no longer lists its 30 large foundations</li>
+<li><code>CBuildings</code>: removed 2026-11-14, one mod per job: Foundations+ is the foundation-texture pack</li>
+<li><code>MoreBeams</code>: removed 2026-11-14, one mod per job: Longer Beams and Structural Solutions stay</li>
+<li><code>UpsideDownFoundations</code>: removed 2026-11-14, one mod per job: Foundations+ stays; only CBuildings and More Beams needed it</li>
+<li><code>PropsAndDeco</code>: removed 2026-11-14, no overlaps: second general prop pack beside Factory Props, and its Satisfactory Plus patch no longer finds its milestone (Props and Deco 0.11.0 is newer than the patch)</li>
+<li><code>RoadSplineTool</code>: removed 2026-11-14, no overlaps: second road mod beside Road Maker, and four of its pieces are named ERROR by its author</li>
+<li><code>ContainerScreen</code>: not added 2026-11-14: its page says 'NOT working on Dedicated Servers or Multiplayer'; Containers with Screen (ContainerWithScreen) is its author's server-ready version and is in the pack</li>
+<li><code>LightSettings</code>: removed 2026-11-14: with Taj's Graphical Overhaul it cut the game to about 8 frames a second, in the menu too. Its code (mklierman/SatisfactoryMods, LightSettings.cpp) hooks the game's light-pool update and, on every call, loops over every pooled light and resets six properties; Taj's raises the pool to 500 lights ('pool.light.count = 500'), so each update pass became hundreds of thousands of light changes on the game thread. Found by test profiles (smooth without it, slow with it) and the log (the slowdown starts on the frame Taj's applies its settings). Do not combine the two.</li>
+</ul>
+</article></div>
+<script>
+document.querySelectorAll('.prose pre').forEach(function(pre){
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'copy'; b.textContent = 'Copy';
+  b.addEventListener('click', function(){ var text = pre.querySelector('code').textContent, ok = function(){ b.textContent = 'Copied'; b.classList.add('done'); setTimeout(function(){ b.textContent = 'Copy'; b.classList.remove('done'); }, 1600); };
+    var pick = function(){ var r = document.createRange(); r.selectNodeContents(pre.querySelector('code')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selected: press Ctrl+C'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, pick); else pick(); });
+  pre.insertBefore(b, pre.firstChild);
+});
+</script>
+</body>
+</html>
