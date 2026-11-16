@@ -281,14 +281,32 @@ header .lede{max-width:760px}
 @media (max-width:640px){.prose h2{font-size:23px}.prose p,.prose li{font-size:15px}}
 </style>
 <div class="wrap page"><div class="topbar"><a class="brand glass" href="index.html" title="All guides"><svg viewBox="0 0 128 128" aria-hidden="true"><defs><linearGradient id="smbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2733"/><stop offset="1" stop-color="#0d1116"/></linearGradient><clipPath id="smtile"><rect x="4" y="4" width="120" height="120" rx="26"/></clipPath></defs><rect x="4" y="4" width="120" height="120" rx="26" fill="url(#smbg)"/><g clip-path="url(#smtile)" fill="none" stroke-linecap="round"><g stroke="#4f6b7d" stroke-width="2.4" opacity=".7"><path d="M-6 80C16 66 34 70 52 84S98 110 134 92"/><path d="M-6 116C24 126 44 112 64 112S104 128 134 112"/><path d="M70 134C84 120 108 122 134 130"/><path d="M-6 58C8 48 22 48 34 54"/></g><g stroke="#fa9549" stroke-width="5"><path d="M63.7 72.8A13 13 0 0 1 53.2 62.3"/><path d="M61.8 83.6A24 24 0 0 1 42.4 64.2" opacity=".62"/><path d="M59.9 94.5A35 35 0 0 1 31.5 66.1" opacity=".32"/></g></g><g transform="translate(82 44) rotate(45)"><rect x="-39" y="-9" width="24" height="18" rx="2.5" fill="#2f86c9" stroke="#e9eef2" stroke-width="3"/><rect x="15" y="-9" width="24" height="18" rx="2.5" fill="#2f86c9" stroke="#e9eef2" stroke-width="3"/><path d="M-27-9V9M27-9V9" stroke="#e9eef2" stroke-width="2"/><rect x="-15" y="-3" width="30" height="6" fill="#e9eef2"/><rect x="-11" y="-13" width="22" height="26" rx="5" fill="#e9eef2"/><rect x="-2.5" y="12" width="5" height="6" fill="#e9eef2"/><path d="M-9 17Q0 28 9 17Z" fill="#fa9549"/></g><circle cx="28" cy="100" r="14" fill="none" stroke="#fa9549" stroke-width="3" opacity=".45"/><circle cx="28" cy="100" r="7.5" fill="#fa9549" stroke="#0d1116" stroke-width="2.5"/></svg><span><b>SATMAP</b><small>in the game</small></span></a><nav class="links glass" aria-label="Guides"><a href="satisfactory-plus.html">Satisfactory Plus</a><a href="world-map.html">World map</a><a href="rocky-desert-works.html">Rocky Desert Works</a><a href="builders-handbook.html">Builder's Handbook</a><a href="index.html">All guides</a></nav></div><header><div class="eyebrow">In the game</div><h1>Live factory signs</h1></header>
-<nav class="toc" aria-label="On this page"><a href="#the-programs">The programs</a><a href="#putting-a-program-into-a-computer">Putting a program into a computer</a><a href="#first-steps-lua">first-steps.lua</a><a href="#sign-line-lua">sign-line.lua</a><a href="#hall-board-lua">hall-board.lua</a><a href="#stock-board-lua">stock-board.lua</a><a href="#power-board-lua">power-board.lua</a><a href="#satmap-board-lua">satmap-board.lua</a><a href="#trying-a-board-before-you-have-a-large-screen">Trying a board before you have a Large Screen</a><a href="#what-it-costs">What it costs</a><a href="#what-a-game-run-still-has-to-show">What a game run still has to show</a><a href="#for-whoever-changes-these-files">For whoever changes these files</a><a href="#the-programs-to-copy">The programs, to copy</a></nav>
+<nav class="toc" aria-label="On this page"><a href="#start-here-the-first-test-ten-minutes">Start here: the first test (ten minutes)</a><a href="#the-programs">The programs</a><a href="#putting-a-program-into-a-computer">Putting a program into a computer</a><a href="#first-run-first-steps-lua">First run: first-steps.lua</a><a href="#a-live-line-on-a-sign-sign-line-lua">A live line on a sign: sign-line.lua</a><a href="#hall-board-hall-board-lua">Hall board: hall-board.lua</a><a href="#stock-board-stock-board-lua">Stock board: stock-board.lua</a><a href="#power-board-power-board-lua">Power board: power-board.lua</a><a href="#whole-factory-board-satmap-board-lua">Whole-factory board: satmap-board.lua</a><a href="#trying-a-board-before-you-have-a-large-screen">Trying a board before you have a Large Screen</a><a href="#if-something-goes-wrong">If something goes wrong</a><a href="#what-it-costs">What it costs</a><a href="#what-a-game-run-still-has-to-show">What a game run still has to show</a><a href="#for-whoever-changes-these-files">For whoever changes these files</a><a href="#the-programs-to-copy">The programs, to copy</a></nav>
 <article class="prose">
 <p style="font-size:12.5px;color:var(--muted)">Written by <code>tools/fin_page.py</code> from <code>packs/fin/</code>; do not edit by hand. Part of the <a href="plus-pack.html">Howson Plus pack</a>; the map they can read from is the <a href="world-map.html">World map</a>'s own mod.</p>
 <p>Ready-made programs for the in-game computers of FicsIt-Networks (the pack's own 1.3.0 build). Each is one file. You paste it into a computer, press the power button, and a screen or a sign starts showing live numbers from the factory.</p>
-<p><strong>Not yet run in the game.</strong> Every call in these programs was read in the source of the build the pack uses, and the programs pass 94 checks against a stand-in for the game written from that source (<code>test/</code>). What only a game run can show is listed at the end.</p>
+<p><strong>Not yet run in the game.</strong> Every call in these programs was read in the source of the build the pack uses, and the programs pass 109 desk checks outside the game. The first run in the game is the card just below; what only the game can show is listed near the end.</p>
 <p><strong>Nothing extra to join.</strong> A program lives inside the computer it was pasted into, which is part of the world. It runs on the server (or on the host). A friend who joins sees the screens and signs like any other building and needs no file.</p>
+<h2 id="start-here-the-first-test-ten-minutes">Start here: the first test (ten minutes)</h2>
+<p>Do this in a new solo world, not on the server. The commands in step 2 unlock everything in a world for good, and the server's world is still too early to research the computer honestly.</p>
+<div class="tablewrap"><table><thead><tr><th>Step</th><th>Do</th><th>You should see</th></tr></thead><tbody><tr><td>1</td><td>Main menu, <strong>New Game</strong>, any start, skip the intro.</td><td>You stand in a new world.</td></tr><tr><td>2</td><td>Open the console with the backtick key, left of 1. If nothing opens, press Ctrl+Shift+L once and try again. Type the six lines under this table, Enter after each.</td><td>No error after a line. The build menu offers everything, and two Text EEPROMs are in your inventory.</td></tr><tr><td>3</td><td>Build menu: type <code>Computer Case</code> into the search and place one.</td><td>The case stands, with an open window on its front.</td></tr><tr><td>4</td><td>Build menu: place a <strong>Lua CPU</strong>, a <strong>Memory T1</strong>, a <strong>Graphical Processing Unit T1</strong> and a <strong>Screen Driver</strong>, each into that window.</td><td>Four modules sit inside the window.</td></tr><tr><td>5</td><td>Open the case. On its EEPROM tab, drag a Text EEPROM into the thin slot.</td><td>The first tab is a code box. It does not say &quot;No CPU Detected&quot;.</td></tr><tr><td>6</td><td>Copy <code>first-steps.lua</code>, click into the code box, select everything, paste, press the power button.</td><td>In the log under the code: <code>Hello World!</code>, two lines of counts, and <code>Done. This computer can be switched off.</code></td></tr><tr><td>7</td><td>Press the power button to switch off. Replace the code with <code>power-board.lua</code> and press the power button again.</td><td>The log says <code>Power board running: POWER</code>. The computer's window now has a screen: <code>POWER</code> in blue, a line of dashes, and in amber <code>No power grid found on this network.</code></td></tr><tr><td>8</td><td>If you have two more minutes: build any generator and a power pole, wire them together, then run a <strong>Network Cable</strong> from the computer to the pole.</td><td>Within a few seconds the screen shows Used, Produced and Capacity with numbers.</td></tr><tr><td>9</td><td>Close the game.</td><td></td></tr></tbody></table></div>
+<pre><code class="language-text">SML.ForceAllowCheats 1
+EnableCheats
+NoCost true
+NoPower true
+GiveAllSchematics
+GiveItemsSingle /FicsItNetworks/Items/EEPROM/Desc_EEPROM_Text.Desc_EEPROM_Text_C 2
+</code></pre>
+<p>The first two lines switch the cheat commands on, <code>NoCost</code> builds without parts, <code>NoPower</code> runs buildings without power, <code>GiveAllSchematics</code> unlocks every milestone and all research, and the last line gives two chips. If the last line gives nothing, craft a Text EEPROM at the craft bench instead.</p>
+<p>Three things to report afterwards:</p>
+<ol>
+<li>Step 6: did <code>Hello World!</code> appear? If not, the exact words in the log.</li>
+<li>Step 7: did the screen draw, and is the text readable? A screenshot says most.</li>
+<li>Anything else that looked wrong: a crash, a red line, a blank or scrambled screen, and at which step.</li>
+</ol>
+<p>Do not run <code>/modeler-generate</code> in that session: it is known to crash the game a few minutes later, whatever else is loaded.</p>
 <h2 id="the-programs">The programs</h2>
-<div class="tablewrap"><table><thead><tr><th>File</th><th>What it shows</th><th>Where</th><th>You can build it from</th></tr></thead><tbody><tr><td><code>first-steps.lua</code></td><td>Run once on a new computer: does three small tasks the mod's research tree asks for, then lists everything the computer can see on its network</td><td>the computer's log</td><td>Satisfactory Plus tier 5</td></tr><tr><td><code>sign-line.lua</code></td><td>One live line on the game's own signs: power, a hall's machines, the emptiest container, or one item per minute</td><td>ordinary signs</td><td>tier 5</td></tr><tr><td><code>hall-board.lua</code></td><td>Every machine on the network: recipe, state (running, waiting, output full, no power, paused), productivity, and a total per minute for each item</td><td>a Large Screen</td><td>tier 7</td></tr><tr><td><code>stock-board.lua</code></td><td>Every storage container on the network: item, amount, fill bar; red when nearly empty, amber when nearly full</td><td>a Large Screen</td><td>tier 7</td></tr><tr><td><code>power-board.lua</code></td><td>One power grid: used, produced, capacity, what it would draw with every machine running, batteries, a curve of the last minutes, and <strong>FUSE BLOWN</strong> in red</td><td>a Large Screen</td><td>tier 7</td></tr><tr><td><code>satmap-board.lua</code></td><td>The whole factory from SatMap's own numbers (SatMap is the mod behind the World map): power, each power grid, the last hour, open alerts, made and used per minute for the top items. No cables to machines</td><td>a Large Screen</td><td>tier 9</td></tr></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th>File</th><th>What it shows</th><th>Where</th><th>You can build it from</th></tr></thead><tbody><tr><td><code>first-steps.lua</code></td><td>Run once on a new computer: does three small tasks the mod's research tree asks for, then lists everything the computer can see on its network</td><td>the computer's log</td><td>Satisfactory Plus tier 5</td></tr><tr><td><code>sign-line.lua</code></td><td>One live line on the game's own signs: power, a hall's machines, the emptiest container, or one item per minute</td><td>ordinary signs</td><td>tier 5</td></tr><tr><td><code>hall-board.lua</code></td><td>Every machine on the network: recipe, state (running, waiting, output full, no power, paused), productivity, and a total per minute for each item</td><td>a Large Screen</td><td>tier 7</td></tr><tr><td><code>stock-board.lua</code></td><td>Every storage container on the network: item, amount, fill bar; red when nearly empty, amber when nearly full</td><td>a Large Screen</td><td>tier 7</td></tr><tr><td><code>power-board.lua</code></td><td>One power grid: used, produced, capacity, what it would draw with every machine running, batteries, a curve of the last minutes, and <strong>FUSE BLOWN</strong> in red</td><td>a Large Screen</td><td>tier 7</td></tr><tr><td><code>satmap-board.lua</code></td><td>The whole factory from SatMap's own numbers (SatMap is the mod behind the World map): power, each power grid, the last hour, the Space Elevator's next phase, open alerts, the team's to-do list, made and used per minute. No cables to machines</td><td>a Large Screen</td><td>tier 9</td></tr></tbody></table></div>
 <p>The tiers are where Satisfactory Plus first makes the parts the research costs (details under &quot;What it costs&quot;).</p>
 <h2 id="putting-a-program-into-a-computer">Putting a program into a computer</h2>
 <ol>
@@ -303,14 +321,14 @@ header .lede{max-width:760px}
 <p>To change a setting later: switch the computer off, edit the line, switch it on.</p>
 <p>Network Cable: with the cable in the build gun, click the computer's plug, then the thing to connect. On a machine the cable clicks onto its power plug. Things can be chained one to the next. A cable also goes onto the plain and Industrial Storage Container, the game's free-standing signs, power poles, switches and Power Storages.</p>
 <p>Nicknames: with the <strong>Network Manager</strong> in hand, look at a connected thing, click, and type into the nickname field. A nickname can be several words; a program that asks for a word matches any of them.</p>
-<h2 id="first-steps-lua">first-steps.lua</h2>
+<h2 id="first-run-first-steps-lua">First run: first-steps.lua</h2>
 <ol>
 <li>Build a computer as above (no graphics card needed) and paste the file.</li>
 <li>Press the power button and read the log.</li>
 <li>In the MAM, the nodes after &quot;Hello World!&quot; are now open, and the tasks of &quot;Network Pole&quot; and &quot;Network Card&quot; are done.</li>
 </ol>
 <p>Run it again whenever you want to see what a computer is connected to.</p>
-<h2 id="sign-line-lua">sign-line.lua</h2>
+<h2 id="a-live-line-on-a-sign-sign-line-lua">A live line on a sign: sign-line.lua</h2>
 <ol>
 <li>Build a computer (no graphics card) and paste the file.</li>
 <li>Build one or more of the game's signs. In each sign's own window pick a layout with a text field and type a single <code>#</code> into the field the line should go to.</li>
@@ -322,7 +340,7 @@ header .lede{max-width:760px}
 <li>Press the power button. Lines refresh every 10 seconds; a line that has not changed is not written again.</li>
 </ol>
 <p>If a sign stays as it was, the log says so: it found no field holding <code>#</code>.</p>
-<h2 id="hall-board-lua">hall-board.lua</h2>
+<h2 id="hall-board-hall-board-lua">Hall board: hall-board.lua</h2>
 <ol>
 <li>Build a computer with a Graphical Processing Unit T1 and paste the file.</li>
 <li>Build a <strong>Large Screen</strong> and run Network Cable from the computer to it.</li>
@@ -332,7 +350,7 @@ header .lede{max-width:760px}
 <p>Settings: <code>TITLE</code>; <code>GROUP</code> (a word: only machines whose nickname contains it, so one network can feed several boards); <code>COLUMNS</code> and <code>ROWS</code> (how many characters fit; larger numbers mean smaller text); <code>REFRESH</code>.</p>
 <p>What the states mean: <strong>RUNNING</strong> its progress moved since the last look; <strong>OUTPUT FULL</strong> not moving and an output stack is full; <strong>WAITING</strong> not moving, so most likely short of input; <strong>NO POWER</strong>; <strong>PAUSED</strong> switched to standby; <strong>NO RECIPE</strong>. The first look after start shows <code>...</code> because one look cannot tell movement.</p>
 <p>More machines than lines: the board turns pages by itself.</p>
-<h2 id="stock-board-lua">stock-board.lua</h2>
+<h2 id="stock-board-stock-board-lua">Stock board: stock-board.lua</h2>
 <ol>
 <li>Build a computer with a Graphical Processing Unit T1 and paste the file.</li>
 <li>Build a Large Screen and cable it to the computer.</li>
@@ -340,7 +358,7 @@ header .lede{max-width:760px}
 <li>Press the power button.</li>
 </ol>
 <p>A container holding one kind of item shows its exact fill. A mixed container is measured by the first item found in it, so its percentage is rough. Give a container a nickname to show that name. <code>LOW</code> and <code>HIGH</code> set where a line turns red or amber.</p>
-<h2 id="power-board-lua">power-board.lua</h2>
+<h2 id="power-board-power-board-lua">Power board: power-board.lua</h2>
 <ol>
 <li>Build a computer with a Graphical Processing Unit T1 and paste the file.</li>
 <li>Build a Large Screen and cable it to the computer.</li>
@@ -348,7 +366,7 @@ header .lede{max-width:760px}
 <li>Press the power button.</li>
 </ol>
 <p><code>BEEP = true</code> makes the computer beep while the fuse is blown. If the network also carries things on another grid, nickname the one to read from and put that word in <code>SOURCE</code>.</p>
-<h2 id="satmap-board-lua">satmap-board.lua</h2>
+<h2 id="whole-factory-board-satmap-board-lua">Whole-factory board: satmap-board.lua</h2>
 <p>SatMap is the mod behind the pack's World map. Before its version 3.0 it was called Howson Map Link, and this program was <code>maplink-board.lua</code>; the board reads both.</p>
 <p>Works only where SatMap runs in the same program as the computer: on the dedicated server when you play there, or in your own game when you host or play alone.</p>
 <ol>
@@ -357,12 +375,15 @@ header .lede{max-width:760px}
 <li>Press the power button.</li>
 </ol>
 <p>What each part of the board needs:</p>
-<div class="tablewrap"><table><thead><tr><th>On the board</th><th>Shows</th><th>Needs</th></tr></thead><tbody><tr><td>The heading</td><td>The mod's name and version, as it reports them</td><td>Howson Map Link 2.6.0, or any SatMap</td></tr><tr><td><code>POWER</code></td><td>Used, produced and capacity of the whole factory, or <strong>FUSE BLOWN</strong></td><td>Howson Map Link 2.6.0, or any SatMap</td></tr><tr><td>One line a grid</td><td>Used and capacity, what it would draw with every machine running, and one of: <code>trips if all run</code>, batteries empty or full in so many minutes, what the batteries hold, <code>FUSE BLOWN</code></td><td>SatMap 3.1.0</td></tr><tr><td><code>LAST HOUR</code></td><td>The busiest grid's last hour as one line, from blank (idle) to <code>#</code> (all of its capacity in use), newest on the right</td><td>SatMap 3.1.0</td></tr><tr><td><code>ALERTS</code></td><td>The open alerts, worst first</td><td>Howson Map Link 2.6.0, or any SatMap. The two power warnings that come before a fuse blows (a grid that trips when every machine runs, batteries running out) are raised from SatMap 3.1.0</td></tr><tr><td><code>PER MINUTE</code></td><td>Made, made at 100 %, used and what is left over, for the items made most</td><td>SatMap 3.1.0</td></tr></tbody></table></div>
-<p>With an older one, the board shows what it can and ends with two lines such as <code>NOT SHOWN: each grid, the last hour, per minute.</code> and <code>That needs SatMap 3.1.0 or newer. This is Howson Map Link 2.6.0.</code> On 16 Nov 2026 the server ran Howson Map Link 2.6.0, so that is what a board there shows until the server gets SatMap 3.1.0.</p>
-<p>Settings: <code>GRIDS</code> (how many grids get a line; the rest are counted), <code>ITEMS</code>, <code>ALERTS</code>. If SatMap listens somewhere else than <code>http://127.0.0.1:8765</code>, change <code>URL</code>.</p>
+<div class="tablewrap"><table><thead><tr><th>On the board</th><th>Shows</th><th>Needs</th></tr></thead><tbody><tr><td>The heading</td><td>The mod's name and version, as it reports them</td><td>Howson Map Link 2.6.0, or any SatMap</td></tr><tr><td><code>POWER</code></td><td>Used, produced and capacity of the whole factory, or <strong>FUSE BLOWN</strong></td><td>Howson Map Link 2.6.0, or any SatMap</td></tr><tr><td>One line a grid</td><td>Used and capacity, what it would draw with every machine running, and one of: <code>trips if all run</code>, batteries empty or full in so many minutes, what the batteries hold, <code>FUSE BLOWN</code></td><td>SatMap 3.1.0</td></tr><tr><td><code>LAST HOUR</code></td><td>The busiest grid's last hour as one line, from blank (idle) to <code>#</code> (all of its capacity in use), newest on the right</td><td>SatMap 3.1.0</td></tr><tr><td><code>ELEVATOR</code></td><td>The Space Elevator's next phase and how much of each part is paid in</td><td>Howson Map Link 2.6.0, or any SatMap</td></tr><tr><td><code>ALERTS</code></td><td>The open alerts, worst first, each with its reason where SatMap gives one (<code>no power</code>, <code>30 MW lost</code>). The same alert on several machines is one line with a count: <code>3 x Smelter has no power line</code></td><td>Howson Map Link 2.6.0, or any SatMap. The two power warnings that come before a fuse blows are raised from SatMap 3.1.0</td></tr><tr><td><code>TEAM TO-DO</code></td><td>The open entries of the map's shared to-do list, with who wrote each. Nothing is shown while the list is empty</td><td>SatMap 3.3.0</td></tr><tr><td><code>PER MINUTE</code></td><td>Made, made at 100 %, used and what is left over, for the items made most</td><td>SatMap 3.1.0</td></tr></tbody></table></div>
+<p>With an older SatMap, the board shows what it can and ends with lines such as <code>NOT SHOWN: each grid, the last hour, per minute. Needs SatMap 3.1.0 or newer.</code> and <code>This is Howson Map Link 2.6.0.</code></p>
+<p>On 16 Nov 2026 the server ran SatMap 3.1.0. Its answers were read once and the board's code was run on them outside the game: it drew the fuse line, the elevator's phase, the twelve open alerts as five lines and <code>and 4 more</code>, nine items per minute, and at the bottom <code>NOT SHOWN: team to-do. Needs SatMap 3.3.0 or newer.</code> The grid lines and <code>LAST HOUR</code> had nothing to draw, because no grid had a generator running at that moment.</p>
+<p>Settings: <code>GRIDS</code> (how many grids get a line; the rest are counted), <code>ALERTS</code>, <code>TODO</code> (0 leaves the to-do list out and stops the board asking for it), <code>ELEVATOR</code> (false leaves that line out), <code>ITEMS</code>. If SatMap listens somewhere else than <code>http://127.0.0.1:8765</code>, change <code>URL</code>.</p>
 <h2 id="trying-a-board-before-you-have-a-large-screen">Trying a board before you have a Large Screen</h2>
 <p>Place a <strong>Screen Driver</strong> into the Computer Case and start the board with no Large Screen on the network. The picture then shows inside the computer's own window. Doing this once also completes the research task &quot;What GPU?&quot;, which the Large Screen node waits for.</p>
 <p>The boards do not draw on the game's own signs. In this build, pointing a graphics card at a sign only blanks the sign, so the boards refuse to. Signs get their text from <code>sign-line.lua</code>.</p>
+<h2 id="if-something-goes-wrong">If something goes wrong</h2>
+<div class="tablewrap"><table><thead><tr><th>You see</th><th>What it means</th><th>Do this</th></tr></thead><tbody><tr><td>&quot;No CPU Detected&quot; in the computer's window</td><td>The case is empty: the chip alone does nothing</td><td>Place a Lua CPU and a Memory T1 into the window on the case with the build gun</td></tr><tr><td><code>... no Graphical Processing Unit T1 in this computer.</code></td><td>A board was started without a graphics card</td><td>Place a Graphical Processing Unit T1 into the case</td></tr><tr><td><code>... no Large Screen on this network and no Screen Driver in this computer</code></td><td>The board has nothing to draw on</td><td>Cable a Large Screen to the computer, or place a Screen Driver into the case</td></tr><tr><td><code>... is one of the game's own signs.</code></td><td><code>SCREEN</code> names a sign</td><td>Name a Large Screen there, or use <code>sign-line.lua</code> for signs</td></tr><tr><td><code>... no Internet Card in this computer.</code></td><td><code>satmap-board.lua</code> cannot ask SatMap</td><td>Place an Internet Card into the case</td></tr><tr><td><code>SatMap does not answer at ...</code> on the board</td><td>SatMap is not running where the computer runs</td><td>On the server: SatMap must be installed on the server itself. In brackets the board gives the reason it got</td></tr><tr><td><code>NOT SHOWN: ...</code> at the bottom of the board</td><td>That SatMap is older than the part needs</td><td>Nothing is broken; the lines appear once that SatMap is updated</td></tr><tr><td>A board shows <code>No power grid found on this network.</code></td><td>Nothing cabled to the computer is wired to a generator</td><td>Run a Network Cable to a power pole or a machine on the grid</td></tr><tr><td>A sign keeps its old text</td><td><code>sign-line.lua</code> found no text field holding <code>#</code> on it</td><td>Type a single <code>#</code> into the field in the sign's own window</td></tr><tr><td>The log shows <code>... drawing failed:</code> or <code>... reading failed:</code> with a line number</td><td>A call answered differently in the game than in the source</td><td>The program keeps running. Copy that line of the log; it names the exact spot to fix</td></tr></tbody></table></div>
 <h2 id="what-it-costs">What it costs</h2>
 <p>Read from the list of recipes and research the game wrote out on 14 Nov 2026 with the pack loaded (export <code>ingame-ba08246d</code>).</p>
 <p>Research in the MAM, tree &quot;Networking&quot;, in the order the tree demands:</p>
@@ -382,8 +403,8 @@ header .lede{max-width:760px}
 <li><strong>Sign fields.</strong> <code>sign-line.lua</code> finds the text field by the <code>#</code> you typed. That the game lists a field only once it holds text is my reading; if a sign with <code>#</code> in it stays untouched, the log says so.</li>
 <li><strong>Which containers take a cable.</strong> The plain and the Industrial Storage Container are on the mod's list. Containers that Satisfactory Plus or other mods add may not be.</li>
 <li><strong>The Internet Card and 127.0.0.1.</strong> The mod passes the address straight to the game's own web client and blocks nothing. Whether the game's client has an allow-list of its own was not readable.</li>
-<li><strong>SatMap's answers.</strong> The grid lines, <code>LAST HOUR</code> and <code>PER MINUTE</code> are written against SatMap 3.1.0 as its builder describes it (<code>/state.power.grids</code>, <code>/power</code>, <code>/rates</code>). SatMap 3.1.0 is built and is on Scott's PC, but had not run with a world when this was written, and the board has not asked a real one. <code>POWER</code> and <code>ALERTS</code> use <code>/state</code> as Howson Map Link 2.6.0 gives it, which does run on the server.</li>
-<li><strong>How long the board takes to read <code>/state</code>.</strong> On the server that answer is about 640 KB, most of it the list of things still to collect. The board steps over what it does not need, but it still has to walk the whole text every <code>REFRESH</code>.</li>
+<li><strong>SatMap's grid lines, <code>LAST HOUR</code> and <code>TEAM TO-DO</code> with real numbers.</strong> The first two are written against SatMap 3.1.0 as its builder describes it; the server's real answer held no grid when it was read. The to-do list is written against SatMap 3.3.0, which had not run with a world. <code>POWER</code>, <code>ELEVATOR</code>, <code>ALERTS</code> and <code>PER MINUTE</code> were drawn from the server's real answers, but at the desk, not by a computer in the game.</li>
+<li><strong>How long the board takes to read SatMap's main answer.</strong> On the server it is about 1.1 MB, most of it lists the board does not need. The board steps over those, but it still walks the whole text every <code>REFRESH</code>. At the desk that takes a few hundredths of a second; the in-game computer is much slower by design.</li>
 </ul>
 <h2 id="for-whoever-changes-these-files">For whoever changes these files</h2>
 <p><code>test/run.lua</code> runs every program against <code>test/mock.lua</code>, a stand-in for the mod's Lua environment that has no <code>os</code>, <code>io</code> or <code>require</code>, exactly like the mod. From <code>test/</code>: <code>lua5.4 run.lua</code> (add <code>-v</code> to see every screen). The source lines behind every call are listed in the pack notes (<code>ficsit-networks.md</code>, section &quot;Live factory signs&quot;).</p>
@@ -1085,13 +1106,14 @@ while true do
 end
 </code></pre>
 </details>
-<details><summary><code>satmap-board.lua</code> (518 lines)</summary>
+<details><summary><code>satmap-board.lua</code> (614 lines)</summary>
 <pre><code class="language-lua">-- SATMAP BOARD (FicsIt-Networks 1.3.0, Lua)
 --
 -- A factory-wide board fed by SatMap's own numbers. SatMap is the mod behind
 -- the pack's world map; before its version 3.0 it was called Howson Map Link,
 -- and this board reads that one too. It shows the power of the whole factory,
--- each power grid, the last hour, the open alerts, and what the factory makes
+-- each power grid and its last hour, what the Space Elevator still wants, the
+-- open alerts, the team's to-do list from the map, and what the factory makes
 -- and uses per minute. It needs no cables to machines: it asks SatMap over the
 -- Internet Card.
 --
@@ -1100,11 +1122,11 @@ end
 -- host or play alone. 127.0.0.1 always means &quot;this machine&quot;.
 --
 -- WHAT EACH PART OF THE BOARD NEEDS
---   POWER (the total) and ALERTS    Howson Map Link 2.6.0, or any SatMap
---   each grid, and LAST HOUR        SatMap 3.1.0 or newer
---   PER MINUTE                      SatMap 3.1.0 or newer
---   With an older one the board shows the first line and the alerts, and says
---   in plain words what is missing and why.
+--   POWER (the total), ELEVATOR, ALERTS   Howson Map Link 2.6.0, or any SatMap
+--   each grid, LAST HOUR, PER MINUTE      SatMap 3.1.0 or newer
+--   TEAM TO-DO                            SatMap 3.3.0 or newer
+--   With an older one the board shows what it can, and says in plain words at
+--   the bottom what is missing and which SatMap it needs.
 --
 -- BUILD
 --   1. A Computer Case with one Lua CPU, one Memory T1, one Graphical Processing
@@ -1125,6 +1147,8 @@ local REFRESH = 15                        -- seconds between redraws
 local GRIDS   = 4                         -- how many power grids get a line of their own at most
 local ITEMS   = 14                        -- how many items the list shows at most
 local ALERTS  = 5                         -- how many alerts the list shows at most
+local TODO    = 3                         -- how many open to-dos it shows at most; 0 = leave them out
+local ELEVATOR = true                     -- false = no Space Elevator line
 -- NOTHING BELOW NEEDS EDITING
 
 local WHITE, GREY   = {1, 1, 1}, {0.45, 0.45, 0.45}
@@ -1461,7 +1485,20 @@ local function gridKey(id)
   return tostring(id)
 end
 
-local function draw(state, stateError, rates, ratesError, hour, hourError)
+-- an alert as one line: what, and why when SatMap says why (returned apart, so
+-- the reason can be left off where the line would not fit)
+local function alertLine(alert)
+  local text = tostring(alert.text or alert.kind or &quot;?&quot;)
+  local who = alert.n
+  if type(who) == &quot;string&quot; and who ~= &quot;&quot; and not text:find(who, 1, true) then text = who .. &quot;: &quot; .. text end
+  local more = alert.more
+  if type(more) == &quot;string&quot; and more ~= &quot;&quot; then return text, &quot; (&quot; .. more .. &quot;)&quot; end
+  return text, &quot;&quot;
+end
+
+-- got = { state, stateError, rates, ratesError, hour, hourError, board, boardError }
+local function draw(got)
+  local state = got.state
   clear()
   put(0, 0, TITLE, BLUE)
   put(0, 1, string.rep(&quot;-&quot;, COLUMNS), GREY)
@@ -1469,17 +1506,26 @@ local function draw(state, stateError, rates, ratesError, hour, hourError)
 
   if not state then
     put(0, y, &quot;SatMap does not answer at &quot; .. URL, RED)
-    put(0, y + 1, &quot;(&quot; .. tostring(stateError) .. &quot;) Is it running in this game or on this server?&quot;, GREY)
+    put(0, y + 1, &quot;(&quot; .. tostring(got.stateError) .. &quot;) Is it running in this game or on this server?&quot;, GREY)
     gpu:flush()
     return
   end
 
   local name = modName(state)
   put(math.max(#TITLE + 2, COLUMNS - #name), 0, name, GREY)
-  local missing = {}    -- parts this SatMap is too old for
+
+  -- what this SatMap is too old for, worked out first so its lines keep their room
+  local power = state.power
+  local grids = type(power) == &quot;table&quot; and power.grids or nil
+  local needs31, needs33 = {}, {}
+  if type(power) == &quot;table&quot; and type(grids) ~= &quot;table&quot; and power.source ~= &quot;client&quot; then needs31[#needs31 + 1] = &quot;each grid&quot; end
+  if type(power) == &quot;table&quot; and got.hourError == &quot;404&quot; then needs31[#needs31 + 1] = &quot;the last hour&quot; end
+  if got.ratesError == &quot;404&quot; then needs31[#needs31 + 1] = &quot;per minute&quot; end
+  if got.boardError == &quot;404&quot; then needs33[#needs33 + 1] = &quot;team to-do&quot; end
+  local tail = (#needs31 &gt; 0 and 1 or 0) + (#needs33 &gt; 0 and 1 or 0)
+  if tail &gt; 0 then tail = tail + 1 end
 
   -- power: the total, then each grid, then the last hour of the busiest grid
-  local power = state.power
   if type(power) == &quot;table&quot; then
     local used, capacity = tonumber(power.consumed) or 0, tonumber(power.capacity) or 0
     local produced = tonumber(power.produced) or 0
@@ -1496,10 +1542,7 @@ local function draw(state, stateError, rates, ratesError, hour, hourError)
       y = y + 1
     end
 
-    local grids = power.grids
-    if type(grids) ~= &quot;table&quot; then
-      if power.source ~= &quot;client&quot; then missing[#missing + 1] = &quot;each grid&quot; end
-    elseif #grids &gt; 0 then
+    if type(grids) == &quot;table&quot; and #grids &gt; 0 then
       table.sort(grids, function(a, b) return (tonumber(a.cons) or 0) &gt; (tonumber(b.cons) or 0) end)
       for i = 1, math.min(#grids, GRIDS) do
         gridLine(y, grids[i])
@@ -1509,56 +1552,122 @@ local function draw(state, stateError, rates, ratesError, hour, hourError)
         put(0, y, &quot;  and &quot; .. (#grids - GRIDS) .. &quot; more&quot;, GREY)
         y = y + 1
       end
+    elseif type(grids) == &quot;table&quot; and power.source ~= &quot;client&quot; then
+      put(0, y, &quot;  no grid has a generator or batteries&quot;, GREY)
+      y = y + 1
     end
 
-    if hour then
+    if got.hour then
       local busiest = type(grids) == &quot;table&quot; and grids[1] or nil
-      local all = type(hour.grids) == &quot;table&quot; and hour.grids or {}
+      local all = type(got.hour.grids) == &quot;table&quot; and got.hour.grids or {}
       if busiest and hourLine(y, tostring(busiest.name or busiest.id or &quot;&quot;), all[gridKey(busiest.id)]) then
         y = y + 1
       end
-    elseif hourError == &quot;404&quot; then
-      missing[#missing + 1] = &quot;the last hour&quot;
-    else
-      put(0, y, &quot;LAST HOUR  not available (&quot; .. tostring(hourError) .. &quot;)&quot;, GREY)
+    elseif got.hourError ~= &quot;404&quot; then
+      put(0, y, &quot;LAST HOUR  not available (&quot; .. tostring(got.hourError) .. &quot;)&quot;, GREY)
       y = y + 1
     end
-    y = y + 1
   end
 
-  -- alerts
+  -- the Space Elevator's next phase: what is paid in
+  local elevator = state.elevator
+  if ELEVATOR and type(elevator) == &quot;table&quot; and type(elevator.items) == &quot;table&quot; and #elevator.items &gt; 0 then
+    local parts, done = {}, true
+    for _, item in ipairs(elevator.items) do
+      local paid, need = tonumber(item.paid) or 0, tonumber(item.need) or 0
+      if paid &lt; need then done = false end
+      parts[#parts + 1] = string.format(&quot;%s %.0f / %.0f&quot;, tostring(item.n or &quot;?&quot;), paid, need)
+    end
+    local phase = type(elevator.phase) == &quot;string&quot; and elevator.phase ~= &quot;&quot; and (elevator.phase .. &quot;: &quot;) or &quot;&quot;
+    put(0, y, &quot;ELEVATOR  &quot; .. phase .. table.concat(parts, &quot;, &quot;), done and GREEN or WHITE)
+    y = y + 1
+  end
+  y = y + 1
+
+  -- alerts, worst first; the same line several times over is shown once with a count
   local alerts = state.alerts
   if type(alerts) == &quot;table&quot; and type(alerts.list) == &quot;table&quot; then
     local total = tonumber(alerts.total) or #alerts.list
     put(0, y, total == 0 and &quot;ALERTS  none&quot; or (&quot;ALERTS  &quot; .. total .. &quot; open&quot;), total == 0 and GREEN or AMBER)
     y = y + 1
-    for i = 1, math.min(#alerts.list, ALERTS) do
-      local alert = alerts.list[i]
-      local colour = AMBER
-      if (tonumber(alert.sev) or 0) &gt;= 3 then colour = RED end
-      local text = tostring(alert.text or alert.kind or &quot;?&quot;)
-      if alert.n then text = tostring(alert.n) .. &quot;: &quot; .. text end
-      put(2, y, text, colour)
+    local lines, seen = {}, {}
+    for _, alert in ipairs(alerts.list) do
+      if type(alert) == &quot;table&quot; then
+        local text, why = alertLine(alert)
+        local line = seen[text .. why]
+        if line then
+          line.count = line.count + 1
+        else
+          line = { text = text, why = why, count = 1, sev = tonumber(alert.sev) or 0 }
+          seen[text .. why] = line
+          lines[#lines + 1] = line
+        end
+      end
+    end
+    local shown = 0
+    for i = 1, math.min(#lines, ALERTS) do
+      local line = lines[i]
+      local text = (line.count &gt; 1 and (line.count .. &quot; x &quot;) or &quot;&quot;) .. line.text
+      if (utf8.len(text .. line.why) or #(text .. line.why)) &lt;= COLUMNS - 2 then text = text .. line.why end
+      put(2, y, text, line.sev &gt;= 3 and RED or AMBER)
+      shown = shown + line.count
+      y = y + 1
+    end
+    if total &gt; shown and shown &gt; 0 then
+      put(2, y, &quot;and &quot; .. (total - shown) .. &quot; more&quot;, GREY)
       y = y + 1
     end
     y = y + 1
   end
 
+  -- the team's to-do list from the map
+  if got.board then
+    local open = {}
+    for _, entry in ipairs(type(got.board.todo) == &quot;table&quot; and got.board.todo or {}) do
+      if type(entry) == &quot;table&quot; and not entry.done then open[#open + 1] = entry end
+    end
+    if #open &gt; 0 then
+      put(0, y, &quot;TEAM TO-DO  &quot; .. #open .. &quot; open&quot;, BLUE)
+      y = y + 1
+      for i = 1, math.min(#open, TODO) do
+        local text = tostring(open[i].text or &quot;?&quot;)
+        local who = open[i].who
+        if type(who) == &quot;string&quot; and who ~= &quot;&quot; then text = text .. &quot;  (&quot; .. who .. &quot;)&quot; end
+        put(2, y, text, WHITE)
+        y = y + 1
+      end
+      if #open &gt; TODO then
+        put(2, y, &quot;and &quot; .. (#open - TODO) .. &quot; more&quot;, GREY)
+        y = y + 1
+      end
+      y = y + 1
+    end
+  elseif got.boardError ~= &quot;404&quot; and got.boardError ~= &quot;not asked&quot; then
+    put(0, y, &quot;TEAM TO-DO  not available (&quot; .. tostring(got.boardError) .. &quot;)&quot;, GREY)
+    y = y + 2
+  end
+
   -- per minute
-  if rates then
-    local items = rates.items
+  if got.rates then
+    local items = got.rates.items
     if type(items) ~= &quot;table&quot; then items = {} end
-    table.sort(items, function(a, b) return (tonumber(a.made) or 0) &gt; (tonumber(b.made) or 0) end)
+    table.sort(items, function(a, b)
+      local madeA, madeB = tonumber(a.made) or 0, tonumber(b.made) or 0
+      if madeA ~= madeB then return madeA &gt; madeB end
+      local capA, capB = tonumber(a.cap) or 0, tonumber(b.cap) or 0
+      if capA ~= capB then return capA &gt; capB end
+      return tostring(a.n or &quot;&quot;) &lt; tostring(b.n or &quot;&quot;)
+    end)
     local nameW = math.max(10, COLUMNS - 36)
     put(0, y, cut(&quot;PER MINUTE&quot;, nameW), GREY)
     put(nameW, y, right(&quot;MADE&quot;, 9) .. right(&quot;AT 100 %&quot;, 10) .. right(&quot;USED&quot;, 9) .. right(&quot;LEFT&quot;, 8), GREY)
     y = y + 1
     if #items == 0 then
-      local note = type(rates.note) == &quot;string&quot; and rates.note ~= &quot;&quot; and rates.note or &quot;nothing is being made yet&quot;
+      local note = type(got.rates.note) == &quot;string&quot; and got.rates.note ~= &quot;&quot; and got.rates.note or &quot;nothing is being made yet&quot;
       put(2, y, note, GREY)
       y = y + 1
     end
-    for i = 1, math.min(#items, ITEMS, math.max(0, ROWS - y)) do
+    for i = 1, math.min(#items, ITEMS, math.max(0, ROWS - y - tail)) do
       local item = items[i]
       local made, used, cap = tonumber(item.made) or 0, tonumber(item.used) or 0, tonumber(item.cap) or 0
       local left = made - used
@@ -1570,16 +1679,23 @@ local function draw(state, stateError, rates, ratesError, hour, hourError)
       put(nameW + 28, y, right(num(left), 8), colour)
       y = y + 1
     end
-  elseif ratesError == &quot;404&quot; then
-    missing[#missing + 1] = &quot;per minute&quot;
-  else
-    put(0, y, &quot;PER MINUTE  not available (&quot; .. tostring(ratesError) .. &quot;)&quot;, GREY)
+  elseif got.ratesError ~= &quot;404&quot; then
+    put(0, y, &quot;PER MINUTE  not available (&quot; .. tostring(got.ratesError) .. &quot;)&quot;, GREY)
     y = y + 1
   end
 
-  if #missing &gt; 0 then
-    put(0, y, &quot;NOT SHOWN: &quot; .. table.concat(missing, &quot;, &quot;) .. &quot;.&quot;, AMBER)
-    put(0, y + 1, &quot;That needs SatMap 3.1.0 or newer. This is &quot; .. name .. &quot;.&quot;, GREY)
+  -- what an older SatMap cannot give, and which one this is
+  if tail &gt; 0 then
+    y = math.min(y, ROWS - tail)
+    if #needs31 &gt; 0 then
+      put(0, y, &quot;NOT SHOWN: &quot; .. table.concat(needs31, &quot;, &quot;) .. &quot;. Needs SatMap 3.1.0 or newer.&quot;, AMBER)
+      y = y + 1
+    end
+    if #needs33 &gt; 0 then
+      put(0, y, &quot;NOT SHOWN: &quot; .. table.concat(needs33, &quot;, &quot;) .. &quot;. Needs SatMap 3.3.0 or newer.&quot;, AMBER)
+      y = y + 1
+    end
+    put(0, y, &quot;This is &quot; .. name .. &quot;.&quot;, GREY)
   end
   gpu:flush()
 end
@@ -1594,13 +1710,14 @@ end
 print(&quot;SatMap board running: &quot; .. TITLE)
 
 while true do
-  local state, stateError = fetch(&quot;/state&quot;, {&quot;mod&quot;, &quot;modVersion&quot;, &quot;power&quot;, &quot;alerts&quot;})
-  local rates, ratesError, hour, hourError = nil, &quot;not asked&quot;, nil, &quot;not asked&quot;
-  if state then
-    rates, ratesError = fetch(&quot;/rates&quot;, {&quot;items&quot;, &quot;note&quot;})
-    hour, hourError = fetch(&quot;/power&quot;, {&quot;grids&quot;})
+  local got = { ratesError = &quot;not asked&quot;, hourError = &quot;not asked&quot;, boardError = &quot;not asked&quot; }
+  got.state, got.stateError = fetch(&quot;/state&quot;, {&quot;mod&quot;, &quot;modVersion&quot;, &quot;power&quot;, &quot;alerts&quot;, &quot;elevator&quot;})
+  if got.state then
+    got.rates, got.ratesError = fetch(&quot;/rates&quot;, {&quot;items&quot;, &quot;note&quot;})
+    got.hour, got.hourError = fetch(&quot;/power&quot;, {&quot;grids&quot;})
+    if TODO &gt; 0 then got.board, got.boardError = fetch(&quot;/board&quot;, {&quot;todo&quot;}) end
   end
-  local ok, err = pcall(draw, state, stateError, rates, ratesError, hour, hourError)
+  local ok, err = pcall(draw, got)
   if not ok then print(&quot;SatMap board: drawing failed: &quot; .. tostring(err)) end
   event.pull(REFRESH)
 end
