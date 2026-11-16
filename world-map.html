@@ -299,12 +299,12 @@ if (HD) { base.real = tiles('real'); base.game = tiles('game'); }
 function setStyle(s){
   if (!base[s]) s = 'plain';
   if (curStyle) map.removeLayer(base[curStyle]);
-  curStyle = s; base[s].addTo(map); store.set('howson-map-style', s); $('map').classList.toggle('sea', s === 'real');
+  curStyle = s; base[s].addTo(map); $('map').classList.toggle('sea', s === 'real');
   document.querySelectorAll('input[name=style]').forEach(r => { r.checked = r.value === s; });
 }
-document.querySelectorAll('input[name=style]').forEach(r => { if (!base[r.value]) { r.disabled = true; r.parentNode.style.opacity = .45; } r.addEventListener('change', () => setStyle(r.value)); });
+document.querySelectorAll('input[name=style]').forEach(r => { if (!base[r.value]) { r.disabled = true; r.parentNode.style.opacity = .45; } r.addEventListener('change', () => { setStyle(r.value); store.set('howson-map-style-v2', curStyle); }); });
 $('hdnote').hidden = !!HD;
-setStyle(store.get('howson-map-style', HD ? 'real' : 'plain'));
+setStyle(store.get('howson-map-style-v2', HD ? 'real' : 'plain'));
 
 // ---- icons: a coloured badge with a glyph, drawn once and reused ----
 const GLYPH = {
@@ -1006,8 +1006,20 @@ $('trail').addEventListener('change', e => { trailOn = e.target.checked; if (tra
 // ---- navigation: a waypoint, and runs through what is not collected ----
 let way = null, wayLine = null, run = [], runMarks = [];
 const DIRS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-const post = (path, body) => SITE || window.HOWSON_READONLY ? Promise.resolve(null) : fetch(BASE + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json()).catch(() => null);
-const can = k => live.ok && live.state && live.state[k] !== undefined;      // does this Map Link know about ghosts, waypoints?
+// What the map shows IN the game (the beam, the plan's outlines, the guide, the switches) goes to the mod in the viewer's own game.
+// On a local page that is the mod the page reads.  On the server's copy the data comes from the server, but the game runs on
+// the viewer's PC: the mod there is asked at 127.0.0.1 (pcState is its state document, null while it does not answer).
+const PC = 'http://127.0.0.1:8765'; let pcState = null, pcSeen = false;
+const gameState = () => SITE ? pcState : live.ok ? live.state : null;
+const post = (path, body) => window.HOWSON_READONLY || (SITE && !pcState) ? Promise.resolve(null) : fetch((SITE ? PC : BASE) + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json()).catch(() => null);
+const can = k => { const g = gameState(); return !!g && g[k] !== undefined; };      // does the game's mod know about ghosts, waypoints?
+function askPC(){
+  if (!SITE || window.HOWSON_READONLY || document.hidden) return;
+  fetch(PC + '/state', { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(st => {
+    pcState = st; if (!pcSeen) { pcSeen = true; toast('Your game on this PC is linked too: the beam, the outlines and the guide go there.', 5000); if (way) setWay(way); }
+    HUD = st.hud || null; drawHud(); planSync(st); guideSync(st); sendGuide();
+  }).catch(() => { pcState = null; HUD = null; drawHud(); $('g-game').textContent = 'To see the beam, the plan\'s outlines and this guide in your game, SatMap must be running in the game on this PC. It is asked at 127.0.0.1:8765 and has not answered.'; });
+}
 function setWay(w){
   if (can('waypoint')) post('/waypoint', w ? { x: Math.round(w.x * 100), y: Math.round(w.y * 100), z: w.o && w.o.z !== undefined ? Math.round(w.o.z * 100) : null, name: w.name, color: (w.o && w.o.c && w.o.c.f) || '#fa9549' } : { clear: true });
   way = w; if (wayLine) runLayer.removeLayer(wayLine); wayLine = null;
@@ -1094,7 +1106,7 @@ function onState(st, how){
   GM = (st.markers || []).map(a => ({ kind: 'g', type: String(a[0]), name: a[1], x: a[2] / 100, y: a[3] / 100, z: a[4] / 100, color: /^#[0-9a-f]{6}$/i.test(a[5] || '') ? a[5] : '' })); listGM();
   if (st.purchased) progress(st.purchased, st.phaseName);
   if (live.tally && Object.keys(live.tally).length) $('p-coll').insertAdjacentHTML('afterbegin', '<p style="margin-bottom:6px"><b>Collected by:</b> ' + Object.keys(live.tally).sort((a, b) => live.tally[b] - live.tally[a]).map(n => esc(n) + ' ' + live.tally[n]).join(' · ') + '</p>');
-  modExtras(st); alertsFrom(st); autoSteps(); guideSync(st); tlState(st); planSync(st); extras26(st); extras31(st);
+  modExtras(st); alertsFrom(st); autoSteps(); if (!SITE) { guideSync(st); planSync(st); } tlState(st); extras26(st); extras31(st);
   const pw = st.power && (st.power.capacity > 0 || st.power.produced > 0) ? st.power : null;
   $('s-power').textContent = pw ? Math.round(pw.consumed) + ' / ' + Math.round(pw.produced) + ' MW' : '–'; $('s-power-l').textContent = pw && pw.fuse ? 'THE FUSE HAS BLOWN' : pw ? 'power in use, largest circuit' : 'power: not known on this PC';
   const blind = (st.pickups && !has(st.pickups)) && !(st.seen && st.seen.gone);
@@ -1316,7 +1328,7 @@ function alertsFrom(st){                                  // the mod's list, plu
 }
 var fuseSince = 0, planSent = '', planAt = 0;
 function planSync(st){                                     // F9 in the game shows what the map last sent: send the plan by itself, and again when the stage or the layers change
-  const g = st.ghosts; if (!g || SITE || window.HOWSON_READONLY) return; const p = ghostPlan(), sig = p.name + '|' + p.boxes.length + '|' + p.lines.length + '|' + JSON.stringify(planSet), now = Date.now();
+  const g = st.ghosts; if (!g || window.HOWSON_READONLY) return; const p = ghostPlan(), sig = p.name + '|' + p.boxes.length + '|' + p.lines.length + '|' + JSON.stringify(planSet), now = Date.now();
   if ((sig === planSent && !(g.boxes === 0 && p.boxes.length && now - planAt > 30000)) || now - planAt < 4000) return;
   planAt = now; post('/plan', p).then(r => { if (r && r.ok !== false) planSent = sig; });
 }
@@ -1340,12 +1352,12 @@ const planOut = () => { const o = {}; PLAN.lanes.forEach(ln => { if ((ln.io === 
 const hm = sec => { sec = Math.max(0, Math.round(sec)); const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60); return h ? h + ' h ' + m + ' min' : m + ' min'; };
 function extras31(st){
   if (!SITE) { HUD = st.hud || null; drawHud(); }
-  const nx = st.guide && st.guide.next, box = $('g-next');
+  const gs = SITE ? pcState || {} : st, nx = gs.guide && gs.guide.next, box = $('g-next');
   if (!nx || nx.kind === 'none' || !nx.title) box.hidden = true;
   else {
     const miss = (nx.missing || []).map(m => '<span class="chip' + ((m.have || 0) >= (m.need || 0) ? ' ok' : '') + '">' + esc(m.n) + ' <b>' + fmt(m.have || 0) + ' / ' + fmt(m.need || 0) + '</b></span>').join('');
     box.innerHTML = '<small>Next in the game</small><b>' + esc(nx.title) + '</b>' + (miss ? '<div class="chips">' + miss + '</div>' : nx.kind === 'buy' ? '<p>You have everything it costs.</p>' : '')
-      + '<p>' + (nx.dist != null ? fmt(nx.dist / 100) + ' m from you. ' : '') + (nx.kind === 'buy' && nx.from ? 'Counted from your ' + (nx.from === 'inventory+depot' ? 'inventory and the depot' : 'inventory') + '. ' : '') + 'The same line shows in the game (' + esc((st.guide && st.guide.nextKey) || 'F7') + ' hides it).</p>';
+      + '<p>' + (nx.dist != null ? fmt(nx.dist / 100) + ' m from you. ' : '') + (nx.kind === 'buy' && nx.from ? 'Counted from your ' + (nx.from === 'inventory+depot' ? 'inventory and the depot' : 'inventory') + '. ' : '') + 'The same line shows in the game (' + esc((gs.guide && gs.guide.nextKey) || 'F7') + ' hides it).</p>';
     if (nx.x != null && nx.y != null) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = 'Show where'; b.addEventListener('click', () => map.setView(ll(nx.x / 100, nx.y / 100), Math.max(map.getZoom(), 6.5))); box.appendChild(b); }
     box.hidden = false;
   }
@@ -1433,7 +1445,7 @@ function guideDoc(){
     path: PLAN.path.map(p => ({ id: p.id, s: p.s, n: p.n, c: p.c, cost: costOf(p.c), done: !!saved[p.id] })) };
 }
 function sendGuide(){
-  if (!(live.ok && live.state && live.state.guide !== undefined)) return; clearTimeout(guideT);
+  const gs0 = gameState(); if (!(gs0 && gs0.guide !== undefined)) return; clearTimeout(guideT);
   guideT = setTimeout(() => { const d = guideDoc(), sig = JSON.stringify([d.stage, d.steps.map(s => s.done), d.path.map(s => s.done)]); if (sig === guideSent) return; post('/guide', d).then(r => { if (r && r.ok !== false) guideSent = sig; }); }, 800);
 }
 function autoSteps(){                                     // tick a step when the game shows it is done: its buildings stand at its place, or its milestone is bought
@@ -1518,8 +1530,8 @@ $('tl-live').addEventListener('click', tlLeave);
 // ---- the link itself ----
 // where the data comes from: the mod on this PC, or (a copy hosted beside the server, with link.js) the server's own part behind the same address
 const SITE = typeof window.HOWSON_LINK === 'string' && window.HOWSON_LINK.length > 0, BASE = SITE ? window.HOWSON_LINK.replace(/\/$/, '') : 'http://127.0.0.1:8765';
-// on the server's copy of the map, ask the mod on this PC (if there is one) how its in-game switches stand
-if (SITE && !window.HOWSON_READONLY) { const ask = () => { if (!document.hidden) hudPost({}).catch(() => { HUD = null; drawHud(); }); }; setTimeout(ask, 1500); setInterval(ask, 20000); }
+// on the server's copy of the map, look for the mod in the viewer's own game
+if (SITE && !window.HOWSON_READONLY) { setTimeout(askPC, 1500); setInterval(askPC, 15000); }
 $('iam-row').hidden = !SITE; $('iam').addEventListener('change', e => { store.set('howson-map-iam', e.target.value); }); let es = null, streamTry = 0, liveBad = 0, fails = 0;
 function stream(){
   if (!window.EventSource || window.HOWSON_NO_STREAM || es || Date.now() - streamTry < 20000) return; streamTry = Date.now();
@@ -1574,7 +1586,7 @@ document.addEventListener('keydown', e => {
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-16 03:05:24'; let told = false;
+const BUILD = '2026-11-16 03:13:43'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 (() => { const at = /[?&]at=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.search); if (!at) return; follow = false; map.setView(ll(+at[1], +at[2]), 6.5, { animate: false }); setTimeout(() => toast('Opened at ' + Math.round(+at[1]) + ', ' + Math.round(+at[2]) + '.', 4000), 600); })();
