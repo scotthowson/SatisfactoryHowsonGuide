@@ -597,7 +597,7 @@ footer{font-size:13px}
   var boxes = document.querySelectorAll('.steps input'), saved = {};
   try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
   function tally(){ var st = document.querySelectorAll('details.stagebox'), next = null; for (var i = 0; i < st.length; i++) { var all = st[i].querySelectorAll('.steps input[type=checkbox]'), n = 0; for (var j = 0; j < all.length; j++) if (all[j].checked) n++;
-      var sum = st[i].querySelector('summary .sum'); if (sum) { sum.textContent = n === all.length && n ? 'all ' + n + ' done' : n + ' of ' + all.length + ' done'; sum.className = 'sum' + (n === all.length && n ? ' alldone' : ''); } if (next === null && n < all.length) next = st[i]; }
+      var sum = st[i].querySelector('summary .sum'); if (sum) { sum.textContent = n === all.length && n ? 'all ' + n + ' done' : n + ' of ' + all.length + ' done'; sum.className = 'sum' + (n === all.length && n ? ' alldone' : ''); } if (next === null && n < all.length && !st[i].classList.contains('side')) next = st[i]; }
     for (var k = 0; k < st.length; k++) st[k].classList.toggle('here', st[k] === next); }
   for (var c = 0; c < boxes.length; c++) {
     if (saved.hasOwnProperty(boxes[c].id)) boxes[c].checked = !!saved[boxes[c].id];
