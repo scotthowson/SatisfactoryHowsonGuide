@@ -183,6 +183,10 @@ label.ck input{width:17px;height:17px;accent-color:var(--accent);flex:none}
 .nextup .btn{justify-self:start}.chips{display:flex;flex-wrap:wrap;gap:5px}.chip{font:500 11.5px/1 var(--mono);padding:5px 7px;border-radius:7px;background:rgba(255,255,255,.07);color:var(--muted,#93a1b3)}.chip b{color:var(--ink,#eef3f8);font-weight:600}.chip.ok b{color:#3ddc84}
 .gridrow{display:grid;gap:5px;padding:9px 0;border-top:1px solid var(--line,#263445);cursor:pointer}.gridrow:first-child{border-top:0}.gridrow .top{display:flex;justify-content:space-between;gap:8px;font-size:13px}.gridrow .top em{font:500 11.5px/1.4 var(--mono);font-style:normal;color:var(--muted,#93a1b3)}
 .gridrow.bad .top b{color:#ff8a8a}.gridrow svg{width:100%;height:34px;display:block}.gridrow p{margin:0;font-size:12px;color:var(--muted,#93a1b3)}
+#map.sea{background:radial-gradient(circle at 50% 50%,#165078 0,#165078 38%,#103c5c 70%,#0b2b44 100%)}
+.voidmask{image-rendering:auto}
+.hudrow{display:grid;gap:6px;margin:2px 0 10px}.hudrow>span{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#93a1b3)}.hudrow>div{display:flex;flex-wrap:wrap;gap:6px}
+.hudrow button{font:500 12.5px/1 var(--body,inherit);padding:8px 10px;border-radius:9px;border:1px solid var(--line,#263445);background:rgba(255,255,255,.04);color:var(--muted,#93a1b3);cursor:pointer}.hudrow button[aria-pressed=true]{background:rgba(53,214,194,.16);border-color:rgba(53,214,194,.6);color:var(--ink,#eef3f8)}.hudrow button:focus-visible{outline:2px solid var(--accent,#fa9549);outline-offset:2px}
 </style>
 <div class="app">
 <div id="map" role="application" aria-label="Map of the whole world"></div>
@@ -204,7 +208,7 @@ label.ck input{width:17px;height:17px;accent-color:var(--accent);flex:none}
  <button type="button" data-tab="settings" data-tip="Settings and about" aria-pressed="false" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/></svg></button>
 </div>
 <section class="panel glass" id="panel" aria-label="Panel">
- <div class="tab on" id="t-guide"><h2>Guide <small id="g-count"></small></h2><p>The build order, stage by stage. Tick a step when it is done; the guide page keeps the same ticks. <b>Show</b> flies to where the step happens.</p><p id="g-game"></p><div class="nextup" id="g-next" hidden></div>
+ <div class="tab on" id="t-guide"><h2>Guide <small id="g-count"></small></h2><p>The build order, stage by stage. Tick a step when it is done; the guide page keeps the same ticks. <b>Show</b> flies to where the step happens.</p><p id="g-game"></p><div class="nextup" id="g-next" hidden></div><div class="hudrow" id="hud-row" hidden><span>Shown in your game</span><div><button type="button" data-hud="guide" aria-pressed="false">To-do panel</button><button type="button" data-hud="next" aria-pressed="false">Next step line</button><button type="button" data-hud="outlines" aria-pressed="false">Plan outlines</button><button type="button" data-hud="snap" aria-pressed="false">Snap to the plan</button></div></div>
   <div class="row"><span>Stage</span><select class="sel" id="gstage" aria-label="Stage of the guide"></select></div><div id="gsteps"></div></div>
  <div class="tab" id="t-layers"><h2>Layers <small id="lcount"></small></h2><label class="ck"><input type="checkbox" id="hide"> Hide what is collected</label><details class="keyd"><summary>Key to the lines</summary><div class="key"><div><svg viewBox="0 0 44 12"><path d="M2 6H42" stroke="#0b1118" stroke-width="6" opacity=".6"/><path d="M2 6H42" stroke="#ffb347" stroke-width="3.6"/><path d="M13 3l3 3-3 3M27 3l3 3-3 3" fill="none" stroke="#3a2408" stroke-width="1.4"/></svg><span><b>Belt you have built.</b> The arrowheads show which way it runs.</span></div><div><svg viewBox="0 0 44 12"><path d="M2 6H42" stroke="#0b1118" stroke-width="5" opacity=".5"/><path d="M2 6H42" stroke="#ffe2b0" stroke-width="2.6" stroke-dasharray="9 6"/></svg><span><b>Belt the plan still asks for.</b> Short dots mean the ground is not surveyed: walk it first. It disappears once your belt lies along it.</span></div><div><svg viewBox="0 0 44 12"><path d="M2 6H42" stroke="#d678ff" stroke-width="1.8"/></svg><span><b>Power line you have built.</b></span></div><div><svg viewBox="0 0 44 12"><path d="M2 6H42" stroke="#ecc9ff" stroke-width="1.6" stroke-dasharray="2 5"/><circle cx="22" cy="6" r="3" fill="#e07bff" stroke="#0b1118"/></svg><span><b>Power line in the plan,</b> with a dot where a pole stands.</span></div><div><svg viewBox="0 0 44 12"><path d="M2 3H42" stroke="#49b8ff" stroke-width="2"/><path d="M2 9H42" stroke="#ffd447" stroke-width="2"/></svg><span><b>Belts inside a hall,</b> one colour for each thing carried. The list at the hall's edge names every belt that comes in or goes out there.</span></div><div><svg viewBox="0 0 44 12"><rect x="12" y="1.5" width="20" height="9" fill="none" stroke="#fff" stroke-width="1.3" stroke-dasharray="4 3"/></svg><span><b>Machine still to build.</b> When yours stands there it shows a green tick.</span></div></div></details><div id="layers"></div></div>
  <div class="tab" id="t-live"><h2>Live</h2><p id="live-long">Looking for the game on this PC.</p>
@@ -287,13 +291,14 @@ function tiles(style){
   const wmax = HD.styles[style].wmax === undefined ? HD.world[1] : HD.styles[style].wmax, bmin = HD.styles[style].bmin === undefined ? HD.base[0] : HD.styles[style].bmin;
   L.tileLayer(url, { tileSize: HD.tile, minNativeZoom: HD.world[0], maxNativeZoom: wmax, maxZoom: 9, bounds: WORLD_B, noWrap: true, attribution: 'Map picture: Satisfactory Calculator' }).addTo(g);
   L.tileLayer(url, { tileSize: HD.tile, minZoom: bmin, minNativeZoom: bmin, maxNativeZoom: HD.base[1], maxZoom: 9, bounds: [ll(box[0], box[3]), ll(box[2], box[1])], noWrap: true }).addTo(g);
+  if (style === 'real') L.imageOverlay('map-hd/real/void.png', WORLD_B, { interactive: false, className: 'voidmask' }).addTo(g);      // the picture is black beyond the playable world: sea colour over it (tools/voidmask.py)
   return g;
 }
 if (HD) { base.real = tiles('real'); base.game = tiles('game'); }
 function setStyle(s){
   if (!base[s]) s = 'plain';
   if (curStyle) map.removeLayer(base[curStyle]);
-  curStyle = s; base[s].addTo(map); store.set('howson-map-style', s);
+  curStyle = s; base[s].addTo(map); store.set('howson-map-style', s); $('map').classList.toggle('sea', s === 'real');
   document.querySelectorAll('input[name=style]').forEach(r => { r.checked = r.value === s; });
 }
 document.querySelectorAll('input[name=style]').forEach(r => { if (!base[r.value]) { r.disabled = true; r.parentNode.style.opacity = .45; } r.addEventListener('change', () => setStyle(r.value)); });
@@ -658,7 +663,8 @@ function paint(ctx, b){
     c.ms.forEach(m => {
       if (!inb(m.x, m.y)) return; const d = done(m); if (d && hideDone) return;
       const px = X(m.x), py = Y(m.y);
-      if (!sz || (c.t === 'plant' && z < 4)) { ctx.fillStyle = '#0b1118'; ctx.fillRect(px - 2.4, py - 2.4, 4.8, 4.8); ctx.fillStyle = d ? '#7c8896' : c.f; ctx.fillRect(px - 1.6, py - 1.6, 3.2, 3.2); return; }
+      if (!sz || (c.t === 'plant' && z < 4)) {             // far out: a small round dot each, no outline, so thousands of them read as a texture and not as a wall of squares
+        const r = z < 1 ? 1.25 : z < 2 ? 1.6 : 2.1; ctx.globalAlpha = z < 2 ? 0.78 : 0.92; ctx.fillStyle = d ? '#7c8896' : c.f; ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fill(); ctx.globalAlpha = 1; return; }
       const k = (m.pur === 'pure' ? 1.18 : m.pur === 'impure' ? 0.84 : 1) * (c.t === 'plant' ? 0.72 : 1) * sz;
       ctx.drawImage(icon(c.f, c.i, c.sh, { done: d, pur: m.pur }), px - k / 2, py - k / 2, k, k);
       if (m.real && m.real.occupied) { ctx.beginPath(); ctx.arc(px, py, k / 2 + 3, 0, 7); ctx.strokeStyle = '#3ddc84'; ctx.lineWidth = 2; ctx.stroke(); }      // a miner stands on it
@@ -1315,19 +1321,27 @@ function extras26(st){
   if (e) { box.innerHTML = '<p>' + (e.phase ? 'Next delivery: <b>' + esc(e.phase) + '</b>' : 'No delivery waiting.') + '</p>'; (e.items || []).forEach(it => { const el = document.createElement('div'); el.className = 'collrow'; el.innerHTML = '<i></i><span>' + esc(it.n) + '</span><em class="mono">' + fmt(it.paid || 0) + ' / ' + fmt(it.need || 0) + '</em><div class="meter' + ((it.paid || 0) >= (it.need || 0) ? ' ok' : '') + '"><i style="width:' + (it.need ? Math.min(100, 100 * (it.paid || 0) / it.need) : 0).toFixed(1) + '%"></i></div>'; el.replaceChild(mini(icon('#b08cff', 'rocket', 'c')), el.querySelector('i')); box.appendChild(el); }); }
   if (st.history || st.alerts) evWant();
 }
+// ---- SatMap 3.2: switches for what the mod draws in the player's own game (to-do panel, next-step line, plan outlines, snapping).
+// They always go to the mod on this PC: on the server's copy of the map that is 127.0.0.1, not the server.
+let HUD = null;
+const hudPost = body => window.HOWSON_READONLY ? Promise.resolve(null) : fetch((SITE ? 'http://127.0.0.1:8765' : BASE) + '/hud', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  .then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => { if (d && d.hud) { HUD = d.hud; drawHud(); } return d; });
+function drawHud(){ const box = $('hud-row'); box.hidden = !HUD; if (HUD) box.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', HUD[b.getAttribute('data-hud')] ? 'true' : 'false')); }
+$('hud-row').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { const o = {}; o[b.getAttribute('data-hud')] = !(HUD && HUD[b.getAttribute('data-hud')]); hudPost(o).catch(() => toast('Your game did not answer. It needs SatMap 3.2 running on this PC.')); }));
 // ---- SatMap 3.1: the next step, each power grid, what the factory really makes, and what happened while you were away ----
 let ratesRev = null, ratesBusy = false, RATES = null, powerAt = 0, powerBusy = false, POWER = null, digestFor = '', GRIDS = null;
 const has31 = st => st && st.mod === 'SatMap' && parseFloat(st.modVersion) >= 3.1, tabOpen = id => !$('panel').hidden && $(id).classList.contains('on');
 const planOut = () => { const o = {}; PLAN.lanes.forEach(ln => { if ((ln.io === 'out' || ln.io === 'store') && hallOn(hallOf[ln.k])) o[ln.item] = (o[ln.item] || 0) + ln.rate; }); return o; };   // what this stage's halls send out, a minute
 const hm = sec => { sec = Math.max(0, Math.round(sec)); const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60); return h ? h + ' h ' + m + ' min' : m + ' min'; };
 function extras31(st){
+  if (!SITE) { HUD = st.hud || null; drawHud(); }
   const nx = st.guide && st.guide.next, box = $('g-next');
   if (!nx || nx.kind === 'none' || !nx.title) box.hidden = true;
   else {
     const miss = (nx.missing || []).map(m => '<span class="chip' + ((m.have || 0) >= (m.need || 0) ? ' ok' : '') + '">' + esc(m.n) + ' <b>' + fmt(m.have || 0) + ' / ' + fmt(m.need || 0) + '</b></span>').join('');
     box.innerHTML = '<small>Next in the game</small><b>' + esc(nx.title) + '</b>' + (miss ? '<div class="chips">' + miss + '</div>' : nx.kind === 'buy' ? '<p>You have everything it costs.</p>' : '')
       + '<p>' + (nx.dist != null ? fmt(nx.dist / 100) + ' m from you. ' : '') + (nx.kind === 'buy' && nx.from ? 'Counted from your ' + (nx.from === 'inventory+depot' ? 'inventory and the depot' : 'inventory') + '. ' : '') + 'The same line shows in the game (' + esc((st.guide && st.guide.nextKey) || 'F7') + ' hides it).</p>';
-    if (nx.x != null && nx.y != null) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = 'Show where'; b.addEventListener('click', () => map.setView(ll(nx.x, nx.y), Math.max(map.getZoom(), 6.5))); box.appendChild(b); }
+    if (nx.x != null && nx.y != null) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = 'Show where'; b.addEventListener('click', () => map.setView(ll(nx.x / 100, nx.y / 100), Math.max(map.getZoom(), 6.5))); box.appendChild(b); }
     box.hidden = false;
   }
   GRIDS = (st.power && st.power.grids) || null; drawGrids();
@@ -1499,6 +1513,8 @@ $('tl-live').addEventListener('click', tlLeave);
 // ---- the link itself ----
 // where the data comes from: the mod on this PC, or (a copy hosted beside the server, with link.js) the server's own part behind the same address
 const SITE = typeof window.HOWSON_LINK === 'string' && window.HOWSON_LINK.length > 0, BASE = SITE ? window.HOWSON_LINK.replace(/\/$/, '') : 'http://127.0.0.1:8765';
+// on the server's copy of the map, ask the mod on this PC (if there is one) how its in-game switches stand
+if (SITE && !window.HOWSON_READONLY) { const ask = () => { if (!document.hidden) hudPost({}).catch(() => { HUD = null; drawHud(); }); }; setTimeout(ask, 1500); setInterval(ask, 20000); }
 $('iam-row').hidden = !SITE; $('iam').addEventListener('change', e => { store.set('howson-map-iam', e.target.value); }); let es = null, streamTry = 0, liveBad = 0, fails = 0;
 function stream(){
   if (!window.EventSource || window.HOWSON_NO_STREAM || es || Date.now() - streamTry < 20000) return; streamTry = Date.now();
@@ -1553,11 +1569,11 @@ document.addEventListener('keydown', e => {
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-16 02:02:12'; let told = false;
+const BUILD = '2026-11-16 02:55:14'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 (() => { const at = /[?&]at=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.search); if (!at) return; follow = false; map.setView(ll(+at[1], +at[2]), 6.5, { animate: false }); setTimeout(() => toast('Opened at ' + Math.round(+at[1]) + ', ' + Math.round(+at[2]) + '.', 4000), 600); })();
-window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
+window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, drawHud, get hud(){ return HUD; }, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
 })();
 
 </script>
