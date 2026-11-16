@@ -15,7 +15,7 @@ A Mod Manager profile can only name mods released on ficsit.app. Howson Plus als
 | MAM Enhancer 1.9.2 | The released 1.9.1 cannot start research; the fix is an unmerged pull request | Optional, each player's own PC |
 | Ten Satisfactory Plus fixes | Text files read by Satisfactory Plus's own library, not mods ([what they fix](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/dataforge/README.md)) | Server and every player |
 | Four settings files | Faster Manual Crafting, Move Tool, Smart! and Infinite Zoop must be set the same everywhere | Server and every player |
-| Howson Map Link 2.6.0 | Our own mod for the [World map](world-map.html); it is not released anywhere | Optional, each player's own PC (in the client overlay) |
+| SatMap 3.1.0 (called Howson Map Link before 3.0) | Our own mod for the [World map](world-map.html); it is not released anywhere | Optional, each player's own PC (in the client overlay) |
 | Slug egg text | One more text file for Satisfactory Plus's library: the twelve slug eggs show `UNKNOWN_KEY(...)` where their hatching values should be, and this puts one plain sentence there | Optional, each player's own PC (in the client overlay) |
 
 ## The files
@@ -53,27 +53,27 @@ Three parts of the overlay are optional and only change your own screen. Delete 
 | Part | Folder to delete |
 | --- | --- |
 | MAM Enhancer | `FactoryGame/Mods/MAMTips` |
-| Howson Map Link (the live map) | `FactoryGame/Mods/HowsonMapLink` |
+| SatMap (the live map) | `FactoryGame/Mods/SatMap`. Coming from Howson Map Link, delete `FactoryGame/Mods/HowsonMapLink` first: the two would want the same port |
 | Slug egg text | `FactoryGame/Mods/DataForge/SlugEggTooltips` |
 
-**Playing without mods** (another server, an unmodded game): click Mods off at the top left of the Mod Manager first. That has not been tried with the overlay's folders in place. If the game then complains about a missing plugin, move `GameFeatures/FicsItNetworks`, `MAMTips` and `HowsonMapLink` out of `FactoryGame/Mods` while you play unmodded, and repeat step 3 afterwards.
+**Playing without mods** (another server, an unmodded game): click Mods off at the top left of the Mod Manager first. That has not been tried with the overlay's folders in place. If the game then complains about a missing plugin, move `GameFeatures/FicsItNetworks`, `MAMTips` and `SatMap` out of `FactoryGame/Mods` while you play unmodded, and repeat step 3 afterwards.
 
 ## Scott's PC
 
-Already has all of it, put there piece by piece on 14 and 15 Nov 2026: FicsIt-Networks, MAM Enhancer, the patched Megaprojects Library files, the ten fixes, the settings, Howson Map Link and the slug egg text. The client overlay is built from exactly those files: on 15 Nov 2026 all 100 files in it were compared with Scott's game folder and are the same, the profile file names the same 102 mods as the profile his Mod Manager uses, and every one of the 122 mods that installs (with the libraries they pull in) was at its newest release on ficsit.app, so an import that day gives the same versions.
+Already has all of it, put there piece by piece on 14 and 15 Nov 2026: FicsIt-Networks, MAM Enhancer, the patched Megaprojects Library files, the ten fixes, the settings, the map's mod and the slug egg text. The client overlay is built from exactly those files: on 15 Nov 2026 all 100 files in it were compared with Scott's game folder and are the same, the profile file names the same 102 mods as the profile his Mod Manager uses, and every one of the 122 mods that installs (with the libraries they pull in) was at its newest release on ficsit.app, so an import that day gives the same versions.
 
 ## The live map (optional)
 
-Howson Map Link is our own read-only mod for the [World map](world-map.html). It is not in any profile and nobody needs it to join.
+SatMap is our own read-only mod for the [World map](world-map.html); until version 3.0 it was called Howson Map Link. It is not in any profile and nobody needs it to join.
 
 - **On a PC that plays:** with it, the map on that PC shows where you are in real time, what you have built and what is collected. It answers on that PC only, at `127.0.0.1:8765`. Scott's PC has it, and it is in the client overlay.
-- **On the server:** with it, the map gets the exact picture for both players: every collectible, power, and every machine with its state. It listens on TCP port 8765 on the server, so that port has to be given to the server in the panel, and should not be forwarded to the internet. It has not run on the server yet.
-- The files, laid out ready to copy with their own steps, are written to `dist/map-link/` on Scott's PC (`server/` for the server, `client/` for a PC).
+- **On the server:** with it, the map gets the exact picture for both players: every collectible, power, and every machine with its state. It listens on TCP port 8765 on the server, so that port has to be given to the server in the panel, and should not be reachable from the internet without a login in front. The server has run it with the real save since 15 Nov 2026, as Howson Map Link 2.6.0; from that version on the same port also serves this map and the guides as a site. SatMap 3.1.0 has not run on the server yet.
+- The files, laid out ready to copy with their own steps, are written to `dist/satmap/` on Scott's PC (`server/` for the server, `client/` for a PC).
 
 ## Check it worked
 
 - **Server console or log:** `FicsItNetworks: 1.3.0` in the list of loaded mods, and a line `KDataForge: … pack(s), … document(s) applied` with no error naming a file from `Mods/DataForge`. On the server expect 33 packs and 171 documents (one fewer of each than on Scott's PC, because Road Maker is not on the server).
-- **Player:** `FicsItNetworks: 1.3.0` in `%LOCALAPPDATA%\FactoryGame\Saved\Logs\FactoryGame.log`, and `KDataForge: 34 pack(s), 172 document(s) applied` (the slug egg text is one pack; 33 without it), plus `MAMTips: 1.9.2` and `HowsonMapLink: 2.6.0` if you kept them. The nine errors that line counts are Satisfactory Plus's own and were there before any of ours.
+- **Player:** `FicsItNetworks: 1.3.0` in `%LOCALAPPDATA%\FactoryGame\Saved\Logs\FactoryGame.log`, and `KDataForge: 34 pack(s), 172 document(s) applied` (the slug egg text is one pack; 33 without it), plus `MAMTips: 1.9.2` and `SatMap: 3.1.0` if you kept them. The nine errors that line counts are Satisfactory Plus's own and were there before any of ours.
 - **In the game:** under tier 1 in the HUB there is a "Covered Conveyor Belt Mk.1" milestone.
 
 ## When something changes
@@ -85,6 +85,6 @@ Howson Map Link is our own read-only mod for the [World map](world-map.html). It
 ## Status
 
 - The profiles are checked against ficsit.app for this game build; every mod in the server profile has a Linux server build.
-- Scott plays on the dedicated server with the client profile and the client overlay. Seen in his game on 15 Nov 2026 while joined to it: FicsIt-Networks 1.3.0, MAM Enhancer 1.9.2, Howson Map Link 2.6.0 and 34 data packs loaded, three and a half hours into the world.
+- Scott plays on the dedicated server with the client profile and the client overlay. Seen in his game on 15 Nov 2026 while joined to it: FicsIt-Networks 1.3.0, MAM Enhancer 1.9.2, Howson Map Link 2.6.0 and 34 data packs loaded, three and a half hours into the world. SatMap 3.1.0 replaced it in his game folder on 16 Nov and had not been started when this was written.
 - **No second PC has joined yet.** What is installed on the server itself was put there by Scott and cannot be checked from this repository. Satisfactory Plus's own page calls multiplayer experimental.
 - Built but left out on purpose: a Linux server build of Road Maker (Road Maker stays solo-only), and rebuilt copies of SML, ContentLib and More Sign Spots that are only for faults we have not seen. They are listed in the manifest.
