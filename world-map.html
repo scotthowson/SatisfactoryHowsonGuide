@@ -2548,13 +2548,24 @@ function myStepDo(a, i){
 const myPosted = () => { const a = live.state ? live.state.posted : undefined, b = pcState ? pcState.posted : undefined; return a !== undefined && a !== null ? a : b; };      // undefined: no SatMap that knows of sharing answers; null or {plan: null}: nothing is shared
 function myShareDraw(){
   const box = $('my-share'); if (!box) return; const gs = gameState(), p = myPosted(), can = !!gs && gs.posted !== undefined && !window.HOWSON_READONLY, pl = p && p.plan;
-  $('my-share-note').textContent = pl ? 'Everybody on this world gets "' + (pl.name || 'a plan') + '"' + (pl.boxes ? ', ' + pl.boxes + ' outlines' : '') + (pl.t ? ', shared ' + whenOf(pl.t) : '') + '. It stands in for the guide\'s plan in their game until it is taken back.'
+  $('my-share-note').textContent = pl ? 'Everybody on this world gets "' + (pl.name || 'a plan') + '"' + (pl.boxes ? ', ' + pl.boxes + ' outlines' : '') + (pl.t ? ', shared ' + whenOf(pl.t) : '') + '.' + (p.guide ? ' The steps they get: ' + (p.guide.steps || 0) + ', yours among them.' : '') + ' It stands in for the guide\'s plan in their game until it is taken back.'
     : p === undefined ? 'Sharing one plan with everybody on the server needs SatMap 3.7 or newer, in the game on this PC and on the server.' : 'Nothing is shared: everybody\'s game shows the guide\'s plan.' + (can ? '' : ' To share yours, SatMap has to be running in the game on this PC.');
   $('my-share-go').hidden = !can; $('my-share-back').hidden = !(can && pl);
 }
+function myShareGuide(){                                   // the guide for everybody: the whole build order from its first step as one linear list, and your own steps beside it, outside that order
+  const st0 = stage; stage = 1; let d; try { d = guideDoc(true); } finally { stage = st0; } d.linear = true; d.share = true;
+  d.steps = d.steps.concat(guideDoc().steps.filter(q => q.mine)); return d;
+}
 function myShare(clear){
   const p = ghostPlan(), n = MY.items.filter(it => !it.hide).length + MY.lines.length, who = iam() === 'You' ? '' : iam(); p.name = p.name + (n ? ' with ' + n + (n === 1 ? ' change' : ' changes') + (who ? ' by ' + who : '') : ''); p.share = true;
-  post('/plan', clear ? { clear: true, share: true } : p).then(r => { toast(r && r.ok !== false ? (clear ? 'Taken back: everybody\'s game shows the guide\'s plan again.' : 'Shared: ' + p.boxes.length + ' outlines and ' + p.lines.length + ' lines go to everybody on this world.') : 'That did not reach the server' + (r && r.why ? ': ' + esc(r.why) : '. SatMap 3.7 has to be running in the game on this PC, with the server\'s board key in its SatMap.cfg.'), 6500); stateAt = 0; setTimeout(myShareDraw, 1500); });
+  const bad = r => 'That did not reach the server' + (r && r.why ? ': ' + esc(r.why) : '. SatMap 3.7 has to be running in the game on this PC, with the server\'s board key in its SatMap.cfg.');
+  post('/plan', clear ? { clear: true, share: true } : p).then(r => {
+    if (!r || r.ok === false) { toast(bad(r), 7000); return null; }
+    return post('/guide', clear ? { clear: true, share: true } : myShareGuide()).then(g => {
+      const own = MY.steps.length, solo = r.shared === false;
+      toast(clear ? 'Taken back: everybody\'s game shows the guide\'s plan and steps again.'
+        : (solo ? 'This game runs the world itself, so the plan stays here and everybody who joins it gets it: ' : 'Shared with everybody on this world: ') + p.boxes.length + ' outlines and ' + p.lines.length + ' lines' + (g && g.ok !== false ? ', and the guide' + (own ? ' with ' + own + (own === 1 ? ' step' : ' steps') + ' of yours' : '') + '. Everybody keeps their own ticks.' : '. The steps did not go with it' + (g && g.why ? ': ' + esc(g.why) : '') + '.'), 7000); });
+  }).then(() => { stateAt = 0; setTimeout(myShareDraw, 1500); });
 }
 // ---- start
 MY = myLoad(); G0 = { mach: PLAN.mach.slice(), places: PLAN.places.slice(), floors: PLAN.floors.slice() }; gkeys();
@@ -2585,11 +2596,11 @@ myApply(); myShareDraw();
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-16 16:13:26'; let told = false;
+const BUILD = '2026-11-16 16:16:19'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 (() => { const at = /[?&]at=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.search); if (!at) return; follow = false; map.setView(ll(+at[1], +at[2]), 6.5, { animate: false }); setTimeout(() => toast('Opened at ' + Math.round(+at[1]) + ', ' + Math.round(+at[2]) + '.', 4000), 600); })();
-window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, drawHud, edit, myDo, mySetEdit, mySetSnap, myHitAt, myPlace, myTake, myFile, myUndo, myCatReady, myDragStart, myDragMove, myDragEnd, myTool, myLineClick, myLineEnd, myLineDo, myCheck, onUnlocked, mySteps, myStepDo, myShare, myShareDraw, get myChk(){ return myChk; }, get myBad(){ return myBad; }, get my(){ return MY; }, onBoard, drawBoard, boardCan, get board(){ return BOARD; }, get hud(){ return HUD; }, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
+window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, drawHud, edit, myDo, mySetEdit, mySetSnap, myHitAt, myPlace, myTake, myFile, myUndo, myCatReady, myDragStart, myDragMove, myDragEnd, myTool, myLineClick, myLineEnd, myLineDo, myCheck, onUnlocked, mySteps, myStepDo, myShare, myShareDraw, myShareGuide, get myChk(){ return myChk; }, get myBad(){ return myBad; }, get my(){ return MY; }, onBoard, drawBoard, boardCan, get board(){ return BOARD; }, get hud(){ return HUD; }, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
 })();
 
 </script>
