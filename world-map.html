@@ -440,26 +440,34 @@ let FL = { spots: [], hash: {}, edges: [], storeys: [], pieces: 0, stacks: 0, ex
 const tl = { on: false, ev: [], next: 0, lines: 0, start: 0, end: 0, classes: [], names: [], players: [], T: 0, Tf: 0, play: false, speed: 300, cur: 0, alive: new Map(), pos: {}, marks: [], held: null, doc: null, live: null, busy: false, want: false, info: null, src: '' };
 const FLCOL = [null, '150,205,255', '110,235,212', '205,170,255', '255,205,140'];
 const ALCOL = { 1: '#d9a514', 2: '#ef7d2d', 3: '#e5484d' }, ALGLYPH = { fuse: 'bolt', power: 'bolt', fuel: 'flame', full: 'box', idle: 'gear', norecipe: 'wrench', nopower: 'pole', extractor: 'drill' };
+const solidOf = ci => { const so = W && W.solid && ci >= 0 ? W.solid[ci] : null; return so && so.box && so.box[0] > 0 && so.box[1] > 0 ? so : null; };
+const partsOf = (ci, ox, oy) => { const so = solidOf(ci); if (so && !so.partial && Array.isArray(so.parts) && so.parts.length) return so.parts.filter(pt => pt && pt.length >= 3).map(pt => pt.map(q => [q[0] / 100 - ox, q[1] / 100 - oy]));
+  const sh = W && W.shape && ci >= 0 ? W.shape[ci] : null; return sh && Array.isArray(sh[5]) && sh[5].length >= 4 ? [sh[5].map(q => [q[0] / 100 - ox, q[1] / 100 - oy])] : null; };
+function polyPath(ctx, poly, s){ poly.forEach(pt => { pt.forEach((q, i) => { if (i) ctx.lineTo(q[0] * s, q[1] * s); else ctx.moveTo(q[0] * s, q[1] * s); }); ctx.closePath(); }); }
+const inPoly = (t, lx, ly) => { let ins = false; for (let i = 0, j = t.length - 1; i < t.length; j = i++) if ((t[i][1] > ly) !== (t[j][1] > ly) && lx < (t[j][0] - t[i][0]) * (ly - t[i][1]) / (t[j][1] - t[i][1]) + t[i][0]) ins = !ins; return ins; };
 const EDGEPIECE = /Fence|Railing|Handrail|Guard ?rail|Barrier/i;      // pieces that are a line seen from above, whatever list the game puts them in
 // a wall, a railing or a fence standing as its own building: long and thin from above
 const thinOf = (sh, o) => { if (!sh || !(sh[0] > 0) || !(sh[1] > 0)) return false; const a = Math.min(sh[0], sh[1]), b = Math.max(sh[0], sh[1]); return (a <= 80 && b / a >= 3) || (a <= 100 && !!o && (EDGEPIECE.test((o.cls || '') + ' ' + o.n) || /\bWall\b/i.test(o.n))); };
 function triOf(ci){                                       // a corner piece: the game's outline when the mod sends it, else told by its name
-  const sh = W && W.shape && W.shape[ci]; if (sh && Array.isArray(sh[5]) && sh[5].length >= 3) return sh[5].map(p => [p[0] / 100, p[1] / 100]);
+  const sh = W && W.shape && W.shape[ci]; if (sh && Array.isArray(sh[5]) && sh[5].length === 3) return sh[5].map(p => [p[0] / 100, p[1] / 100]);
   const nm = W ? (W.classes[ci] || '') + ' ' + (W.names[ci] || '') : ''; return (sh && sh[5] === 'corner') || /Trigon|Triangle|Corner \d/i.test(nm) ? 'guess' : null;
 }
 const triPts = sp => Array.isArray(sp.tri) ? sp.tri : [[-sp.w / 2, -sp.d / 2], [sp.w / 2, -sp.d / 2], [-sp.w / 2, sp.d / 2]];
 function floorsOf(w){
   const list = w.floors || [], exact = list.some(f => f[7] !== undefined && f[7] !== null), by = {}, spots = [], slabs = [], edges = [];
-  list.forEach(f => {
+  list.forEach((f, row) => {
     const ex1 = f[7] !== undefined && f[7] !== null, h = ex1 ? Math.max(0.1, (f[8] || 100) / 100) : 1, bot = ex1 ? (f[9] !== undefined && f[9] !== null ? f[9] : f[7]) / 100 : (f[5] || 0) * 4, ci = f[6] === undefined || f[6] === null ? -1 : f[6];
-    const yaw = (((f[4] || 0) % 360) + 360) % 360, tri = ci >= 0 ? triOf(ci) : null, sh = ci >= 0 && W && W.shape ? W.shape[ci] : null, okS = !!(sh && sh[0] > 0 && sh[1] > 0), ya = yaw * Math.PI / 180;
+    const yaw0 = W && W.exactFloors && W.exactFloors[row] !== undefined ? W.exactFloors[row] : f[4] || 0, yaw = ((yaw0 % 360) + 360) % 360, so = solidOf(ci), sh0 = ci >= 0 && W && W.shape ? W.shape[ci] : null, ya = yaw * Math.PI / 180;
+    const sh = so ? [so.box[0], so.box[1], so.box[3] || 0, so.box[4] || 0] : sh0, okS = !!(sh && sh[0] > 0 && sh[1] > 0), xy = !!(W && W.floorXY);      // the piece's real box (3.6), else the game's shape, else the list's own numbers
     // w is the size along the piece's own X, d along its own Y. The game's shape says so directly; the list's "width" is across the piece (its Y) and "depth" along it (its X): a Half Ramp is listed 400 wide, 800 deep and is 8 m long on X
-    const w0 = (okS ? sh[0] : f[3]) / 100, d0 = (okS ? sh[1] : f[2]) / 100, ox = okS ? (sh[2] || 0) / 100 : 0, oy = okS ? (sh[3] || 0) / 100 : 0, x = f[0] / 100 + ox * Math.cos(ya) - oy * Math.sin(ya), y = f[1] / 100 + ox * Math.sin(ya) + oy * Math.cos(ya);
-    const rampv = ci >= 0 && W && W.ramp && W.ramp[ci] > 0 ? W.ramp[ci] / 100 : 0;
-    if (ci >= 0 && W && EDGEPIECE.test((W.classes[ci] || '') + ' ' + (W.names[ci] || ''))) { edges.push({ kind: 'pc', ci, x, y, z: ex1 ? f[7] / 100 : undefined, yaw, w: w0, d: d0, n: W.names[ci] || 'Fence', what: 'edge' }); return; }      // a fence the game files as a foundation: a line, not a floor
-    const key = Math.round(x * 2) + ',' + Math.round(y * 2) + ',' + Math.round(w0 * 2) + ',' + Math.round(d0 * 2) + ',' + Math.round(tri || rampv ? yaw : yaw % 180) + (tri ? ',' + ci : '');
+    const w0 = (okS ? sh[0] : xy ? f[2] : f[3]) / 100, d0 = (okS ? sh[1] : xy ? f[3] : f[2]) / 100, ox = okS ? (sh[2] || 0) / 100 : 0, oy = okS ? (sh[3] || 0) / 100 : 0, x = f[0] / 100 + ox * Math.cos(ya) - oy * Math.sin(ya), y = f[1] / 100 + ox * Math.sin(ya) + oy * Math.cos(ya);
+    const top = so && Array.isArray(so.top) && so.top[2] > 0 ? so.top : null, rampv = top ? top[2] / 100 : ci >= 0 && W && W.ramp && W.ramp[ci] > 0 ? W.ramp[ci] / 100 : 0;
+    let poly = ci >= 0 ? partsOf(ci, ox, oy) : null; if (poly && poly.length === 1 && poly[0].length === 4 && poly[0].every(q => Math.abs(Math.abs(q[0]) - w0 / 2) < 0.03 && Math.abs(Math.abs(q[1]) - d0 / 2) < 0.03)) poly = null;      // a plain rectangle: the quick way
+    const tri = poly ? (poly.length === 1 && poly[0].length === 3 ? poly[0] : null) : ci >= 0 ? triOf(ci) : null;
+    if (ci >= 0 && W && EDGEPIECE.test((W.classes[ci] || '') + ' ' + (W.names[ci] || ''))) { edges.push({ kind: 'pc', ci, x, y, z: ex1 ? f[7] / 100 : undefined, yaw, w: w0, d: d0, n: W.names[ci] || 'Fence', what: 'edge', poly }); return; }      // a fence the game files as a foundation: a line, not a floor
+    const key = Math.round(x * 2) + ',' + Math.round(y * 2) + ',' + Math.round(w0 * 2) + ',' + Math.round(d0 * 2) + ',' + Math.round(tri || poly || rampv ? yaw : yaw % 180) + (tri || poly ? ',' + ci : '');
     let sp = by[key];
-    if (!sp) { const q = yaw % 180 > 45 && yaw % 180 < 135, sq = yaw % 90 !== 0; sp = by[key] = { x, y, w: w0, d: d0, yaw, tri, ramp: rampv, ex: sq ? Math.hypot(w0, d0) * 0.4 : (q ? d0 : w0) / 2, ey: sq ? Math.hypot(w0, d0) * 0.4 : (q ? w0 : d0) / 2, ps: [], slabs: [] }; spots.push(sp); }
+    if (!sp) { const q = yaw % 180 > 45 && yaw % 180 < 135, sq = yaw % 90 !== 0; sp = by[key] = { x, y, w: w0, d: d0, yaw, tri, poly: tri ? null : poly, top, ramp: rampv, ex: sq ? Math.hypot(w0, d0) * 0.4 : (q ? d0 : w0) / 2, ey: sq ? Math.hypot(w0, d0) * 0.4 : (q ? w0 : d0) / 2, ps: [], slabs: [] }; spots.push(sp); }
     sp.ps.push({ bot, top: bot + h, ci });
   });
   const join = exact ? 0.3 : 3.5;                          // pieces closer than this, one above the other, are one slab
@@ -491,24 +499,28 @@ function floorsOf(w){
   return { spots, hash, edges, storeys: st.filter(Boolean), pieces: list.length, stacks: spots.filter(sp => sp.n > 1).length, exact };
 }
 // a ramp's slope: arrowheads pointing up it. The high side of a ramp is its own -X (the game's header, and Scott's half ramps on the plaza's north edge)
-function climb(ctx, w, d){
-  const hh = Math.min(d * .3, 13), n = w > 70 ? 3 : 2; ctx.save(); ctx.strokeStyle = 'rgba(225,240,255,.72)'; ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+function climb(ctx, w, d, top){                            // top (3.6): the way the piece really climbs in its own frame, read from its mesh; without it, toward -X
+  const hh = Math.min(d * .3, 13), n = w > 70 ? 3 : 2; ctx.save(); if (top && (top[0] || top[1])) ctx.rotate(Math.atan2(top[1], top[0]) - Math.PI); ctx.strokeStyle = 'rgba(225,240,255,.72)'; ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
   for (let i = 0; i < n; i++) { const cx = -w / 2 + w * (i + 1) / (n + 1); ctx.moveTo(cx + hh * .55, -hh); ctx.lineTo(cx - hh * .45, 0); ctx.lineTo(cx + hh * .55, hh); }
   ctx.stroke(); ctx.restore();
 }
 const RAILCOL = 'rgba(150,214,238,.92)', WALLCOL = 'rgba(225,238,255,.7)';
 function drawThin(ctx, o, sh, s, px, py){                 // its true length and thickness, never thinner than can be seen; a railing is a line
-  const rail = EDGEPIECE.test((o.cls || '') + ' ' + o.n), w = Math.max(sh[0] / 100 * s, rail ? 1.8 : 2.6), l = Math.max(sh[1] / 100 * s, rail ? 1.8 : 2.6);
+  const rail = EDGEPIECE.test((o.cls || '') + ' ' + o.n), so = solidOf(o.ci), poly = so ? partsOf(o.ci, 0, 0) : null;
   ctx.save(); ctx.translate(px, py); ctx.rotate((o.yaw || 0) * Math.PI / 180); ctx.fillStyle = o === sel ? '#fa9549' : rail ? RAILCOL : WALLCOL;
-  if (rail) { const t = 1.8; if (l >= w) ctx.fillRect(sh[2] / 100 * s - t / 2, sh[3] / 100 * s - l / 2, t, l); else ctx.fillRect(sh[2] / 100 * s - w / 2, sh[3] / 100 * s - t / 2, w, t); }
-  else ctx.fillRect(sh[2] / 100 * s - w / 2, sh[3] / 100 * s - l / 2, w, l);
+  if (poly) {                                             // SatMap 3.6: the piece's own outline; a beam is its class's outline stretched to its own length along +X
+    const dl = W.decl && W.decl[o.ci] && W.decl[o.ci].length, k = o.len && dl > 0 ? o.len / dl : 1; if (k !== 1) ctx.scale(k, 1);
+    ctx.beginPath(); polyPath(ctx, poly, s); ctx.fill(); ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = (rail ? 1.4 : 1.8) / (k !== 1 ? Math.max(k, 0.2) : 1); ctx.stroke(); ctx.restore(); return; }
+  const b = so ? [so.box[0], so.box[1], so.box[3] || 0, so.box[4] || 0] : sh, w = Math.max(b[0] / 100 * s, rail ? 1.8 : 2.6), l = Math.max(b[1] / 100 * s, rail ? 1.8 : 2.6);
+  if (rail) { const t = 1.8; if (l >= w) ctx.fillRect(b[2] / 100 * s - t / 2, b[3] / 100 * s - l / 2, t, l); else ctx.fillRect(b[2] / 100 * s - w / 2, b[3] / 100 * s - t / 2, w, t); }
+  else ctx.fillRect(b[2] / 100 * s - w / 2, b[3] / 100 * s - l / 2, w, l);
   ctx.restore();
 }
 function spotsNear(x, y, fn){ const cx = Math.floor(x / 16), cy = Math.floor(y / 16); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) (FL.hash[(cx + a) + ',' + (cy + b)] || []).forEach(fn); }
 function onSpot(sp, x, y){
   const a = -sp.yaw * Math.PI / 180, dx = x - sp.x, dy = y - sp.y, lx = dx * Math.cos(a) - dy * Math.sin(a), ly = dx * Math.sin(a) + dy * Math.cos(a);
-  if (Math.abs(lx) > sp.w / 2 || Math.abs(ly) > sp.d / 2) return false; if (!sp.tri) return true;
-  const t = triPts(sp); let ins = false; for (let i = 0, j = t.length - 1; i < t.length; j = i++) if ((t[i][1] > ly) !== (t[j][1] > ly) && lx < (t[j][0] - t[i][0]) * (ly - t[i][1]) / (t[j][1] - t[i][1]) + t[i][0]) ins = !ins; return ins;
+  if (Math.abs(lx) > sp.w / 2 + 0.05 || Math.abs(ly) > sp.d / 2 + 0.05) return false; if (sp.poly) return sp.poly.some(pt => inPoly(pt, lx, ly)); if (!sp.tri) return true;
+  return inPoly(triPts(sp), lx, ly);
 }
 function slabUnder(x, y, z){ let best = null; const tol = FL.exact ? 1.5 : 4.6; spotsNear(x, y, sp => { if (onSpot(sp, x, y)) sp.slabs.forEach(s => { if (s.top <= z + tol && (!best || s.top > best.top)) best = s; }); }); return best; }
 function spotAt(x, y){ let hit = null; spotsNear(x, y, sp => { if (!onSpot(sp, x, y)) return; const sl = storeyPick ? sp.slabs.filter(q => q.st === storeyPick).pop() : sp.topSlab; if (sl && (!hit || sl.top >= hit.sl.top)) hit = { kind: 'fl', sp, sl, x: sp.x, y: sp.y }; }); return hit; }
@@ -573,14 +585,16 @@ function paint(ctx, b){
         if (!inb(sp.x, sp.y)) return;
         const sl = storeyPick ? sp.slabs.filter(q => q.st === storeyPick).pop() : sp.topSlab, c = FLCOL[Math.min(4, (sl || sp.topSlab).st)], w = sp.w * s, d = sp.d * s;
         ctx.fillStyle = 'rgba(' + c + ',' + (!sl ? .035 : sl.st > 1 ? .27 : .17) + ')'; ctx.strokeStyle = !sl ? 'rgba(190,225,255,.13)' : sl.st > 1 ? 'rgba(' + c + ',.75)' : 'rgba(190,225,255,.42)';
-        if (!sp.tri && sp.yaw % 90 === 0) { const ww = sp.yaw % 180 ? d : w, dd = sp.yaw % 180 ? w : d; ctx.fillRect(X(sp.x) - ww / 2, Y(sp.y) - dd / 2, ww, dd); if (z >= 5) ctx.strokeRect(X(sp.x) - ww / 2, Y(sp.y) - dd / 2, ww, dd);
-          if (sp.ramp && z >= 5.25 && w > 12) { ctx.save(); ctx.translate(X(sp.x), Y(sp.y)); ctx.rotate(sp.yaw * Math.PI / 180); climb(ctx, w, d); ctx.restore(); } }
+        if (!sp.tri && !sp.poly && sp.yaw % 90 === 0) { const ww = sp.yaw % 180 ? d : w, dd = sp.yaw % 180 ? w : d; ctx.fillRect(X(sp.x) - ww / 2, Y(sp.y) - dd / 2, ww, dd); if (z >= 5) ctx.strokeRect(X(sp.x) - ww / 2, Y(sp.y) - dd / 2, ww, dd);
+          if (sp.ramp && z >= 5.25 && w > 12) { ctx.save(); ctx.translate(X(sp.x), Y(sp.y)); ctx.rotate(sp.yaw * Math.PI / 180); climb(ctx, w, d, sp.top); ctx.restore(); } }
         else { ctx.save(); ctx.translate(X(sp.x), Y(sp.y)); ctx.rotate(sp.yaw * Math.PI / 180);
-          if (sp.tri) { ctx.beginPath(); triPts(sp).forEach((p, i) => { if (i) ctx.lineTo(p[0] * s, p[1] * s); else ctx.moveTo(p[0] * s, p[1] * s); }); ctx.closePath(); ctx.fill(); if (z >= 5) ctx.stroke(); }
-          else { ctx.fillRect(-w / 2, -d / 2, w, d); if (z >= 5) ctx.strokeRect(-w / 2, -d / 2, w, d); if (sp.ramp && z >= 5.25 && w > 12) climb(ctx, w, d); } ctx.restore(); }
+          if (sp.poly) { ctx.beginPath(); polyPath(ctx, sp.poly, s); ctx.fill(); if (z >= 5) ctx.stroke(); if (sp.ramp && z >= 5.25 && w > 12) climb(ctx, w, d, sp.top); }
+          else if (sp.tri) { ctx.beginPath(); triPts(sp).forEach((p, i) => { if (i) ctx.lineTo(p[0] * s, p[1] * s); else ctx.moveTo(p[0] * s, p[1] * s); }); ctx.closePath(); ctx.fill(); if (z >= 5) ctx.stroke(); }
+          else { ctx.fillRect(-w / 2, -d / 2, w, d); if (z >= 5) ctx.strokeRect(-w / 2, -d / 2, w, d); if (sp.ramp && z >= 5.25 && w > 12) climb(ctx, w, d, sp.top); } ctx.restore(); }
         if (sl && z >= 6.75 && sl.n > 1 && w > 34) { ctx.fillStyle = 'rgba(225,240,255,.78)'; ctx.font = '500 10px "IBM Plex Mono",monospace'; ctx.textAlign = 'right'; ctx.fillText('×' + sl.n, X(sp.x) + sp.ex * s - 4, Y(sp.y) + sp.ey * s - 5); }
       });
-      if (FL.edges.length && z >= 4.5) { ctx.strokeStyle = RAILCOL; ctx.lineWidth = z >= 6.5 ? 2.2 : 1.5; ctx.lineCap = 'round'; ctx.beginPath(); FL.edges.forEach(e => { if (!inb(e.x, e.y)) return; ctx.moveTo(X(e.line[0]), Y(e.line[1])); ctx.lineTo(X(e.line[2]), Y(e.line[3])); }); ctx.stroke(); ctx.lineCap = 'butt'; }
+      if (FL.edges.length && z >= 4.5) { ctx.strokeStyle = RAILCOL; ctx.lineWidth = z >= 6.5 ? 2.2 : 1.5; ctx.lineCap = 'round'; ctx.beginPath(); FL.edges.forEach(e => { if (!inb(e.x, e.y) || e.poly) return; ctx.moveTo(X(e.line[0]), Y(e.line[1])); ctx.lineTo(X(e.line[2]), Y(e.line[3])); }); ctx.stroke(); ctx.lineCap = 'butt';
+        ctx.fillStyle = RAILCOL; ctx.lineWidth = 1.2; FL.edges.forEach(e => { if (!inb(e.x, e.y) || !e.poly) return; ctx.save(); ctx.translate(X(e.x), Y(e.y)); ctx.rotate(e.yaw * Math.PI / 180); ctx.beginPath(); polyPath(ctx, e.poly, s); ctx.fill(); ctx.stroke(); ctx.restore(); }); }
     }
     if (fset.floors && z >= 5.75 && W.walls.length) {      // walls, pillars and beams: a thin line as long as the piece, a dot when its size is not known
       ctx.strokeStyle = 'rgba(225,238,255,.62)'; ctx.fillStyle = 'rgba(225,238,255,.62)'; ctx.lineWidth = 1.6; ctx.beginPath();
@@ -859,7 +873,7 @@ function wantCat(){
 }
 const mnum = v => (+(v / 100).toFixed(2)) + '';
 function pieceSize(cls, sh){                              // "8 m long, 4 m high, 0.5 m thick" from the game's own numbers
-  const c = CAT && CAT[cls], sz = c && c.size ? c.size : sh && sh[0] > 0 && sh[1] > 0 ? [sh[0], sh[1], 0] : null; if (!sz) return '';
+  const so = W && W.classes ? solidOf(W.classes.indexOf(cls)) : null, c = CAT && CAT[cls], sz = so ? so.box : c && c.size ? c.size : sh && sh[0] > 0 && sh[1] > 0 ? [sh[0], sh[1], 0] : null; if (!sz) return '';
   const lo = Math.max(sz[0], sz[1]), th = Math.min(sz[0], sz[1]);
   return '<p>' + mnum(lo) + ' m long' + (sz[2] > 0 ? ', ' + mnum(sz[2]) + ' m high' : '') + ', ' + mnum(th) + ' m thick' + (sz[2] > 0 ? '' : '; its height comes with the game\'s catalogue') + '. From the game itself.</p>';
 }
@@ -912,7 +926,7 @@ function select(o, fly){
     body = txt(PLAN.mt[m[0] + ':' + m[1]]) + '<p>Parts go in on the <b>' + { N: 'south', S: 'north', W: 'east' }[h.dir] + '</b> side and come out on the <b>' + { N: 'north', S: 'south', W: 'west' }[h.dir] + '</b> side: the yellow arrow. Turn the machine if its ports say otherwise.</p><p class="mono">this one: north-west corner ' + Math.round(m[3]) + ', ' + Math.round(m[4]) + ' · ' + esc(h.fl) + '</p><p class="' + (ok ? 'tagok' : '') + '">' + (ok ? 'Built: the game has a ' + esc(m[2]) + ' standing here.' + (planTurn[o.i] ? ' <b>' + esc(planTurn[o.i]) + '</b>' : '') : W ? 'Not built yet.' : 'The map cannot see your buildings yet.') + '</p><p><a href="' + h.href + '">Its set-up list in the guide</a></p>'; acts = [nav]; }
   else if (o.kind === 'fl') { const sp = o.sp, sl = o.sl, nm = sl.ci >= 0 && W && W.names[sl.ci] ? W.names[sl.ci] : 'Foundation', num = v => v.toFixed(1).replace('.0', '');
     ic = icon('#3f6a94', 'hub', 's'); title = sl.n > 1 ? nm + ' × ' + sl.n : nm; sub = 'Built · storey ' + sl.st + (FL.storeys.length > 1 ? ' of ' + FL.storeys.length : '');
-    body = '<p>' + (sp.n > 1 ? '<b>' + sp.n + ' pieces</b> stand on this spot' + (sp.slabs.length > 1 ? ', as ' + sp.slabs.length + ' floors one above the other' : ', stacked into one slab') + '. The map draws the spot once, so stacks do not look darker.' : 'One piece.') + ' ' + num(sp.w) + ' by ' + num(sp.d) + ' m' + (sp.tri ? ', a corner piece' + (sp.tri === 'guess' ? ' (which corner is cut away is a guess until the mod says)' : '') : '') + '.' + (W && W.ramp && sl.ci >= 0 && W.ramp[sl.ci] > 0 ? ' A ramp: it rises ' + num(W.ramp[sl.ci] / 100) + ' m, and its ' + facing(sp.yaw + 180) + ' side is the high one, says the game.' : '') + '</p>'
+    body = '<p>' + (sp.n > 1 ? '<b>' + sp.n + ' pieces</b> stand on this spot' + (sp.slabs.length > 1 ? ', as ' + sp.slabs.length + ' floors one above the other' : ', stacked into one slab') + '. The map draws the spot once, so stacks do not look darker.' : 'One piece.') + ' ' + num(sp.w) + ' by ' + num(sp.d) + ' m' + (sp.tri ? ', a corner piece' + (sp.tri === 'guess' ? ' (which corner is cut away is a guess until the mod says)' : '') : '') + '.' + (sp.ramp ? ' A ramp: it rises ' + num(sp.ramp) + ' m, and its ' + facing(sp.yaw + (sp.top ? Math.atan2(sp.top[1], sp.top[0]) * 180 / Math.PI : 180)) + ' side is the high one, says the game.' : '') + '</p>'
       + '<p>' + (FL.exact ? 'Top surface at ' + sl.top.toFixed(1) + ' m' + (sl.n > 1 ? ', ' + num(sl.top - sl.bot) + ' m thick in all' : '') + '.' : 'About ' + Math.round(sl.bot) + ' m up. This version of the mod gives heights in 4 m steps and does not say which kind of piece it is; a current SatMap does.') + '</p>' + posLine(sp.x, sp.y); acts = [nav, copy]; }
   else if (o.kind === 'pc') { wantCat(); const sh = W && W.shape ? W.shape[o.ci] : null, c = CAT && CAT[o.cls || (W && W.classes[o.ci])], edge = o.what === 'edge';
     ic = icon('#3f6a94', 'hub', 's'); title = o.n; sub = 'Built · ' + (edge ? 'fence' : EDGEPIECE.test(o.n) ? 'railing' : 'wall') + (c && c.sub ? ' · ' + c.sub : '');
@@ -1328,13 +1342,16 @@ function pathsOf(list){                                   // [kind, classIndex, 
 }
 function buildWorld(w){
   const names = w.names || [], f = a => a || [], hard = w.hard || {}, partOf = {}; (w.part || []).forEach(ci => { partOf[ci] = 1; });
+  // SatMap 3.6: a piece that is not turned by whole degrees has its true turn in `exact` (hundredths of a degree), a beam its own length in `lengths`; both by list (0 floors, 1 walls, 2 others, 3 machines) and row
+  const ex = { 0: {}, 1: {}, 2: {}, 3: {} }, len = { 1: {}, 2: {} }; (w.exact || []).forEach(e => { if (ex[e[0]]) ex[e[0]][e[1]] = e[2] / 100; }); (w.lengths || []).forEach(e => { if (len[e[0]]) len[e[0]][e[1]] = e[2]; });
+  const turn = (list, row, yaw) => ex[list][row] !== undefined ? ex[list][row] : yaw || 0;
   // the footprint is the machine's hard boxes where the mod sends them (SatMap 3.2): the game's combined box also takes in soft boxes round the power connector (a Smelter reads 5.1 m wide and is 5.0)
   const shape = Array.isArray(w.shape) ? w.shape.map((sh, ci) => { const h = hard[ci]; return sh && h && h[0] > 0 && h[1] > 0 ? [h[0], h[1], h[2] || 0, h[3] || 0].concat(sh.slice(4)) : sh; }) : w.shape || [];
   return { rev: w.rev, walls: f(w.walls), paths: pathsOf(w.paths), counts: w.counts || {}, classes: w.classes || [], names, belts: f(w.belts), pipes: f(w.pipes), wires: f(w.wires), floors: f(w.floors), note: w.floorsNote || w.note || '', source: w.source || '', floorsTotal: w.floorsTotal,
-        shape, boxes: w.boxes || {}, ramp: w.ramp || {},
-        wallObj: f(w.walls).map(q => ({ kind: 'pc', what: 'wall', ci: q[0], cls: (w.classes || [])[q[0]] || '', n: names[q[0]] || 'Wall', x: q[1] / 100, y: q[2] / 100, z: q[3] / 100, yaw: q[4] || 0 })),
-        others: f(w.others).map(a => ({ kind: 'b', other: true, ci: a[0], yaw: a[4] || 0, n: names[a[0]] || String((w.classes || [])[a[0]] || 'Building').replace(/^Build_|_C$/gi, '').replace(/_/g, ' '), cls: (w.classes || [])[a[0]] || '', part: !!partOf[a[0]], x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, state: -1, prod: -1, recipe: '', clock: 100 })).filter(o => !/EmptyActor/.test(o.cls)),
-        machines: f(w.machines).map(a => ({ kind: 'b', ci: a[0], cls: (w.classes || [])[a[0]] || '', part: !!partOf[a[0]] || /Integrated|HubTerminal/i.test((w.classes || [])[a[0]] || ''), l: a[9] ? a[9] / 100 : 0, w: a[10] ? a[10] / 100 : 0, n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: a[4], recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
+        shape, boxes: w.boxes || {}, ramp: w.ramp || {}, solid: w.solid || {}, decl: w.decl || {}, floorXY: w.floorSize === 'xy', exactFloors: ex[0],
+        wallObj: f(w.walls).map((q, row) => ({ kind: 'pc', what: 'wall', ci: q[0], cls: (w.classes || [])[q[0]] || '', n: names[q[0]] || 'Wall', x: q[1] / 100, y: q[2] / 100, z: q[3] / 100, yaw: turn(1, row, q[4]), len: len[1][row] })),
+        others: f(w.others).map((a, row) => ({ kind: 'b', other: true, ci: a[0], yaw: turn(2, row, a[4]), len: len[2][row], n: names[a[0]] || String((w.classes || [])[a[0]] || 'Building').replace(/^Build_|_C$/gi, '').replace(/_/g, ' '), cls: (w.classes || [])[a[0]] || '', part: !!partOf[a[0]], x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, state: -1, prod: -1, recipe: '', clock: 100 })).filter(o => !/EmptyActor/.test(o.cls)),
+        machines: f(w.machines).map((a, row) => ({ kind: 'b', ci: a[0], cls: (w.classes || [])[a[0]] || '', part: !!partOf[a[0]] || /Integrated|HubTerminal/i.test((w.classes || [])[a[0]] || ''), l: a[9] ? a[9] / 100 : 0, w: a[10] ? a[10] / 100 : 0, n: names[a[0]] || (w.classes || [])[a[0]] || 'Machine', x: a[1] / 100, y: a[2] / 100, z: a[3] / 100, yaw: turn(3, row, a[4]), recipe: a[5] || '', clock: a[6], state: a[7] === undefined ? -1 : a[7], prod: a[8] === undefined ? -1 : a[8] })) };
 }
 var lastDoc = null;
 // A machine built on its planned spot but turned the wrong way cannot take the hall's belts: its outlets (from the game's own shape of it) must point the way the hall's parts travel.
@@ -1737,7 +1754,7 @@ document.addEventListener('keydown', e => {
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-16 15:34:55'; let told = false;
+const BUILD = '2026-11-16 15:39:04'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 (() => { const at = /[?&]at=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.search); if (!at) return; follow = false; map.setView(ll(+at[1], +at[2]), 6.5, { animate: false }); setTimeout(() => toast('Opened at ' + Math.round(+at[1]) + ', ' + Math.round(+at[2]) + '.', 4000), 600); })();
