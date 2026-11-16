@@ -210,6 +210,13 @@ label.ck input{width:17px;height:17px;accent-color:var(--accent);flex:none}
 #editbar button:hover{background:rgba(255,255,255,.12)}#editbar button[disabled]{opacity:.4;cursor:default}#editbar button.go{background:var(--accent);color:#1d1300;border-color:transparent}
 body.editing #map{cursor:crosshair}
 @media (max-width:760px){#editbar{bottom:calc(64px + env(safe-area-inset-bottom,0px))}#editbar b{display:none}}
+.chk{all:unset;display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;padding:5px 2px;font-size:12.5px;line-height:1.4;box-sizing:border-box;width:100%}
+button.chk{cursor:pointer;border-radius:6px}button.chk:hover{background:rgba(255,255,255,.08)}
+.chk>b{font:700 12px var(--mono);text-align:center}.chk.ok>b{color:var(--ok)}.chk.bad>b{color:#ff8a8a}.chk.bad>span{color:#ffd0d0}.chk.note>b{color:var(--muted)}.chk.note>span{color:#c9d3df}
+#editbar .tools{display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;margin-right:4px}#editbar .tools button{border:0;border-radius:0;background:transparent}
+#editbar .tools button[aria-pressed=true]{background:rgba(53,214,194,.25);color:#dffcf7}
+body.drawing #map{cursor:cell}
+@media (max-width:760px){#editbar{flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 24px)}}
 </style>
 <div class="app">
 <div id="map" role="application" aria-label="Map of the whole world"></div>
@@ -259,7 +266,7 @@ body.editing #map{cursor:crosshair}
   <h3>Logistics</h3><div class="rows" id="f-logi"><div class="none">Nothing yet.</div></div>
   <h3>In stock</h3><div class="rows" id="f-stock"><div class="none">What your containers hold appears here with the mod's server part.</div></div>
   <h3>Not producing</h3><div class="rows" id="f-stalled"><div class="none">Nothing to show.</div></div><h3>Machines</h3><div class="rows" id="f-counts"><div class="none">Nothing yet.</div></div><h3>Everything else you have placed</h3><div class="rows" id="f-other"><div class="none">Nothing yet.</div></div></div>
- <div class="tab" id="t-plan"><h2>The plan</h2><div class="mybox"><h3>Your plan <small id="my-count"></small></h3><p>Move, turn, copy or take out anything in the guide's plan, and add buildings of your own. Yours carry a teal corner; the guide's plan stays whole underneath and comes back when you take yours away.</p><label class="ck"><input type="checkbox" id="my-edit"> Edit the plan</label><div class="row"><span>Placing</span><div class="seg" id="my-snap"><button type="button" data-snap="grid" aria-pressed="true">On the grid</button><button type="button" data-snap="free" aria-pressed="false">Free</button></div></div><div class="row"><button type="button" class="btn" id="my-undo" disabled>Undo</button><button type="button" class="btn" id="my-redo" disabled>Redo</button></div><h3>Add a building</h3><input type="text" id="my-q" placeholder="Smelter, Foundation, Basic Wall, Coal-Powered…" autocomplete="off" aria-label="Find a building to add"><label class="ck" id="my-locked-row" hidden><input type="checkbox" id="my-locked"> Show what is still locked</label><p id="my-q-note"></p><div class="rows" id="my-hits"></div><h3>Your changes</h3><div class="rows" id="my-list"><div class="none">Nothing yet. Switch Edit on and drag anything in the plan, or add a building.</div></div><div class="row"><button type="button" class="btn" id="my-send">Send to the game</button><button type="button" class="btn" id="my-save">Save</button><button type="button" class="btn" id="my-load">Load</button><button type="button" class="btn" id="my-reset">Reset everything</button><input type="file" id="my-file" accept=".json,application/json" hidden></div><p id="my-text-note" hidden></p><textarea id="my-text" rows="5" spellcheck="false" aria-label="The plan as text" hidden></textarea><details class="keyd"><summary>Mouse and keys while editing</summary><p><b>Drag</b> a piece to move it; drag the round handle to turn it. A floor takes what stands on it along (Shift: the floor alone). <b>R</b> a quarter turn (Shift: back), <b>[</b> and <b>]</b> 5° (Shift: 1°), <b>arrows</b> 1 m (Shift: 8 m, Alt: 10 cm), <b>Ctrl D</b> copy, <b>Delete</b> take out, <b>G</b> grid or free, <b>Ctrl Z</b> undo, <b>Ctrl Y</b> redo.</p></details></div><h3>The guide's plan</h3><label class="ck"><input type="checkbox" id="plan"> Show the Satisfactory Plus plan</label><h3>What to draw</h3><label class="ck"><input type="checkbox" data-plan="floors"> Floors</label><label class="ck"><input type="checkbox" data-plan="mach"> Every machine</label><label class="ck"><input type="checkbox" data-plan="lanes"> Belts and pipes inside the halls</label><label class="ck"><input type="checkbox" data-plan="fit"> Splitters, Mergers, Junctions, Power Poles</label><label class="ck"><input type="checkbox" data-plan="places"> Placements: the HUB plaza, storage bays, fittings, wind pads</label><label class="ck"><input type="checkbox" data-plan="routes"> Belts between the floors</label><label class="ck"><input type="checkbox" data-plan="power"> Power lines and the Hypertube</label><div class="row"><span>Stage</span><select class="sel" id="stage" aria-label="Stage of the plan"></select></div>
+ <div class="tab" id="t-plan"><h2>The plan</h2><div class="mybox"><h3>Your plan <small id="my-count"></small></h3><p>Move, turn, copy or take out anything in the guide's plan, and add buildings of your own. Yours carry a teal corner; the guide's plan stays whole underneath and comes back when you take yours away.</p><label class="ck"><input type="checkbox" id="my-edit"> Edit the plan</label><div class="row"><span>Placing</span><div class="seg" id="my-snap"><button type="button" data-snap="grid" aria-pressed="true">On the grid</button><button type="button" data-snap="free" aria-pressed="false">Free</button></div></div><div class="row"><button type="button" class="btn" id="my-undo" disabled>Undo</button><button type="button" class="btn" id="my-redo" disabled>Redo</button></div><div class="row" id="my-level-row" hidden><span>Level</span><select class="sel" id="my-level" aria-label="Which level to work on"><option value="">All levels</option></select></div><h3>Add a building</h3><input type="text" id="my-q" placeholder="Smelter, Foundation, Basic Wall, Coal-Powered…" autocomplete="off" aria-label="Find a building to add"><label class="ck" id="my-locked-row" hidden><input type="checkbox" id="my-locked"> Show what is still locked</label><p id="my-q-note"></p><div class="rows" id="my-hits"></div><h3>Check</h3><div id="my-check"><div class="none">Nothing of yours to check yet.</div></div><h3>Your changes</h3><div class="rows" id="my-list"><div class="none">Nothing yet. Switch Edit on and drag anything in the plan, or add a building.</div></div><div class="row"><button type="button" class="btn" id="my-send">Send to the game</button><button type="button" class="btn" id="my-save">Save</button><button type="button" class="btn" id="my-load">Load</button><button type="button" class="btn" id="my-reset">Reset everything</button><input type="file" id="my-file" accept=".json,application/json" hidden></div><p id="my-text-note" hidden></p><textarea id="my-text" rows="5" spellcheck="false" aria-label="The plan as text" hidden></textarea><details class="keyd"><summary>Mouse and keys while editing</summary><p><b>Drag</b> a piece to move it; drag the round handle to turn it. A floor takes what stands on it along (Shift: the floor alone). <b>R</b> a quarter turn (Shift: back), <b>[</b> and <b>]</b> 5° (Shift: 1°), <b>arrows</b> 1 m (Shift: 8 m, Alt: 10 cm), <b>Ctrl D</b> copy, <b>Delete</b> take out, <b>G</b> grid or free, <b>Ctrl Z</b> undo, <b>Ctrl Y</b> redo.</p><p><b>Lines:</b> <b>B</b> belt, <b>P</b> pipe, <b>L</b> power line, <b>V</b> back to moving. Click each corner; a corner lands on a port within 2 m. Shift keeps it straight, Backspace takes the last corner back, double-click or Enter ends the line, Esc drops it.</p><p><b>Levels:</b> a floor's card has <b>Floor above</b> for a roof or the next storey; every piece's card has its level in metres.</p></details></div><h3>The guide's plan</h3><label class="ck"><input type="checkbox" id="plan"> Show the Satisfactory Plus plan</label><h3>What to draw</h3><label class="ck"><input type="checkbox" data-plan="floors"> Floors</label><label class="ck"><input type="checkbox" data-plan="mach"> Every machine</label><label class="ck"><input type="checkbox" data-plan="lanes"> Belts and pipes inside the halls</label><label class="ck"><input type="checkbox" data-plan="fit"> Splitters, Mergers, Junctions, Power Poles</label><label class="ck"><input type="checkbox" data-plan="places"> Placements: the HUB plaza, storage bays, fittings, wind pads</label><label class="ck"><input type="checkbox" data-plan="routes"> Belts between the floors</label><label class="ck"><input type="checkbox" data-plan="power"> Power lines and the Hypertube</label><div class="row"><span>Stage</span><select class="sel" id="stage" aria-label="Stage of the plan"></select></div>
   <div class="row"><button type="button" class="btn" id="home">Go to the base</button><a class="btn" href="satisfactory-plus.html">Open the guide</a></div>
   <h3>In the game</h3><p id="ghost-note">Plan ghosts need the SatMap mod: outlines of the plan drawn in the world.</p><div class="row"><button type="button" class="btn go" id="ghost-on" disabled>Show the plan in the game</button><button type="button" class="btn" id="ghost-off" disabled>Hide it</button></div><p id="snap-note"></p>
   <h3>Halls: placed of planned</h3><p id="plan-note">With the mod's factory data, each planned machine turns green once the right machine stands on its spot.</p><div id="hallrows"></div></div>
@@ -279,7 +286,7 @@ body.editing #map{cursor:crosshair}
 </section>
 <section class="card glass" id="card" hidden aria-live="polite"></section>
 <div id="toast" class="glass" hidden></div>
-<div id="editbar" class="glass" hidden><b>Editing your plan</b><button type="button" id="eb-snap" title="Grid or free placing (G)">On the grid</button><button type="button" id="eb-undo" title="Undo (Ctrl Z)">Undo</button><button type="button" id="eb-redo" title="Redo (Ctrl Y)">Redo</button><button type="button" id="eb-done" class="go">Done</button></div>
+<div id="editbar" class="glass" hidden><b>Editing your plan</b><span class="tools"><button type="button" data-tool="" aria-pressed="true" title="Move and turn (V)">Move</button><button type="button" data-tool="belt" aria-pressed="false" title="Draw a belt (B)">Belt</button><button type="button" data-tool="pipe" aria-pressed="false" title="Draw a pipe (P)">Pipe</button><button type="button" data-tool="power" aria-pressed="false" title="Draw a power line (L)">Power</button></span><button type="button" id="eb-snap" title="Grid or free placing (G)">On the grid</button><button type="button" id="eb-undo" title="Undo (Ctrl Z)">Undo</button><button type="button" id="eb-redo" title="Redo (Ctrl Y)">Redo</button><button type="button" id="eb-done" class="go">Done</button></div>
 <div class="hud"><div class="cell glass opt" id="readout">move the pointer over the map</div><div class="glass" id="way" hidden><canvas class="rose" width="76" height="76"></canvas><div><b id="way-d">–</b><span id="way-n"></span></div><button type="button" class="btn sm" id="way-x">Stop</button></div><div class="cell glass" id="clock">&nbsp;</div></div>
 </div>
 <script src="map-hd/hd.js" onerror="window.HOWSON_HD=null"></script>
@@ -857,7 +864,7 @@ function hitAt(cp){
   const n = Math.ceil(r / G);
   for (let i = Math.floor(x / G) - n; i <= Math.floor(x / G) + n; i++) for (let j = Math.floor(y / G) - n; j <= Math.floor(y / G) + n; j++)
     (grid[i + ',' + j] || []).forEach(m => { if (m.c.shown && !(hideDone && done(m)) && !(m.c.t === 'plant' && z < 2.5)) tryIt(m, m.x, m.y); });
-  { const mh = myHitAt(x, y, s); if (mh && (edit.on || !best)) return mh; }      // a piece of your own plan: first of all while editing
+  { const mh = myHitAt(x, y, s) || myLineAt(x, y, s); if (mh && (edit.on || !best)) return mh; }      // a piece of your own plan: first of all while editing
   if (best) return best;
   if (W && fset.lines && z >= 4.5) {                       // a belt, pipe or power line you have built
     const tol = 6 / s, on = q => { const ax = q[0] / 100, ay = q[1] / 100, bx = q[2] / 100, by = q[3] / 100, l2 = (bx - ax) * (bx - ax) + (by - ay) * (by - ay) || 1, t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / l2)); return Math.hypot(ax + t * (bx - ax) - x, ay + t * (by - ay) - y) < tol; };
@@ -880,7 +887,7 @@ function hitAt(cp){
   }
   return fsp;
 }
-map.on('click', e => { if (Date.now() - edit.skipClick < 400) return; const h = hitAt(e.containerPoint); if (h) select(h); else closeCard(); });
+map.on('click', e => { if (Date.now() - edit.skipClick < 400) return; if (edit.tool) { myLineClick(e); return; } const h = hitAt(e.containerPoint); if (h) select(h); else closeCard(); });
 let hoverT = 0;
 map.on('mousemove', e => {
   const x = Math.round(e.latlng.lng), y = Math.round(-e.latlng.lat); $('readout').textContent = x + ', ' + y + '   in game ' + (x * 100) + ', ' + (y * 100);
@@ -893,7 +900,7 @@ const posLine = (x, y, z) => '<p class="mono">' + Math.round(x) + ', ' + Math.ro
 let CAT = null, catBusy = false, catNo = 0;
 function wantCat(){
   if (CAT || catBusy || Date.now() - catNo < 60000 || !(live.ok || SITE)) return; catBusy = true;
-  fetch(BASE + '/catalog', { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => { catBusy = false; if (!d || !d.done || !d.buildables) { catNo = Date.now(); return; } CAT = {}; d.buildables.forEach(b => { CAT[b.c] = b; }); CATLIST = null; if ($('my-q') && $('my-q').value) mySearch(); if (sel && (sel.kind === 'pc' || sel.kind === 'b' || sel.kind === 'fl')) select(sel); }).catch(() => { catBusy = false; catNo = Date.now(); });
+  fetch(BASE + '/catalog', { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => { catBusy = false; if (!d || !d.done || !d.buildables) { catNo = Date.now(); return; } CAT = {}; d.buildables.forEach(b => { CAT[b.c] = b; }); CATLIST = null; if ($('my-q')) mySearch(); myCheck(); if (sel && (sel.kind === 'pc' || sel.kind === 'b' || sel.kind === 'fl')) select(sel); }).catch(() => { catBusy = false; catNo = Date.now(); });
 }
 const mnum = v => (+(v / 100).toFixed(2)) + '';
 function pieceSize(cls, sh){                              // "8 m long, 4 m high, 0.5 m thick" from the game's own numbers
@@ -956,6 +963,7 @@ function select(o, fly){
     ic = icon('#3f6a94', 'hub', 's'); title = o.n; sub = 'Built · ' + (edge ? 'fence' : EDGEPIECE.test(o.n) ? 'railing' : 'wall') + (c && c.sub ? ' · ' + c.sub : '');
     body = (edge ? '<p>Runs corner to corner across an ' + mnum(o.w * 100) + ' by ' + mnum(o.d * 100) + ' m square' + (o.on ? ', along the long side of the corner piece under it' : '') + '. The game files it with the foundations; the map draws the line it is.</p>' : pieceSize(o.cls, sh)) + posLine(o.x, o.y, o.z); acts = [nav, copy]; }
   else if (o.kind === 'my') { const c = myCard(o.it), it = o.it; ic = it.k === 'mark' ? icon(it.c || MYCOL, it.i || 'flag', 'c') : icon('#1c6e66', it.k === 'floor' ? 'hub' : bglyph(it.n), 's'); title = c.title; sub = c.sub; body = c.body + posLine(it.x, it.y); acts = c.acts.concat([nav, copy]); }
+  else if (o.kind === 'myline') { const c = myLineCard(o.ln); ic = icon('#1c6e66', o.ln.t === 'power' ? 'pole' : 'arrow', 's'); title = c.title; sub = c.sub; body = c.body; o.x = o.ln.pts[0][0]; o.y = o.ln.pts[0][1]; acts = c.acts.concat([nav]); }
   else if (o.kind === 'al') { ic = icon(ALCOL[o.sev] || ALCOL[1], ALGLYPH[o.k] || 'wrench', 'd'); title = o.text; sub = 'Watchdog' + (o.n ? ' · ' + o.n : '') + (o.since ? ' · for ' + ago(o.since) : '');
     body = (o.more ? '<p><b>' + esc(o.more) + '</b></p>' : '') + '<p>' + (ALHELP[o.k] || 'Something here needs a look.') + '</p>' + posLine(o.x, o.y, o.z); acts = [nav, copy]; }
   else if (o.kind === 'pl') { ic = icon(o.p.color, 'pin', 'c'); title = o.p.name; sub = o.p.isMe ? 'You' : 'Player'; o.x = o.p.cur[0]; o.y = o.p.cur[1]; body = posLine(o.x, o.y, o.p.z); acts = o.p.isMe ? [copy] : [nav, copy]; }
@@ -1298,6 +1306,7 @@ function onLive(d){
   const seen = {}; (d.players || []).forEach(o => { if (o.x == null || o.y == null) return; seen['p:' + o.name] = 1; sample('p:' + o.name, o, false); holo('p:' + o.name, PL['p:' + o.name] ? PL['p:' + o.name].color : '#35d6c2', o.holo); });
   for (const k in holos) if (k !== 'me' && !seen[k]) holo(k, '', null);
   builtFeed(d.built);
+  if (d.unlockedRev !== undefined && d.unlockedRev !== unlRev) wantUnlocked(d.unlockedRev);
   if (d.boardRev !== undefined) boardWant(d.boardRev, 'base');
   if (d.movers && (d.movers.length || MOVERS.length) && performance.now() - moversAt > 300) { MOVERS = d.movers; moversAt = performance.now(); redraw(); }
   if (d.alertsRev !== undefined && d.alertsRev !== alertsRev) { alertsRev = d.alertsRev; stateAt = 0; }     // something went wrong or was put right: fetch the list now
@@ -1469,6 +1478,7 @@ function ghostPlan(){
   if (planSet.places) PLAN.places.forEach((p, i) => { if (p.st <= stage && !(p.un && stage >= p.un)) { const bn = placeName(p); boxes.push(Object.assign({ id: 'p:' + i, n: p.n, sub: p.g, k: p.w ? 'place' : 'mark', x: cm(p.x), y: cm(p.y), w: cm(p.w), d: cm(p.h), h: p.w ? 400 : 0, yaw: 0, c: p.c, z: null }, p.w && bn ? Object.assign({ b: bn }, planYaw(Array.isArray(bn) ? bn[0] : bn, p.w, p.h, '')) : {})); } });
   myGhosts(boxes, cm);
   const pl = (n, k, c, pts) => lines.push({ n, k, c, p: pts.map(q => [cm(q[0]), cm(q[1])]) });
+  myGhostLines(pl);
   if (planSet.lanes) PLAN.lanes.forEach(ln => { if (hallOn(hallOf[ln.k])) ln.s.forEach(seg => pl(ln.n, ln.pipe ? 'pipe' : 'belt', ln.pipe ? '#49b8ff' : '#ff9d2e', seg)); });
   if (planSet.routes) PLAN.routes.forEach(r => { if (r.st <= stage && !(r.un && stage >= r.un)) pl(r.n, 'belt', '#ffb02e', r.p); });
   if (planSet.power) PLAN.power.forEach(r => { if (r.st <= stage && !(r.un && stage >= r.un)) pl(r.n, 'power', '#e07bff', r.p); });
@@ -1776,7 +1786,7 @@ function search(){
 let qt = 0; $('q').addEventListener('input', () => { clearTimeout(qt); qt = setTimeout(search, 110); });
 document.addEventListener('keydown', e => {
   const typing = /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName);
-  if (e.key === 'Escape') { $('hits').innerHTML = ''; closeCard(); if (typing) document.activeElement.blur(); return; }
+  if (e.key === 'Escape') { if (!typing && myToolEsc()) return; $('hits').innerHTML = ''; closeCard(); if (typing) document.activeElement.blur(); return; }
   if (!typing && editKey(e)) { e.preventDefault(); return; }
   if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === '/') { e.preventDefault(); $('q').focus(); }
@@ -1786,6 +1796,383 @@ document.addEventListener('keydown', e => {
 });
 
 $('card').addEventListener('keydown', e => { if (e.key === 'Enter' && /^my-[xya]$/.test(e.target.id)) { e.preventDefault(); myCardAct('my-set'); } });
+/* PlanCheck: pure checks on a factory plan (an array of items).
+ *
+ * Units are metres and degrees. x runs east and y runs SOUTH, so a positive yaw turns
+ * clockwise on the map: a point (lx, ly) in an item's own frame is at world
+ *   (x + lx*cos(yaw) - ly*sin(yaw), y + lx*sin(yaw) + ly*cos(yaw)).
+ *
+ * item = { id, k: 'machine'|'place'|'floor'|'mark', n, b, x, y, sx, sy, yaw, lv, h, hide }
+ * x, y is the CENTRE of the box; lv is the height of its underside; a mark has no size.
+ *
+ * Nothing here touches the DOM or any global, and no function changes what it is given.
+ * This file is pasted verbatim into the page's inline script, so it defines one binding.
+ */
+var PlanCheck = (function () {
+  'use strict';
+
+  var EPS = 1e-9;        // float slack added to every "more than" comparison
+  var CELL = 16;         // grid cell for the pair search, metres
+  var BIG = 1024;        // an item covering more cells than this is tested against everything
+  var H_DEFAULT = 4;     // height assumed for the level test when an item has none
+  var H_FLOOR = 1;       // thickness assumed for a floor when it has none
+  var V_SHARE = 0.1;     // two things share height when their ranges overlap by more than this
+  var LV_SAME = 0.1;     // two floors are on one level within this
+  var LV_NEAR = 0.3;     // a floor top is "at" an item's level within this; also the level grouping
+  var QUARTER = [[1, 0], [0, 1], [-1, 0], [0, -1]];   // cos, sin at 0, 90, 180, 270
+
+  function num(v, d) {
+    if (v === null || v === undefined || v === '') return d;
+    v = +v;
+    return Number.isFinite(v) ? v : d;
+  }
+  function pos(v, d) {
+    v = num(v, d);
+    return v > 0 ? v : d;
+  }
+  function clean(v) { return Math.round(v * 1e6) / 1e6 + 0; }
+  function mm(v) { return Math.round(v * 1000) / 1000 + 0; }
+  function tenth(v) { return Math.round(v * 10) / 10 + 0; }
+  function list(items) { return Array.isArray(items) ? items : []; }
+  function live(it) { return !!it && typeof it === 'object' && !it.hide; }
+
+  // 0..3 when the yaw is a whole number of quarter turns, otherwise -1
+  function quarter(yaw) {
+    var q = yaw / 90, r = Math.round(q);
+    if (Math.abs(q - r) > 1e-9) return -1;
+    return ((r % 4) + 4) % 4;
+  }
+  // [cos, sin], exact at quarter turns so square-on boxes get clean corners
+  function trig(yaw) {
+    var q = quarter(yaw);
+    if (q >= 0) return QUARTER[q];
+    var a = yaw * Math.PI / 180;
+    return [Math.cos(a), Math.sin(a)];
+  }
+
+  // centre, half sizes and the direction of the item's own X axis
+  function frame(it) {
+    it = it || {};
+    var t = trig(num(it.yaw, 0));
+    var mark = it.k === 'mark';
+    return {
+      x: num(it.x, 0), y: num(it.y, 0),
+      hx: mark ? 0 : Math.abs(num(it.sx, 0)) / 2,
+      hy: mark ? 0 : Math.abs(num(it.sy, 0)) / 2,
+      c: t[0], s: t[1]
+    };
+  }
+  function frameBounds(f) {
+    var ex = f.hx * Math.abs(f.c) + f.hy * Math.abs(f.s);
+    var ey = f.hx * Math.abs(f.s) + f.hy * Math.abs(f.c);
+    return [f.x - ex, f.y - ey, f.x + ex, f.y + ey];
+  }
+  function frameHas(f, x, y) {
+    var dx = x - f.x, dy = y - f.y;
+    return Math.abs(dx * f.c + dy * f.s) <= f.hx + EPS &&
+           Math.abs(dy * f.c - dx * f.s) <= f.hy + EPS;
+  }
+
+  // Separating-axis test on the four edge directions: the smallest overlap, or 0 when an axis separates.
+  function sat(A, B) {
+    var dx = B.x - A.x, dy = B.y - A.y;
+    var cc = Math.abs(A.c * B.c + A.s * B.s);   // |A's X . B's X| = |A's Y . B's Y|
+    var cs = Math.abs(A.c * B.s - A.s * B.c);   // |A's X . B's Y| = |A's Y . B's X|
+    var m = A.hx + B.hx * cc + B.hy * cs - Math.abs(dx * A.c + dy * A.s);
+    if (m <= 0) return 0;
+    var d = A.hy + B.hx * cs + B.hy * cc - Math.abs(dy * A.c - dx * A.s);
+    if (d <= 0) return 0;
+    if (d < m) m = d;
+    d = B.hx + A.hx * cc + A.hy * cs - Math.abs(dx * B.c + dy * B.s);
+    if (d <= 0) return 0;
+    if (d < m) m = d;
+    d = B.hy + A.hx * cs + A.hy * cc - Math.abs(dy * B.c - dx * B.s);
+    if (d <= 0) return 0;
+    if (d < m) m = d;
+    return m;
+  }
+
+  function corners(item) {
+    var f = frame(item), c = f.c, s = f.s, hx = f.hx, hy = f.hy;
+    var own = [[-hx, -hy], [hx, -hy], [hx, hy], [-hx, hy]], out = [], i;
+    for (i = 0; i < 4; i++) {
+      out.push([f.x + own[i][0] * c - own[i][1] * s + 0, f.y + own[i][0] * s + own[i][1] * c + 0]);
+    }
+    return out;
+  }
+
+  function bounds(item) { return frameBounds(frame(item)); }
+
+  function contains(item, x, y) { return frameHas(frame(item), num(x, NaN), num(y, NaN)); }
+
+  // Plain geometry: level, kind and hide are not looked at. A box with no area reaches into nothing.
+  function overlap(a, b, tol) {
+    var A = frame(a), B = frame(b);
+    if (!(A.hx > 0 && A.hy > 0 && B.hx > 0 && B.hy > 0)) return 0;
+    var d = sat(A, B);
+    return d > Math.max(num(tol, 0), 0) + EPS ? d : 0;
+  }
+
+  function overlaps(items, opt) {
+    items = list(items);
+    opt = opt || {};
+    var tol = Math.max(num(opt.tol, 0.1), 0);
+    var cell = pos(opt.cell, CELL);
+    var all = [], big = [], found = [], out = [];
+    var i, j, k, it, f, b, h, A, B;
+
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      if (!live(it) || it.k === 'mark') continue;
+      f = frame(it);
+      if (!(f.hx > 0 && f.hy > 0)) continue;
+      b = frameBounds(f);
+      h = pos(it.h, H_DEFAULT);
+      f.id = it.id;
+      f.i = all.length;
+      f.floor = it.k === 'floor';
+      f.lv = num(it.lv, 0);
+      f.top = f.lv + h;
+      f.x0 = b[0]; f.y0 = b[1]; f.x1 = b[2]; f.y1 = b[3];
+      f.cx0 = Math.floor(b[0] / cell); f.cy0 = Math.floor(b[1] / cell);
+      f.cx1 = Math.floor(b[2] / cell); f.cy1 = Math.floor(b[3] / cell);
+      f.big = (f.cx1 - f.cx0 + 1) * (f.cy1 - f.cy0 + 1) > BIG;
+      all.push(f);
+    }
+
+    function test(P, Q) {
+      if (P.floor !== Q.floor) return;                       // things stand ON floors
+      if (P.floor) {
+        if (Math.abs(P.lv - Q.lv) > LV_SAME + EPS) return;   // floors: same level only
+      } else if (Math.min(P.top, Q.top) - Math.max(P.lv, Q.lv) <= V_SHARE + EPS) {
+        return;                                              // one is above the other
+      }
+      if (P.x1 <= Q.x0 || Q.x1 <= P.x0 || P.y1 <= Q.y0 || Q.y1 <= P.y0) return;
+      var d = sat(P, Q);
+      if (d > tol + EPS) found.push([mm(d), P.i, Q.i]);
+    }
+
+    // the grid, over everything that is not huge
+    var gx0 = Infinity, gy0 = Infinity, gy1 = -Infinity;
+    for (i = 0; i < all.length; i++) {
+      f = all[i];
+      if (f.big) { big.push(f); continue; }
+      if (f.cx0 < gx0) gx0 = f.cx0;
+      if (f.cy0 < gy0) gy0 = f.cy0;
+      if (f.cy1 > gy1) gy1 = f.cy1;
+    }
+    var rows = gy1 - gy0 + 1, grid = new Map(), key, bucket, cx, cy;
+    for (i = 0; i < all.length; i++) {
+      f = all[i];
+      if (f.big) continue;
+      for (cx = f.cx0; cx <= f.cx1; cx++) {
+        for (cy = f.cy0; cy <= f.cy1; cy++) {
+          key = (cx - gx0) * rows + (cy - gy0);
+          bucket = grid.get(key);
+          if (bucket) bucket.push(f); else grid.set(key, [f]);
+        }
+      }
+    }
+    grid.forEach(function (cellItems, cellKey) {
+      var n = cellItems.length;
+      if (n < 2) return;
+      var ky = cellKey % rows, kx = (cellKey - ky) / rows + gx0, p, q, P, Q;
+      ky += gy0;
+      for (p = 0; p < n - 1; p++) {
+        P = cellItems[p];
+        for (q = p + 1; q < n; q++) {
+          Q = cellItems[q];
+          // a pair shares several cells; take it only in the first one they share
+          if ((P.cx0 > Q.cx0 ? P.cx0 : Q.cx0) !== kx || (P.cy0 > Q.cy0 ? P.cy0 : Q.cy0) !== ky) continue;
+          test(P, Q);
+        }
+      }
+    });
+
+    // huge items against everything, each pair once
+    for (j = 0; j < big.length; j++) {
+      A = big[j];
+      for (k = 0; k < all.length; k++) {
+        B = all[k];
+        if (B === A || (B.big && B.i < A.i)) continue;
+        if (A.i < B.i) test(A, B); else test(B, A);
+      }
+    }
+
+    found.sort(function (p, q) { return q[0] - p[0] || p[1] - q[1] || p[2] - q[2]; });
+    for (i = 0; i < found.length; i++) {
+      out.push({ a: all[found[i][1]].id, b: all[found[i][2]].id, m: found[i][0] });
+    }
+    return out;
+  }
+
+  function near(v, g) { return clean(Math.round(v / g) * g); }
+
+  // true when the item is a floor laid square to the map, so it snaps by its min corner
+  function squareFloor(it) { return it.k === 'floor' && quarter(num(it.yaw, 0)) >= 0; }
+
+  function snap(item, opt) {
+    item = item || {};
+    opt = opt || {};
+    var step = pos(opt.step, 0.5), fl = pos(opt.floor, 8);
+    var x = num(item.x, 0), y = num(item.y, 0), hx, hy, t;
+    if (squareFloor(item)) {
+      hx = Math.abs(num(item.sx, 0)) / 2;
+      hy = Math.abs(num(item.sy, 0)) / 2;
+      if (quarter(num(item.yaw, 0)) & 1) { t = hx; hx = hy; hy = t; }
+      return { x: clean(near(x - hx, fl) + hx), y: clean(near(y - hy, fl) + hy) };
+    }
+    return { x: near(x, step), y: near(y, step) };
+  }
+
+  function offGrid(items, opt) {
+    items = list(items);
+    var out = [], i, it, s, dx, dy;
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      if (!live(it) || it.k === 'mark') continue;
+      if (it.k === 'floor' && !squareFloor(it)) continue;
+      s = snap(it, opt);
+      dx = s.x - num(it.x, 0);
+      dy = s.y - num(it.y, 0);
+      if (Math.abs(dx) > 0.001 + EPS || Math.abs(dy) > 0.001 + EPS) {
+        out.push({ id: it.id, dx: mm(dx), dy: mm(dy) });
+      }
+    }
+    return out;
+  }
+
+  // ids of raised things that have no floor under their centre (despite the name: the UNsupported ones)
+  function supported(items) {
+    items = list(items);
+    var floors = [], out = [], i, j, it, f, b, lv, x, y, ok;
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      if (!live(it) || it.k !== 'floor') continue;
+      f = frame(it);
+      b = frameBounds(f);
+      f.x0 = b[0]; f.y0 = b[1]; f.x1 = b[2]; f.y1 = b[3];
+      f.top = num(it.lv, 0) + pos(it.h, H_FLOOR);
+      floors.push(f);
+    }
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      if (!live(it) || it.k === 'floor' || it.k === 'mark') continue;
+      lv = num(it.lv, 0);
+      if (!(lv > 0.1)) continue;
+      x = num(it.x, 0); y = num(it.y, 0);
+      ok = false;
+      for (j = 0; j < floors.length && !ok; j++) {
+        f = floors[j];
+        if (Math.abs(f.top - lv) > LV_NEAR + EPS) continue;
+        if (x < f.x0 - EPS || x > f.x1 + EPS || y < f.y0 - EPS || y > f.y1 + EPS) continue;
+        ok = frameHas(f, x, y);
+      }
+      if (!ok) out.push(it.id);
+    }
+    return out;
+  }
+
+  function levels(items) {
+    items = list(items);
+    var lvs = [], out = [], i, low, n;
+    for (i = 0; i < items.length; i++) {
+      if (live(items[i])) lvs.push(num(items[i].lv, 0));
+    }
+    lvs.sort(function (p, q) { return p - q; });
+    for (i = 0; i < lvs.length; i++) {
+      if (n && lvs[i] - low <= LV_NEAR + EPS) { n++; continue; }
+      if (n) out.push({ lv: tenth(low), n: n });
+      low = lvs[i];
+      n = 1;
+    }
+    if (n) out.push({ lv: tenth(low), n: n });
+    return out;
+  }
+
+  function byName(p, q) { return p < q ? -1 : p > q ? 1 : 0; }
+
+  function cost(items, costOf) {
+    items = list(items);
+    var totals = new Map(), unknown = new Map(), rows = [], names = [], i, j, it, r, row, name;
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      if (!live(it) || it.k === 'mark') continue;
+      r = typeof costOf === 'function' ? costOf(it) : null;
+      if (!Array.isArray(r)) {
+        name = it.n !== null && it.n !== undefined && it.n !== '' ? it.n : (it.b || it.id);
+        unknown.set(String(name), 1);
+        continue;
+      }
+      for (j = 0; j < r.length; j++) {
+        row = r[j];
+        if (!Array.isArray(row)) continue;
+        name = String(row[0]);
+        totals.set(name, (totals.get(name) || 0) + num(row[1], 0));
+      }
+    }
+    totals.forEach(function (total, part) { rows.push([part, clean(total)]); });
+    rows.sort(function (p, q) { return q[1] - p[1] || byName(p[0], q[0]); });
+    unknown.forEach(function (one, label) { names.push(label); });
+    names.sort(byName);
+    return { items: rows, unknown: names };
+  }
+
+  function power(items, bldOf) {
+    items = list(items);
+    var draw = 0, make = 0, unknown = 0, i, it, r;
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      if (!live(it) || it.k === 'mark') continue;
+      r = typeof bldOf === 'function' ? bldOf(it) : null;
+      if (r === null || r === undefined || typeof r !== 'object') {
+        if (it.b) unknown++;
+        continue;
+      }
+      draw += num(r.mw, 0);
+      make += num(r.gen, 0);
+    }
+    return { draw: tenth(draw), make: tenth(make), unknown: unknown };
+  }
+
+  function summary(items, costOf, bldOf, opt) {
+    items = list(items);
+    var count = 0, floors = 0, i, it;
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      if (!live(it) || it.k === 'mark') continue;
+      count++;
+      if (it.k === 'floor') floors++;
+    }
+    return {
+      count: count,
+      floors: floors,
+      overlaps: overlaps(items, opt),
+      offGrid: offGrid(items, opt),
+      unsupported: supported(items),
+      levels: levels(items),
+      cost: cost(items, costOf),
+      power: power(items, bldOf)
+    };
+  }
+
+  return {
+    corners: corners,
+    bounds: bounds,
+    contains: contains,
+    overlap: overlap,
+    overlaps: overlaps,
+    offGrid: offGrid,
+    snap: snap,
+    supported: supported,
+    levels: levels,
+    cost: cost,
+    power: power,
+    summary: summary
+  };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = PlanCheck;
+
 // ---- the plan editor, stage 1 (Scott, 16 Nov 2026: "live edit the guide items, move them around ... every single item rotatable, have a non snap mode").
 // Your plan sits on top of the guide's: a guide item you move, turn or remove becomes an item of yours that stands in for it
 // (its `src` names the guide item); a piece you add has no `src`.  Taking your item away gives the guide's back.
@@ -1793,10 +2180,11 @@ $('card').addEventListener('keydown', e => { if (e.key === 'Enter' && /^my-[xya]
 // This file is pasted into the page's script by build_map.py where world-map.js says /*EDIT*/; state is `var` so that code
 // earlier in the script that runs before this point (a first repaint) finds it undefined instead of failing.
 var MYKEY = 'howson-map-myplan-v1', MYCOL = '#35d6c2', MY = null, G0 = null, CATLIST = null, myBuilt = {};
-var edit = { on: false, snap: store.get('howson-map-mysnap', 'grid'), drag: null, undo: [], redo: [], skipClick: 0, locked: false };
+var edit = { on: false, snap: store.get('howson-map-mysnap', 'grid'), drag: null, undo: [], redo: [], skipClick: 0, locked: false, level: null, tool: '', line: null, hover: null, raf: 0, cat: '' };
+var UNL = null, unlRev = -1, unlBusy = false, WAITS = null, myBad = {}, myChk = null;
 const myId = it => 'my:' + it.id, rad = d => d * Math.PI / 180, q90 = yaw => Math.abs(((yaw % 90) + 90) % 90) < 0.01 || Math.abs(((yaw % 90) + 90) % 90 - 90) < 0.01;
 const norm360 = a => { a = ((a % 360) + 360) % 360; return Math.abs(a - Math.round(a)) < 1e-6 ? Math.round(a) % 360 : +a.toFixed(2); };
-function myLoad(){ const d = store.get(MYKEY, null); return d && d.v === 1 && Array.isArray(d.items) ? d : { v: 1, name: 'My plan', seq: 0, rev: 0, items: [] }; }
+function myLoad(){ const d = store.get(MYKEY, null); if (d && d.v === 1 && Array.isArray(d.items)) { if (!Array.isArray(d.lines)) d.lines = []; return d; } return { v: 1, name: 'My plan', seq: 0, rev: 0, items: [], lines: [] }; }
 function mySave(){ MY.rev = (MY.rev || 0) + 1; store.set(MYKEY, MY); }
 function gkeys(){                                         // a name for every guide item that survives the guide's plan being laid out again: what it is, not where it is in a list
   const seen = {}, k = base => { seen[base] = (seen[base] || 0) + 1; return base + '#' + (seen[base] - 1); };
@@ -1806,7 +2194,7 @@ function myApply(){                                       // the guide's lists w
   const over = {}; MY.items.forEach(it => { if (it.src) over[it.src] = 1; });
   PLAN.mach = G0.mach.filter(m => !over[m._k]); PLAN.places = G0.places.filter(p => !over[p._k]); PLAN.floors = G0.floors.filter(f => !over[f._k]);
   if (sel && (sel.kind === 'pm' || sel.kind === 'place' || sel.kind === 'floor')) closeCard();
-  planMatch(); drawPlan(); myList();
+  planMatch(); myCheck(); drawPlan(); myList();
 }
 const myShown = it => !it.hide && planOn && (it.k === 'machine' && it.hall ? planSet.mach && hallOn(hallOf[it.hall] || { st: 1 }) : it.k === 'floor' ? planSet.floors && (it.st || 1) <= stage : planSet.places && (it.st || 1) <= stage && !(it.un && stage >= it.un));
 function fromGuide(h){                                    // a guide item as an item of yours, where it stands now
@@ -1822,10 +2210,10 @@ function myAdd(it){ it.id = 'u' + (++MY.seq); MY.items.push(it); return it; }
 const myGuide = it => { if (!it.src) return null; const c = it.src.charAt(0), l = c === 'm' ? G0.mach : c === 'p' ? G0.places : G0.floors; for (const g of l) if (g._k === it.src) return g; return null; };
 const myWhat = it => !it.src ? 'added by you' : it.hide ? 'removed by you' : 'moved by you';
 // ---- undo
-const snapNow = () => JSON.stringify(MY.items);
+const snapNow = () => JSON.stringify([MY.items, MY.lines]), myRestore = sn => { const d = JSON.parse(sn); MY.items = d[0]; MY.lines = d[1] || []; };
 function myCommit(before){ if (before !== undefined && before !== snapNow()) { edit.undo.push(before); if (edit.undo.length > 100) edit.undo.shift(); edit.redo = []; } mySave(); myApply(); myBar(); }
 function myUndo(redo){ const from = redo ? edit.redo : edit.undo, to = redo ? edit.undo : edit.redo; if (!from.length) { toast(redo ? 'Nothing to redo' : 'Nothing to undo'); return; }
-  to.push(snapNow()); MY.items = JSON.parse(from.pop()); if (sel && sel.kind === 'my') { const it = MY.items.filter(q => q.id === sel.it.id)[0]; if (it && !it.hide) sel = myObj(it); else { sel = null; $('card').hidden = true; } }
+  to.push(snapNow()); myRestore(from.pop()); if (sel && sel.kind === 'myline') { sel = null; $('card').hidden = true; } if (sel && sel.kind === 'my') { const it = MY.items.filter(q => q.id === sel.it.id)[0]; if (it && !it.hide) sel = myObj(it); else { sel = null; $('card').hidden = true; } }
   mySave(); myApply(); myBar(); if (sel && sel.kind === 'my') select(sel); }
 // ---- geometry
 const myObj = it => ({ kind: 'my', it, x: it.x, y: it.y });
@@ -1834,7 +2222,7 @@ const myInside = (it, x, y, pad) => { const l = myLocal(it, x, y); return Math.a
 const myHandle = (it, s) => { const a = rad(it.yaw || 0), d = it.sy / 2 + 16 / s; return [it.x + d * Math.sin(a), it.y - d * Math.cos(a)]; };      // the turning handle: beyond the middle of the piece's own -Y side
 function myHitAt(x, y, s){                                // yours, the small before the large, so a machine on a floor is picked before the floor
   if (!MY || !planOn) return null; let best = null, area = 1e18; const r = 11 / s;
-  MY.items.forEach(it => { if (!myShown(it)) return; const ok = it.k === 'mark' || !(it.sx > 0) ? Math.hypot(it.x - x, it.y - y) < r : myInside(it, x, y, 0), a = it.k === 'mark' ? 0 : it.sx * it.sy; if (ok && a < area) { area = a; best = it; } });
+  MY.items.forEach(it => { if (!myShown(it) || !myOnLevel(it)) return; const ok = it.k === 'mark' || !(it.sx > 0) ? Math.hypot(it.x - x, it.y - y) < r : myInside(it, x, y, 0), a = it.k === 'mark' ? 0 : it.sx * it.sy; if (ok && a < area) { area = a; best = it; } });
   return best ? myObj(best) : null;
 }
 function guideHitAt(x, y, s){                              // a guide item under the pointer, for the editor: the same order as the map's own picking
@@ -1867,13 +2255,16 @@ function myPorts(it){                                     // the building's belt
 }
 function drawMy(ctx, s, z, X, Y, inb, LBL){
   if (!MY || !planOn || z < 3.5) return;
+  drawMyBoxes(ctx, s, z, X, Y, inb, LBL); ctx.globalAlpha = 1; drawMyLines(ctx, s, z, X, Y, LBL); ctx.globalAlpha = 1;
+}
+function drawMyBoxes(ctx, s, z, X, Y, inb, LBL){
   const order = MY.items.filter(myShown).sort((a, b) => (a.k === 'floor' ? 0 : 1) - (b.k === 'floor' ? 0 : 1));
   order.forEach(it => {
     const reach = Math.hypot(it.sx || 0, it.sy || 0) / 2; if (!inb(it.x - reach, it.y - reach) && !inb(it.x + reach, it.y + reach) && !inb(it.x, it.y)) return;
-    const on = sel && sel.kind === 'my' && sel.it.id === it.id, px = X(it.x), py = Y(it.y), w = it.sx * s, d = it.sy * s, built = myBuilt[it.id];
+    const on = sel && sel.kind === 'my' && sel.it.id === it.id, px = X(it.x), py = Y(it.y), w = it.sx * s, d = it.sy * s, built = myBuilt[it.id], bad = myBad[it.id]; ctx.globalAlpha = myOnLevel(it) ? 1 : 0.22;
     if (it.k === 'mark' || !(it.sx > 0)) { const k = z < 5.5 ? 16 : 22; ctx.drawImage(icon(it.c || MYCOL, it.i || 'flag', 'c', { ring: on ? '#fa9549' : MYCOL }), px - k / 2, py - k / 2, k, k); if (z >= 6.5) LBL.push([2, it.n, px, py + k / 2 + 12]); return; }
     ctx.save(); ctx.translate(px, py); ctx.rotate(rad(it.yaw || 0)); ctx.setLineDash(built ? [] : it.k === 'floor' ? [] : [5, 4]);
-    ctx.fillStyle = it.k === 'floor' ? 'rgba(53,208,127,.1)' : built ? 'rgba(61,220,132,.16)' : 'rgba(53,214,194,.09)'; ctx.strokeStyle = on ? '#fa9549' : built ? '#3ddc84' : MYCOL; ctx.lineWidth = on ? 2.6 : it.k === 'floor' ? 2 : 1.6;
+    ctx.fillStyle = it.k === 'floor' ? 'rgba(53,208,127,.1)' : built ? 'rgba(61,220,132,.16)' : 'rgba(53,214,194,.09)'; ctx.strokeStyle = on ? '#fa9549' : bad ? '#ff5d5d' : built ? '#3ddc84' : it.lv > 0.1 && it.k === 'floor' ? '#b08cff' : MYCOL; ctx.lineWidth = on ? 2.6 : bad ? 2.2 : it.k === 'floor' ? 2 : 1.6;
     ctx.fillRect(-w / 2, -d / 2, w, d); ctx.strokeRect(-w / 2, -d / 2, w, d); ctx.setLineDash([]);
     ctx.fillStyle = MYCOL; ctx.beginPath(); ctx.moveTo(-w / 2, -d / 2); ctx.lineTo(-w / 2 + Math.min(9, w / 3), -d / 2); ctx.lineTo(-w / 2, -d / 2 + Math.min(9, d / 3)); ctx.closePath(); ctx.fill();      // the corner mark: this one is yours
     if (z >= 5.5 && it.k !== 'floor') { const ps = myPorts(it), a = Math.max(3.5, Math.min(6.5, w / 5, d / 5));
@@ -1884,7 +2275,7 @@ function drawMy(ctx, s, z, X, Y, inb, LBL){
         ctx.moveTo(x + nx * dd * a, y + ny * dd * a); ctx.lineTo(bx - ny * a * .8, by + nx * a * .8); ctx.lineTo(bx + ny * a * .8, by - nx * a * .8); ctx.closePath(); ctx.fill(); ctx.stroke(); }); }
     if (on && edit.on) { const hy = -d / 2 - 16; ctx.strokeStyle = '#fa9549'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, -d / 2); ctx.lineTo(0, hy); ctx.stroke(); ctx.beginPath(); ctx.arc(0, hy, 6, 0, 7); ctx.fillStyle = '#fa9549'; ctx.fill(); ctx.strokeStyle = '#0b1118'; ctx.stroke(); }
     ctx.restore();
-    if (z >= (it.k === 'floor' ? 5 : 6.25) && Math.max(w, d) > 34) LBL.push([on ? 4 : it.k === 'floor' ? 2.5 : 2, it.n + (it.locked ? ' · locked' : ''), px, py + 4, on ? { bg: '#fa9549', col: '#1d1300' } : it.k === 'floor' ? { bg: 'rgba(16,22,31,.9)' } : { max: Math.max(30, Math.max(w, d) - 6) }]);
+    if (z >= (it.k === 'floor' ? 5 : 6.25) && Math.max(w, d) > 34) LBL.push([on ? 4 : it.k === 'floor' ? 2.5 : 2, it.n + (it.lv > 0.1 ? ' · +' + (+it.lv.toFixed(1)) + ' m' : '') + (it.locked ? ' · locked' : ''), px, py + 4, on ? { bg: '#fa9549', col: '#1d1300' } : it.k === 'floor' ? { bg: 'rgba(16,22,31,.9)' } : { max: Math.max(30, Math.max(w, d) - 6) }]);
   });
 }
 // ---- picking up, moving and turning with the mouse
@@ -1892,12 +2283,17 @@ function myDragStart(e){
   if (!edit.on || !planOn || !MY || (e.originalEvent && e.originalEvent.button !== 0)) return;
   const x = e.latlng.lng, y = -e.latlng.lat, s = view ? view.s : 1; let mode = 'move', lead = null, guide = null;
   if (sel && sel.kind === 'my' && myShown(sel.it)) { const h = myHandle(sel.it, s); if (Math.hypot(h[0] - x, h[1] - y) < 10 / s) { mode = 'turn'; lead = sel.it; } }
-  if (!lead) { const mh = myHitAt(x, y, s); if (mh) lead = mh.it; else guide = guideHitAt(x, y, s); }
+  if (edit.tool) return;                                  // a line is being drawn: clicks are its corners
+  if (!lead && sel && sel.kind === 'myline') { const ln = sel.ln, vi = ln.pts.findIndex(p => Math.hypot(p[0] - x, p[1] - y) < 9 / s); if (vi >= 0) { map.dragging.disable(); edit.drag = { mode: 'vertex', ln, vi, x0: x, y0: y, px: e.containerPoint, moved: false, before: snapNow(), shift: false }; return; } }
+  if (!lead) { const mh = myHitAt(x, y, s); if (mh) lead = mh.it; else { const lh = myLineAt(x, y, s); if (lh) { map.dragging.disable(); edit.drag = { mode: 'line', ln: lh.ln, pts0: lh.ln.pts.map(p => p.slice()), x0: x, y0: y, px: e.containerPoint, moved: false, before: snapNow() }; return; } guide = guideHitAt(x, y, s); } }
   if (!lead && !guide) return;
   map.dragging.disable(); edit.drag = { mode, lead, guide, x0: x, y0: y, px: e.containerPoint, moved: false, before: snapNow(), alone: !!(e.originalEvent && e.originalEvent.shiftKey), group: null, a0: lead ? lead.yaw || 0 : 0 };
 }
 function myDragMove(e){
-  const g = edit.drag; if (!g) return; const x = e.latlng.lng, y = -e.latlng.lat;
+  const g = edit.drag; if (!g) { if (edit.tool) myLineHover(e); return; } const x = e.latlng.lng, y = -e.latlng.lat;
+  if (g.mode === 'vertex' || g.mode === 'line') { if (!g.moved && Math.hypot(e.containerPoint.x - g.px.x, e.containerPoint.y - g.px.y) < 4) return; g.moved = true;
+    if (g.mode === 'vertex') g.ln.pts[g.vi] = myLinePoint(g.ln.t, x, y, false, null); else { const p = edit.snap === 'grid' ? [Math.round((x - g.x0) * 2) / 2, Math.round((y - g.y0) * 2) / 2] : [x - g.x0, y - g.y0]; g.ln.pts = g.pts0.map(q => [+(q[0] + p[0]).toFixed(2), +(q[1] + p[1]).toFixed(2)]); }
+    redraw(); return; }
   if (!g.moved) { if (Math.hypot(e.containerPoint.x - g.px.x, e.containerPoint.y - g.px.y) < 4) return; g.moved = true;
     if (!g.lead) { g.lead = myAdd(fromGuide(g.guide)); g.a0 = g.lead.yaw || 0; }
     const riders = g.lead.k === 'floor' && !g.alone ? myRiders(g.lead) : []; g.group = [g.lead].concat(riders).map(it => ({ it, x: it.x, y: it.y, yaw: it.yaw || 0 }));
@@ -1912,7 +2308,8 @@ function myDragMove(e){
 function myDragEnd(){
   const g = edit.drag; if (!g) return; edit.drag = null; map.dragging.enable();
   if (!g.moved) return;                                   // a plain click: the map's own click picks it
-  edit.skipClick = Date.now(); myCommit(g.before); sel = myObj(g.lead); select(sel);
+  edit.skipClick = Date.now(); if (g.mode === 'vertex' || g.mode === 'line') { myCommit(g.before); sel = { kind: 'myline', ln: g.ln, x: g.ln.pts[0][0], y: g.ln.pts[0][1] }; select(sel); return; }
+  myCommit(g.before); sel = myObj(g.lead); select(sel);
 }
 map.on('mousedown', myDragStart); map.on('mousemove', myDragMove); document.addEventListener('mouseup', myDragEnd);
 // ---- what the buttons and keys do to the picked piece
@@ -1923,10 +2320,11 @@ function myTarget(){                                      // the picked piece as
 }
 function myDo(what, arg){
   if (!MY) return false; const before = snapNow(), it = myTarget(); if (!it) return false;
-  const group = it.k === 'floor' && what !== 'copy' && what !== 'del' && what !== 'set' ? [it].concat(myRiders(it)) : [it];
+  const group = it.k === 'floor' && what !== 'copy' && what !== 'del' && what !== 'set' && what !== 'up' && what !== 'back' ? [it].concat(myRiders(it)) : [it];
   if (what === 'turn') { const da = rad(arg), cx = it.x, cy = it.y; group.forEach(q => { const rx = q.x - cx, ry = q.y - cy; q.x = +(cx + rx * Math.cos(da) - ry * Math.sin(da)).toFixed(3); q.y = +(cy + rx * Math.sin(da) + ry * Math.cos(da)).toFixed(3); q.yaw = norm360((q.yaw || 0) + arg); }); }
   else if (what === 'nudge') group.forEach(q => { q.x = +(q.x + arg[0]).toFixed(3); q.y = +(q.y + arg[1]).toFixed(3); });
-  else if (what === 'set') { if (isFinite(arg.x)) it.x = +arg.x; if (isFinite(arg.y)) it.y = +arg.y; if (isFinite(arg.yaw)) it.yaw = norm360(+arg.yaw); }
+  else if (what === 'set') { if (isFinite(arg.x)) it.x = +arg.x; if (isFinite(arg.y)) it.y = +arg.y; if (isFinite(arg.yaw)) it.yaw = norm360(+arg.yaw); if (isFinite(arg.lv)) it.lv = Math.max(0, +(+arg.lv).toFixed(2)); }
+  else if (what === 'up') { const c = Object.assign({}, it, { src: null, hall: null, n: it.n.replace(/ · upper floor$/, '') + ' · upper floor', sub: 'a floor above: a roof, or the next storey', st: 1, un: 0, lv: +((it.lv || 0) + 5).toFixed(2) }); delete c.id; sel = myObj(myAdd(c)); }
   else if (what === 'copy') { const c = Object.assign({}, it, { src: null, hall: null, sub: 'copy of ' + it.n, st: 1, un: 0 }); delete c.id; const off = Math.max(it.sx, 2) + 2, a = rad(it.yaw || 0), p = mySnap(c, it.x + off * Math.cos(a), it.y + off * Math.sin(a)); c.x = p[0]; c.y = p[1]; sel = myObj(myAdd(c)); }
   else if (what === 'del') { if (it.src) { it.hide = true; toast(esc(it.n) + ' is out of your plan. The guide still has it: Your changes, in the Plan panel, brings it back.', 5200); } else MY.items = MY.items.filter(q => q !== it); sel = null; $('card').hidden = true; }
   else if (what === 'back') { MY.items = MY.items.filter(q => q !== it); sel = null; $('card').hidden = true; }
@@ -1938,6 +2336,9 @@ function editKey(e){                                      // true when the key w
   if (mod && (k === 'y' || k === 'Y')) { if (!edit.on) return false; myUndo(true); return true; }
   if (!edit.on || e.altKey && !/^Arrow/.test(k)) return false;
   if (mod) { if (k === 'd' || k === 'D') return myDo('copy'); return false; }
+  if (edit.tool) { if (k === 'Enter') { myLineEnd(); return true; } if (k === 'Backspace') { if (edit.line && edit.line.pts.length) { edit.line.pts.pop(); if (!edit.line.pts.length) edit.line = null; redraw(); } return true; } }
+  if (k === 'b' || k === 'B') { myTool(edit.tool === 'belt' ? '' : 'belt'); return true; } if (k === 'p' || k === 'P') { myTool(edit.tool === 'pipe' ? '' : 'pipe'); return true; } if (k === 'l' || k === 'L') { myTool(edit.tool === 'power' ? '' : 'power'); return true; } if (k === 'v' || k === 'V') { myTool(''); return true; }
+  if (sel && sel.kind === 'myline') { if (k === 'Delete' || k === 'Backspace') return myLineDo('del'); return false; }
   if (k === 'g' || k === 'G') { mySetSnap(edit.snap === 'grid' ? 'free' : 'grid'); return true; }
   const picked = sel && (sel.kind === 'my' || sel.kind === 'pm' || sel.kind === 'place' || sel.kind === 'floor'); if (!picked) return false;
   if (k === 'r' || k === 'R') return myDo('turn', e.shiftKey ? -90 : 90);
@@ -1952,24 +2353,27 @@ function myCard(it){
   const g = myGuide(it), sq = q90(it.yaw || 0), one = v => (+(+v).toFixed(2)) + '';
   let body = (it.k === 'mark' ? '' : '<p>' + one(it.sx) + ' by ' + one(it.sy) + ' m' + (it.b ? ', the game\'s own size' : '') + '.' + (it.locked ? ' <b>Locked</b> in your world for now: it can be planned, not yet built.' : '') + '</p>')
     + (myBuilt[it.id] ? '<p class="tagok">Built: one stands here.</p>' : '')
-    + '<div class="myform"><label>x<input type="text" id="my-x" inputmode="decimal" value="' + one(it.x) + '"></label><label>y<input type="text" id="my-y" inputmode="decimal" value="' + one(it.y) + '"></label>' + (it.k === 'mark' ? '' : '<label>turned<input type="text" id="my-a" inputmode="decimal" value="' + one(it.yaw || 0) + '"></label>') + '<button type="button" class="btn" data-act="my-set">Set</button></div>'
-    + (it.k !== 'mark' && !sq ? '<p>Turned to ' + one(it.yaw) + '°. The map holds any angle. Whether the game\'s outline (F9) and its snap (F6) follow an angle that is not a quarter turn has not been checked yet.</p>' : '')
+    + '<div class="myform"><label>x<input type="text" id="my-x" inputmode="decimal" value="' + one(it.x) + '"></label><label>y<input type="text" id="my-y" inputmode="decimal" value="' + one(it.y) + '"></label>' + (it.k === 'mark' ? '' : '<label>turned<input type="text" id="my-a" inputmode="decimal" value="' + one(it.yaw || 0) + '"></label><label>level m<input type="text" id="my-lv" inputmode="decimal" value="' + one(it.lv || 0) + '"></label>') + '<button type="button" class="btn" data-act="my-set">Set</button></div>'
+    + (myBad[it.id] ? '<p style="color:#ff8a8a"><b>Overlaps</b> ' + esc(myBad[it.id]) + '.</p>' : '') + (it.lv > 0.1 ? '<p>' + (it.k === 'floor' ? 'Its surface is ' : 'Stands ') + one(it.lv) + ' m above the ground level of the plan.' + (myChk && myChk.unsupported.indexOf(it.id) >= 0 ? ' <b>No floor of the plan is under it at that height.</b>' : '') + ' The game draws its outline on the ground until a later SatMap knows levels.</p>' : '')
+    + (it.k !== 'mark' && !sq ? '<p>Turned to ' + one(it.yaw) + '°. ' + (it.b && it.k !== 'floor' ? 'In the game F9 draws its outline at exactly this angle and F6 turns the building to it; whether the game keeps such an angle once the building is held there has not been seen yet.' : 'In the game its outline is drawn upright for now: SatMap turns outlines of buildings, not yet of floors and places.') + '</p>' : '')
     + (it.k === 'floor' ? '<p>Moving or turning a floor takes what stands on it along. Hold Shift while dragging to move the floor alone.</p>' : '')
     + (g ? '<p>The guide has this ' + (it.k === 'mark' ? 'at ' : 'with its middle at ') + one(g._k.charAt(0) === 'm' ? g[3] + g[5] / 2 : g.x + g.w / 2) + ', ' + one(g._k.charAt(0) === 'm' ? g[4] + g[6] / 2 : g.y + (g.h || 0) / 2) + '.</p>' : '');
   const btn = (act, text) => '<button type="button" class="btn" data-act="' + act + '">' + text + '</button>';
-  return { title: it.n, sub: 'Your plan · ' + myWhat(it) + (it.sub ? ' · ' + it.sub : ''), body, acts: (it.k === 'mark' ? [] : [btn('my-l', '↺ 90°'), btn('my-r', '↻ 90°')]).concat([btn('my-copy', 'Copy'), it.src ? btn('my-back', 'Back to the guide\'s') : '', btn('my-del', it.src ? 'Take out' : 'Delete')]) };
+  return { title: it.n, sub: 'Your plan · ' + myWhat(it) + (it.sub ? ' · ' + it.sub : ''), body, acts: (it.k === 'mark' ? [] : [btn('my-l', '↺ 90°'), btn('my-r', '↻ 90°')]).concat([it.k === 'floor' ? btn('my-up', 'Floor above') : '', btn('my-copy', 'Copy'), it.src ? btn('my-back', 'Back to the guide\'s') : '', btn('my-del', it.src ? 'Take out' : 'Delete')]) };
 }
 function myCardAct(a){
   if (a === 'my-l') myDo('turn', -90); else if (a === 'my-r') myDo('turn', 90); else if (a === 'my-copy') myDo('copy'); else if (a === 'my-del') myDo('del'); else if (a === 'my-back') myDo('back');
-  else if (a === 'my-set') myDo('set', { x: parseFloat($('my-x').value), y: parseFloat($('my-y').value), yaw: $('my-a') ? parseFloat($('my-a').value) : NaN });
+  else if (a === 'my-set') myDo('set', { x: parseFloat($('my-x').value), y: parseFloat($('my-y').value), yaw: $('my-a') ? parseFloat($('my-a').value) : NaN, lv: $('my-lv') ? parseFloat($('my-lv').value) : NaN });
+  else if (a === 'my-up') { myDo('up'); toast('A floor above this one, its surface 5 m up: 4 m of wall and the floor itself. Change "level" in its card for another height.', 5200); } else if (a === 'my-ldel') myLineDo('del'); else if (a === 'my-lrev') myLineDo('rev');
   else return false; return true;
 }
 // ---- the panel: the switch, the list of your changes, adding from the game's own list, files
 function mySetSnap(v){ edit.snap = v; store.set('howson-map-mysnap', v); document.querySelectorAll('#my-snap button').forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-snap') === v ? 'true' : 'false')); myBar(); toast(v === 'grid' ? 'On the grid: half metres, floors on the 8 m grid, turns in steps of 15°' : 'Free: where you drop it, at any angle'); }
 function mySetEdit(v){ edit.on = !!v; $('my-edit').checked = edit.on; document.body.classList.toggle('editing', edit.on); myBar(); redraw(); if (edit.on && !planOn) { $('plan').checked = true; $('plan').dispatchEvent(new Event('change')); } }
-function myBar(){ const b = $('editbar'); if (!b) return; b.hidden = !edit.on; if (!edit.on) return; $('eb-snap').textContent = edit.snap === 'grid' ? 'On the grid' : 'Free'; $('eb-undo').disabled = !edit.undo.length; $('eb-redo').disabled = !edit.redo.length; $('my-undo').disabled = !edit.undo.length; $('my-redo').disabled = !edit.redo.length; }
+function myBar(){ const b = $('editbar'); if (!b) return; b.hidden = !edit.on; if (!edit.on) return; $('eb-snap').textContent = edit.snap === 'grid' ? 'On the grid' : 'Free'; document.querySelectorAll('#editbar [data-tool]').forEach(t => t.setAttribute('aria-pressed', t.getAttribute('data-tool') === edit.tool ? 'true' : 'false')); $('eb-undo').disabled = !edit.undo.length; $('eb-redo').disabled = !edit.redo.length; $('my-undo').disabled = !edit.undo.length; $('my-redo').disabled = !edit.redo.length; }
 function myList(){
-  const box = $('my-list'); if (!box) return; box.innerHTML = ''; const n = MY.items.length; $('my-count').textContent = n ? n + (n === 1 ? ' change' : ' changes') : '';
+  const box = $('my-list'); if (!box) return; box.innerHTML = ''; const n = MY.items.length + MY.lines.length; $('my-count').textContent = n ? n + (n === 1 ? ' change' : ' changes') : ''; myLevels();
+  MY.lines.slice().reverse().forEach(ln => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(ln.n) + '</span><em>' + Math.round(myLineLen(ln)) + ' m</em>'; b.replaceChild(mini(icon('#1c6e66', ln.t === 'power' ? 'pole' : 'arrow', 's')), b.querySelector('i')); b.addEventListener('click', () => select({ kind: 'myline', ln, x: ln.pts[0][0], y: ln.pts[0][1] }, true)); box.appendChild(b); });
   if (!n) { box.innerHTML = '<div class="none">Nothing yet. Switch Edit on and drag anything in the plan, or add a building below.</div>'; return; }
   MY.items.slice().reverse().slice(0, 80).forEach(it => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(it.n) + '</span><em>' + (it.hide ? 'removed · bring back' : !it.src ? 'added' : 'moved') + '</em>'; if (it.hide) b.style.opacity = '.6';
     b.replaceChild(mini(icon(it.hide ? '#566273' : '#1c6e66', it.k === 'floor' ? 'hub' : it.k === 'mark' ? 'flag' : bglyph(it.n), 's')), b.querySelector('i'));
@@ -1979,41 +2383,136 @@ function myList(){
 function myCatReady(){                                    // the game's own list of every building (SatMap's catalogue), read once; without a game, the plan's own machines
   if (CATLIST) return CATLIST; const list = [], byName = {};
   if (CAT) Object.keys(CAT).forEach(c => { const b = CAT[c], so = b.solid && b.solid.box && b.solid.box[0] > 0 ? b.solid.box : null, sz = b.hard && b.hard[0] > 0 ? [b.hard[0], b.hard[1], b.size ? b.size[2] : 400] : b.size && b.size[0] > 0 ? b.size : so ? [so[0], so[1], so[2]] : null;
-    if (!b.n || b.part) return; const e = { n: b.n, c, cat: b.cat || '', sub: b.sub || '', kind: b.kind || 'other', size: sz ? [sz[0] / 100, sz[1] / 100, (sz[2] || 400) / 100] : null, ports: b.ports || null, hard: b.hard || null, centre: b.centre || null, unlocked: b.unlocked, waits: b.waits || '' }; list.push(e); if (!byName[nk(b.n)] || (e.size && !byName[nk(b.n)].size)) byName[nk(b.n)] = e; });
+    if (!b.n || b.part || !b.recipe) return; const e = { n: b.n, c, cat: b.cat || '', sub: b.sub || '', kind: b.kind || 'other', size: sz ? [sz[0] / 100, sz[1] / 100, (sz[2] || 400) / 100] : null, ports: b.ports || null, hard: b.hard || null, centre: b.centre || null, cost: b.cost || null, unlocked: UNL ? !!UNL[c] : typeof b.unlocked === 'boolean' ? b.unlocked : undefined, waits: WAITS && WAITS.c[c] !== undefined ? WAITS.w[WAITS.c[c]] : b.waits || '' }; list.push(e); if (!byName[nk(b.n)] || (e.size && !byName[nk(b.n)].size)) byName[nk(b.n)] = e; });
   else Object.keys(PLAN.size).forEach(n => { if (/Mk\.\d/.test(n) && PLAN.size[n.replace(/Mk\.(\d)/, 'Mk$1')] === PLAN.size[n]) return; const e = { n, c: '', cat: 'The plan\'s machines', sub: '', kind: 'machine', size: [PLAN.size[n][0], PLAN.size[n][1], 4], ports: null }; list.push(e); byName[nk(n)] = e; });
   list.sort((a, b) => a.n < b.n ? -1 : a.n > b.n ? 1 : 0); const out = { list, byName, game: !!CAT, knows: list.some(e => typeof e.unlocked === 'boolean') }; if (CAT) CATLIST = out; return out;
 }
 function mySearch(){
   const q = $('my-q').value.trim().toLowerCase(), box = $('my-hits'), cl = myCatReady(); box.innerHTML = '';
   $('my-locked-row').hidden = !cl.knows;
-  $('my-q-note').textContent = cl.game ? cl.list.length.toLocaleString() + ' buildings from your game, every mod included.' + (cl.knows ? '' : ' The game does not say yet which of them your world has unlocked, so all are shown.') : 'Without a game on the line only the plan\'s own machines can be added. With SatMap running, the game\'s whole list is here.';
-  if (!q) return; const words = q.split(/\s+/), hit = cl.list.filter(e => { if (cl.knows && !edit.locked && e.unlocked === false) return false; const hay = (e.n + ' ' + e.cat + ' ' + e.sub).toLowerCase(); return words.every(w => hay.indexOf(w) >= 0); });
-  hit.sort((a, b) => (a.n.toLowerCase().indexOf(q) === 0 ? 0 : 1) - (b.n.toLowerCase().indexOf(q) === 0 ? 0 : 1) || (a.size ? 0 : 1) - (b.size ? 0 : 1));
-  hit.slice(0, 40).forEach(e => { const b = document.createElement('button'), lock = e.unlocked === false; b.type = 'button';
+  $('my-q-note').textContent = cl.game ? cl.list.length.toLocaleString() + ' buildings from your game, every mod included' + (cl.knows ? ': ' + cl.list.filter(e => e.unlocked !== false).length.toLocaleString() + ' unlocked in your world.' : '. Which of them your world has unlocked is not known (that needs SatMap 3.6.1 or newer on the game the map reads), so all are shown.') : 'Without a game on the line only the plan\'s own machines can be added. With SatMap running, the game\'s whole list is here.';
+  if (!q && !edit.cat) { if (cl.game) { const by = {}; cl.list.forEach(e => { if (cl.knows && !edit.locked && e.unlocked === false) return; by[e.cat || 'Other'] = (by[e.cat || 'Other'] || 0) + 1; }); Object.keys(by).sort().forEach(c => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(c) + '</span><em>' + by[c] + '</em>'; b.replaceChild(mini(icon('#2b3a4d', 'hub', 's')), b.querySelector('i')); b.addEventListener('click', () => { edit.cat = c; mySearch(); }); box.appendChild(b); }); } return; }
+  if (edit.cat) { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>← ' + esc(edit.cat) + '</span><em>all tabs</em>'; b.replaceChild(mini(icon('#2b3a4d', 'arrow', 's')), b.querySelector('i')); b.addEventListener('click', () => { edit.cat = ''; mySearch(); }); box.appendChild(b); }
+  const words = q ? q.split(/\s+/) : [], hit = cl.list.filter(e => { if (cl.knows && !edit.locked && e.unlocked === false) return false; if (edit.cat && (e.cat || 'Other') !== edit.cat) return false; const hay = (e.n + ' ' + e.cat + ' ' + e.sub).toLowerCase(); return words.every(w => hay.indexOf(w) >= 0); });
+  const rank = e => { const n = e.n.toLowerCase(); return !q ? 0 : n === q ? 0 : n.indexOf(q) === 0 ? 1 : 2; };      // the name itself first, then names that begin with it; what can be built before what is locked
+  hit.sort((a, b) => rank(a) - rank(b) || (a.unlocked === false ? 1 : 0) - (b.unlocked === false ? 1 : 0) || (q ? 0 : a.sub < b.sub ? -1 : a.sub > b.sub ? 1 : 0) || (a.size ? 0 : 1) - (b.size ? 0 : 1) || (a.n < b.n ? -1 : a.n > b.n ? 1 : 0));
+  hit.slice(0, edit.cat ? 120 : 40).forEach(e => { const b = document.createElement('button'), lock = e.unlocked === false; b.type = 'button';
     b.innerHTML = '<i></i><span>' + esc(e.n) + (lock ? ' · locked' : '') + '</span><em>' + esc(e.size ? (+e.size[0].toFixed(1)) + ' × ' + (+e.size[1].toFixed(1)) + ' m' : 'size not known') + '</em><small>' + esc([e.cat, e.sub].filter(Boolean).join(' · ') + (lock && e.waits ? ' · waits for ' + e.waits : '')) + '</small>';
     b.replaceChild(mini(icon(lock ? '#566273' : '#1c6e66', e.kind === 'floor' ? 'hub' : bglyph(e.n), 's')), b.querySelector('i')); b.addEventListener('click', () => myPlace(e)); box.appendChild(b); });
-  if (!hit.length) box.innerHTML = '<div class="none">Nothing by that name.</div>'; else if (hit.length > 40) { const d = document.createElement('div'); d.className = 'none'; d.textContent = (hit.length - 40) + ' more: type more of the name'; box.appendChild(d); }
+  const cap = edit.cat ? 120 : 40; if (!hit.length) box.insertAdjacentHTML('beforeend', '<div class="none">Nothing by that name' + (cl.knows && !edit.locked ? ' that is unlocked. Tick the box above to see what is still locked' : '') + '.</div>'); else if (hit.length > cap) { const d = document.createElement('div'); d.className = 'none'; d.textContent = (hit.length - cap) + ' more: type more of the name'; box.appendChild(d); }
 }
 function myPlace(e){                                       // a new piece in the middle of the view, at the game's own size, picked and ready to drag
   const before = snapNow(), c = map.getCenter(), sz = e.size || [1, 1, 1], it = { src: null, k: e.kind === 'floor' ? 'floor' : 'machine', n: e.n, b: e.n, cls: e.c || undefined, sub: [e.cat, e.sub].filter(Boolean).join(' · '), x: 0, y: 0, sx: sz[0], sy: sz[1], h: sz[2], yaw: 0, lv: 0, st: 1 };
-  if (!e.size) it.nosize = true; if (e.unlocked === false) it.locked = true; const p = mySnap(it, c.lng, -c.lat); it.x = p[0]; it.y = p[1]; myAdd(it);
+  if (!e.size) it.nosize = true; if (e.unlocked === false) it.locked = true; if (e.cost) it.cost = e.cost; if (edit.level) it.lv = edit.level; const p = mySnap(it, c.lng, -c.lat); it.x = p[0]; it.y = p[1]; myAdd(it);
   if (!edit.on) mySetEdit(true); myCommit(before); sel = myObj(it); select(sel); if (map.getZoom() < 6) map.setView(ll(it.x, it.y), 6.5);
   toast('Added ' + esc(it.n) + (e.size ? '' : '. The game gives no size for it, so it is drawn 1 by 1 m') + '. Drag it where it goes.', 4200);
 }
-function myFile(){ return { kind: 'satmap-plan', v: 1, name: MY.name || 'My plan', made: new Date().toISOString(), base: 'Satisfactory Plus', items: MY.items }; }
+function myFile(){ return { kind: 'satmap-plan', v: 1, name: MY.name || 'My plan', made: new Date().toISOString(), base: 'Satisfactory Plus', items: MY.items, lines: MY.lines }; }
 function myTake(doc){                                      // a plan from a file or from pasted text: it replaces yours, and Undo brings yours back
   if (!doc || doc.kind !== 'satmap-plan' || !Array.isArray(doc.items)) { toast('That is not a SatMap plan file.', 4200); return false; }
   const ok = doc.items.filter(it => it && typeof it.n === 'string' && isFinite(it.x) && isFinite(it.y) && (it.k === 'mark' || (it.sx > 0 && it.sy > 0))).slice(0, 4000), before = snapNow();
-  MY.items = ok.map((it, i) => ({ id: 'u' + (i + 1), src: typeof it.src === 'string' ? it.src : null, hide: !!it.hide, k: /^(machine|place|floor|mark)$/.test(it.k) ? it.k : 'machine', n: it.n.slice(0, 120), b: typeof it.b === 'string' ? it.b.slice(0, 120) : null, hall: typeof it.hall === 'string' ? it.hall : null, sub: typeof it.sub === 'string' ? it.sub.slice(0, 160) : '', c: /^#[0-9a-f]{3,8}$/i.test(it.c || '') ? it.c : undefined, i: typeof it.i === 'string' ? it.i.slice(0, 20) : undefined, st: it.st > 0 ? +it.st : 1, un: it.un > 0 ? +it.un : 0, x: +it.x, y: +it.y, sx: +it.sx || 0, sy: +it.sy || 0, yaw: norm360(+it.yaw || 0), h: +it.h || 4, lv: +it.lv || 0, locked: !!it.locked }));
-  MY.seq = MY.items.length; MY.name = typeof doc.name === 'string' ? doc.name.slice(0, 80) : 'My plan'; sel = null; $('card').hidden = true; myCommit(before);
-  toast('Loaded "' + esc(MY.name) + '": ' + MY.items.length + ' pieces' + (doc.items.length > ok.length ? ', ' + (doc.items.length - ok.length) + ' left out as not readable' : '') + '. Undo brings your own back.', 5200); return true;
+  MY.items = ok.map((it, i) => ({ id: 'u' + (i + 1), src: typeof it.src === 'string' ? it.src : null, hide: !!it.hide, k: /^(machine|place|floor|mark)$/.test(it.k) ? it.k : 'machine', n: it.n.slice(0, 120), b: typeof it.b === 'string' ? it.b.slice(0, 120) : null, hall: typeof it.hall === 'string' ? it.hall : null, sub: typeof it.sub === 'string' ? it.sub.slice(0, 160) : '', c: /^#[0-9a-f]{3,8}$/i.test(it.c || '') ? it.c : undefined, i: typeof it.i === 'string' ? it.i.slice(0, 20) : undefined, st: it.st > 0 ? +it.st : 1, un: it.un > 0 ? +it.un : 0, x: +it.x, y: +it.y, sx: +it.sx || 0, sy: +it.sy || 0, yaw: norm360(+it.yaw || 0), h: +it.h || 4, lv: +it.lv || 0, locked: !!it.locked, cls: typeof it.cls === 'string' ? it.cls.slice(0, 120) : undefined, cost: Array.isArray(it.cost) ? it.cost.filter(c => Array.isArray(c) && typeof c[0] === 'string' && isFinite(c[1])).slice(0, 12) : undefined }));
+  MY.lines = (Array.isArray(doc.lines) ? doc.lines : []).filter(l => l && /^(belt|pipe|power)$/.test(l.t) && Array.isArray(l.pts) && l.pts.length >= 2 && l.pts.every(p => Array.isArray(p) && isFinite(p[0]) && isFinite(p[1]))).slice(0, 1000).map((l, i) => ({ id: 'l' + (i + 1), t: l.t, n: typeof l.n === 'string' ? l.n.slice(0, 80) : l.t, pts: l.pts.slice(0, 200).map(p => [+p[0], +p[1]]), lv: +l.lv || 0 }));
+  MY.seq = MY.items.length + MY.lines.length; MY.name = typeof doc.name === 'string' ? doc.name.slice(0, 80) : 'My plan'; sel = null; $('card').hidden = true; myCommit(before);
+  toast('Loaded "' + esc(MY.name) + '": ' + MY.items.length + ' pieces' + (MY.lines.length ? ' and ' + MY.lines.length + ' lines' : '') + (doc.items.length > ok.length ? ', ' + (doc.items.length - ok.length) + ' left out as not readable' : '') + '. Undo brings your own back.', 5200); return true;
 }
 function myGhosts(boxes, cm){                              // your pieces in the plan the game is sent: the box round the piece for older builds, and its middle, own size and exact turn beside it
   MY.items.forEach(it => { if (!myShown(it)) return; const sq = q90(it.yaw || 0), yq = norm360(Math.round((it.yaw || 0) / 90) * 90), t = sq && yq % 180 !== 0, wx = t ? it.sy : it.sx, wy = t ? it.sx : it.sy;
     const o = { id: myId(it), n: it.n, sub: 'Your plan' + (it.sub ? ' · ' + it.sub : ''), k: it.k, x: cm(it.x - wx / 2), y: cm(it.y - wy / 2), w: cm(wx), d: cm(wy), h: it.k === 'floor' || it.k === 'mark' ? 0 : cm(it.h || 4), yaw: sq ? yq : it.yaw, c: it.k === 'floor' ? '#35d07f' : MYCOL, z: null, cx: cm(it.x), cy: cm(it.y), sx: cm(it.sx), sy: cm(it.sy) };
-    if (it.b && it.k !== 'floor') o.b = it.b; if (!sq) o.free = true; boxes.push(o); });
+    if (it.b && it.k !== 'floor') o.b = it.b; if (!sq) o.free = true; if (it.lv > 0.1) o.lv = cm(it.lv); boxes.push(o); });
 }
 function myMatch(everything){ myBuilt = {}; if (!MY || !everything) return; MY.items.forEach(it => { if (!it.b || it.hide) return; const want = nk(it.b); myBuilt[it.id] = everything.some(b => Math.hypot(b.x - it.x, b.y - it.y) < 5 && nk(b.n).indexOf(want) >= 0); }); }
+// ---- stage 2: levels
+const myOnLevel = it => edit.level === null || Math.abs((it.lv || 0) - edit.level) < 0.3;
+function myLevels(){                                       // the levels your plan uses, for the picker; the guide's plan is all on the ground
+  const el = $('my-level'); if (!el) return; const lv = PlanCheck.levels(MY.items.filter(it => !it.hide).concat([{ id: 'g', k: 'floor', lv: 0 }])), keep = edit.level;
+  el.innerHTML = '<option value="">All levels</option>' + lv.map(l => '<option value="' + l.lv + '">' + (l.lv < 0.05 ? 'The ground' : '+' + l.lv + ' m') + '</option>').join('');
+  if (keep !== null && lv.some(l => Math.abs(l.lv - keep) < 0.3)) el.value = String(lv.filter(l => Math.abs(l.lv - keep) < 0.3)[0].lv); else { el.value = ''; edit.level = null; }
+  $('my-level-row').hidden = lv.length < 2;
+}
+// ---- stage 2: belts, pipes and power lines of your own.  A line is its corners in metres; drawn corner by corner with the tool on.
+const LINECOL = { belt: '#ffb02e', pipe: '#49b8ff', power: '#e07bff' }, LINENAME = { belt: 'Belt', pipe: 'Pipe', power: 'Power line' };
+const myLineLen = ln => { let d = 0; for (let i = 1; i < ln.pts.length; i++) d += Math.hypot(ln.pts[i][0] - ln.pts[i - 1][0], ln.pts[i][1] - ln.pts[i - 1][1]); return d; };
+function myPortList(kind, x, y, reach){                    // the ports of that kind near a point, in the world: yours, and the guide's machines and buildings
+  const out = [], take = it => { if (Math.hypot(it.x - x, it.y - y) > reach + Math.hypot(it.sx || 0, it.sy || 0) / 2) return; const ps = myPorts(it); if (!ps) return; const a = rad(it.yaw || 0), co = Math.cos(a), si = Math.sin(a);
+    ps.forEach(p => { if ((kind === 'power') !== (p[2] === 'power') || (kind === 'pipe') !== (p[2] === 'pipe')) return; out.push([it.x + p[0] * co - p[1] * si, it.y + p[0] * si + p[1] * co, p[3]]); }); };
+  MY.items.forEach(it => { if (!it.hide && it.b) take(it); });
+  PLAN.mach.forEach((m, i) => { if (Math.abs(m[3] - x) < reach + 30 && Math.abs(m[4] - y) < reach + 30 && hallOn(hallOf[m[0]])) take(fromGuide({ kind: 'pm', m, i })); });
+  PLAN.places.forEach(p => { if (p.w && p.st <= stage && Math.abs(p.x - x) < reach + 30 && Math.abs(p.y - y) < reach + 30) { const it = fromGuide({ kind: 'place', p }); if (it.b) take(it); } });
+  return out;
+}
+function myLinePoint(t, x, y, straight, prev){             // where a corner lands: on a port of its kind within 2 m, else on the grid or free; Shift keeps it level with the corner before
+  let best = null, bd = 2; myPortList(t, x, y, 2).forEach(p => { const d = Math.hypot(p[0] - x, p[1] - y); if (d < bd) { bd = d; best = p; } });
+  if (best) return [+best[0].toFixed(2), +best[1].toFixed(2), 1];
+  let px = edit.snap === 'grid' ? Math.round(x * 2) / 2 : +x.toFixed(2), py = edit.snap === 'grid' ? Math.round(y * 2) / 2 : +y.toFixed(2);
+  if (straight && prev) { if (Math.abs(px - prev[0]) >= Math.abs(py - prev[1])) py = prev[1]; else px = prev[0]; }
+  return [px, py];
+}
+function myTool(t){ edit.tool = t || ''; edit.line = null; edit.hover = null; if (edit.tool) { map.doubleClickZoom.disable(); if (!edit.on) mySetEdit(true); closeCard(); toast('Click the corners of the ' + LINENAME[edit.tool].toLowerCase() + ' one after another; it lands on a port when you are within 2 m of one. Double-click or Enter ends it, Esc drops it, Shift keeps it straight.', 6500); } else map.doubleClickZoom.enable(); document.body.classList.toggle('drawing', !!edit.tool); myBar(); redraw(); }
+function myLineClick(e){ const x = e.latlng.lng, y = -e.latlng.lat, sh = !!(e.originalEvent && e.originalEvent.shiftKey), ln = edit.line, p = myLinePoint(edit.tool, x, y, sh, ln ? ln.pts[ln.pts.length - 1] : null);
+  if (!ln) edit.line = { t: edit.tool, pts: [p] }; else { const q = ln.pts[ln.pts.length - 1]; if (Math.hypot(q[0] - p[0], q[1] - p[1]) > 0.2) ln.pts.push(p); } redraw(); }
+function myLineHover(e){ const ln = edit.line, x = e.latlng.lng, y = -e.latlng.lat; edit.hover = myLinePoint(edit.tool, x, y, !!(e.originalEvent && e.originalEvent.shiftKey), ln ? ln.pts[ln.pts.length - 1] : null); if (!edit.raf) edit.raf = requestAnimationFrame(() => { edit.raf = 0; redraw(); }); }
+function myLineEnd(){ const ln = edit.line; edit.line = null; edit.hover = null; if (!ln || ln.pts.length < 2) { redraw(); return; }
+  const before = snapNow(), n = MY.lines.filter(q => q.t === ln.t).length + 1, o = { id: 'l' + (++MY.seq), t: ln.t, n: LINENAME[ln.t] + ' ' + n, pts: ln.pts.map(p => [p[0], p[1]]), lv: edit.level || 0 }; MY.lines.push(o); myCommit(before); edit.skipClick = Date.now(); }
+function myToolEsc(){ if (!edit.tool) return false; if (edit.line) { edit.line = null; edit.hover = null; redraw(); } else myTool(''); return true; }
+function myLineAt(x, y, s){ if (!MY || !planOn || !planSet.routes) return null; const tol = 6 / s; for (let k = MY.lines.length - 1; k >= 0; k--) { const ln = MY.lines[k];
+    for (let i = 1; i < ln.pts.length; i++) { const ax = ln.pts[i - 1][0], ay = ln.pts[i - 1][1], bx = ln.pts[i][0], by = ln.pts[i][1], l2 = (bx - ax) * (bx - ax) + (by - ay) * (by - ay) || 1, t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / l2)); if (Math.hypot(ax + t * (bx - ax) - x, ay + t * (by - ay) - y) < tol) return { kind: 'myline', ln, x, y }; } }
+  return null; }
+function myLineDo(what){ if (!sel || sel.kind !== 'myline') return false; const before = snapNow(), ln = sel.ln; if (what === 'del') { MY.lines = MY.lines.filter(q => q !== ln); sel = null; $('card').hidden = true; } else if (what === 'rev') ln.pts.reverse(); myCommit(before); if (sel) select(sel); return true; }
+function myLineCard(ln){ const end = myChk && myChk.ends[ln.id], btn = (act, text) => '<button type="button" class="btn" data-act="' + act + '">' + text + '</button>';
+  return { title: ln.n, sub: 'Your plan · ' + LINENAME[ln.t].toLowerCase() + ' · ' + Math.round(myLineLen(ln)) + ' m, ' + ln.pts.length + ' corners', body: '<p>' + (ln.t === 'power' ? 'A power line from pole to pole or to a machine.' : 'Runs from its first corner to its last: the arrowheads show the way.') + ' Drag a corner to move it, drag the line to move all of it.</p>' + (end ? '<p style="color:#ffcf7a">' + esc(end) + '</p>' : '') + (ln.lv > 0.1 ? '<p>On the level +' + ln.lv + ' m.</p>' : ''), acts: (ln.t === 'power' ? [] : [btn('my-lrev', 'Turn it round')]).concat([btn('my-ldel', 'Delete')]) }; }
+function drawMyLines(ctx, s, z, X, Y, LBL){
+  if (!planSet.routes) return; const one = (ln, pts, on, ghost) => { if (pts.length < 2) return; const f = []; pts.forEach(p => { f.push(X(p[0]), Y(p[1])); }); ctx.globalAlpha = ghost ? .7 : edit.level === null || Math.abs((ln.lv || 0) - edit.level) < 0.3 ? 1 : .22;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.setLineDash([]); ctx.strokeStyle = 'rgba(8,12,18,.85)'; ctx.lineWidth = on ? 6.5 : 5; ctx.beginPath(); for (let i = 0; i < f.length; i += 2) { if (i) ctx.lineTo(f[i], f[i + 1]); else ctx.moveTo(f[i], f[i + 1]); } ctx.stroke();
+    ctx.strokeStyle = on ? '#fa9549' : LINECOL[ln.t]; ctx.lineWidth = on ? 3.4 : 2.6; ctx.setLineDash(ln.t === 'power' ? [2, 6] : [9, 5]); ctx.beginPath(); for (let i = 0; i < f.length; i += 2) { if (i) ctx.lineTo(f[i], f[i + 1]); else ctx.moveTo(f[i], f[i + 1]); } ctx.stroke(); ctx.setLineDash([]);
+    if (ln.t !== 'power' && z >= 5) { ctx.strokeStyle = '#0b1118'; ctx.lineWidth = 1.6; chevrons(ctx, f, 40, 3.2); }
+    ctx.fillStyle = MYCOL; ctx.strokeStyle = '#0b1118'; ctx.lineWidth = 1; pts.forEach((p, i) => { const k = on ? 4 : i === 0 || i === pts.length - 1 ? 3 : 0; if (k) { ctx.beginPath(); ctx.rect(X(p[0]) - k, Y(p[1]) - k, 2 * k, 2 * k); ctx.fill(); ctx.stroke(); } }); ctx.globalAlpha = 1; };
+  MY.lines.forEach(ln => { const on = sel && sel.kind === 'myline' && sel.ln.id === ln.id; one(ln, ln.pts, on, false); if (z >= 6.25 && ln.pts.length > 1) { const m = Math.floor((ln.pts.length - 1) / 2); LBL.push([on ? 4 : 2.2, ln.n + ' · ' + Math.round(myLineLen(ln)) + ' m', X((ln.pts[m][0] + ln.pts[m + 1][0]) / 2), Y((ln.pts[m][1] + ln.pts[m + 1][1]) / 2) - 8, { bg: 'rgba(16,22,31,.9)', col: LINECOL[ln.t] }]); } });
+  if (edit.tool) { const pts = (edit.line ? edit.line.pts : []).concat(edit.hover ? [edit.hover] : []); one({ t: edit.tool, lv: edit.level || 0 }, pts, false, true); const h = edit.hover; if (h) { ctx.beginPath(); ctx.arc(X(h[0]), Y(h[1]), h[2] ? 8 : 4, 0, 7); ctx.strokeStyle = h[2] ? '#3ddc84' : '#ffffff'; ctx.lineWidth = 2; ctx.stroke(); if (h[2]) LBL.push([5, 'on a port', X(h[0]), Y(h[1]) - 14, { bg: '#3ddc84', col: '#06210f' }]); } }
+}
+function myGhostLines(pl){ if (!MY || !planSet.routes) return; MY.lines.forEach(ln => pl(ln.n + ' (yours)', ln.t === 'power' ? 'power' : ln.t, LINECOL[ln.t], ln.pts)); }
+// ---- stage 2: the checks, and what your pieces cost and draw
+function myCheck(){
+  myBad = {}; myChk = null; if (!MY || typeof PlanCheck === 'undefined') return; const mine = MY.items.filter(it => !it.hide), guide = [];
+  PLAN.mach.forEach((m, i) => { if (hallOn(hallOf[m[0]])) { const it = fromGuide({ kind: 'pm', m, i }); it.id = 'g:' + m._k; guide.push(it); } });
+  PLAN.places.forEach(p => { if (p.w && p.st <= stage && !(p.un && stage >= p.un)) { const it = fromGuide({ kind: 'place', p }); if (it.b) { it.id = 'g:' + p._k; guide.push(it); } } });
+  PLAN.floors.forEach(f => { if (f.st <= stage) { const it = fromGuide({ kind: 'floor', f }); it.id = 'g:' + f._k; guide.push(it); } });
+  // a piece's level is the height it stands at, and a floor's level is its walking surface: for the arithmetic a floor is the slab under that surface
+  const slab = it => it.k === 'floor' ? Object.assign({}, it, { lv: (it.lv || 0) - (it.h || 1) }) : it, all = mine.concat(guide).map(slab), byId = {}; all.forEach(it => { byId[it.id] = it; });
+  const ov = PlanCheck.overlaps(all, { tol: 0.1 }).filter(o => o.a.indexOf('g:') !== 0 || o.b.indexOf('g:') !== 0);
+  ov.forEach(o => { [[o.a, o.b], [o.b, o.a]].forEach(q => { if (q[0].indexOf('g:') !== 0) myBad[q[0]] = (myBad[q[0]] ? myBad[q[0]] + ', ' : '') + byId[q[1]].n + ' by ' + (+o.m.toFixed(1)) + ' m'; }); });
+  const ends = {}; let open = 0, known = 0;                // a belt or pipe should begin and end on a port, or on another line of its kind
+  MY.lines.forEach(ln => { if (ln.t === 'power') return; const bad = []; [ln.pts[0], ln.pts[ln.pts.length - 1]].forEach((p, k) => { const ps = myPortList(ln.t, p[0], p[1], 1); known += ps.length;
+      const ok = ps.some(q => Math.hypot(q[0] - p[0], q[1] - p[1]) < 0.6) || MY.lines.some(o => o !== ln && o.t === ln.t && o.pts.some(q => Math.hypot(q[0] - p[0], q[1] - p[1]) < 0.6)); if (!ok) bad.push(k ? 'its last corner' : 'its first corner'); });
+    if (bad.length) { ends[ln.id] = bad.join(' and ') + (bad.length > 1 ? ' are' : ' is') + ' not on a port or on another ' + LINENAME[ln.t].toLowerCase() + '.'; open += bad.length; } });
+  const costOf = it => it.cost || (CATLIST && it.b && CATLIST.byName[nk(it.b)] && CATLIST.byName[nk(it.b)].cost) || null, bldOf = it => it.b ? PLAN.bld[it.b] || null : null;
+  myChk = { n: mine.length, overlaps: ov, byId, offGrid: PlanCheck.offGrid(mine, { step: 0.5, floor: 8 }), unsupported: PlanCheck.supported(all).filter(id => id.indexOf('g:') !== 0), ends, open, locked: mine.filter(it => it.locked).length, cost: PlanCheck.cost(mine, costOf), power: PlanCheck.power(mine, bldOf) };
+  myCheckDraw();
+}
+function myCheckDraw(){
+  const box = $('my-check'); if (!box) return; box.innerHTML = ''; const c = myChk; if (!c || (!c.n && !MY.lines.length)) { box.innerHTML = '<div class="none">Nothing of yours to check yet.</div>'; return; }
+  const row = (ok, text, go) => { const e = document.createElement(go ? 'button' : 'div'); if (go) { e.type = 'button'; e.addEventListener('click', go); } e.className = 'chk ' + (ok === true ? 'ok' : ok === false ? 'bad' : 'note'); e.innerHTML = '<b>' + (ok === true ? '✓' : ok === false ? '!' : '·') + '</b><span>' + text + '</span>'; box.appendChild(e); };
+  const fly = id => () => { const it = c.byId[id]; if (!it) return; if (id.indexOf('g:') === 0) map.setView(ll(it.x, it.y), Math.max(map.getZoom(), 6.5)); else { const mine = MY.items.filter(q => q.id === id)[0]; if (mine) select(myObj(mine), true); } };
+  if (!c.overlaps.length) row(true, 'No piece of yours overlaps another.'); else { row(false, c.overlaps.length + (c.overlaps.length === 1 ? ' overlap' : ' overlaps') + ':'); c.overlaps.slice(0, 12).forEach(o => row(false, esc(c.byId[o.a].n) + ' and ' + esc(c.byId[o.b].n) + ', by ' + (+o.m.toFixed(1)) + ' m', fly(o.a.indexOf('g:') === 0 ? o.b : o.a))); if (c.overlaps.length > 12) row(null, 'and ' + (c.overlaps.length - 12) + ' more'); }
+  if (c.unsupported.length) { row(false, c.unsupported.length + (c.unsupported.length === 1 ? ' piece stands' : ' pieces stand') + ' on an upper level with no floor of the plan under it:'); c.unsupported.slice(0, 8).forEach(id => row(false, esc(c.byId[id].n), fly(id))); }
+  if (c.open) row(false, c.open + (c.open === 1 ? ' belt or pipe end is' : ' belt or pipe ends are') + ' not on a port.');
+  if (c.offGrid.length) row(null, c.offGrid.length + (c.offGrid.length === 1 ? ' piece is' : ' pieces are') + ' off the grid (free placing).');
+  if (c.locked) row(null, c.locked + (c.locked === 1 ? ' piece is' : ' pieces are') + ' still locked in your world: planned ahead.');
+  const cs = c.cost.items; if (cs.length) row(null, '<b style="all:unset;font-weight:600">To build yours:</b> ' + cs.slice(0, 10).map(q => q[1].toLocaleString() + ' ' + esc(q[0])).join(', ') + (cs.length > 10 ? ' and ' + (cs.length - 10) + ' more kinds' : '') + '.' + (c.cost.unknown.length ? ' Cost not known for ' + c.cost.unknown.length + (c.cost.unknown.length === 1 ? ' kind.' : ' kinds.') : ''));
+  else if (c.n) row(null, 'What yours cost comes from the game\'s list: with SatMap on the line it is added up here.');
+  if (c.power.draw || c.power.make) row(null, 'Yours draw ' + c.power.draw.toLocaleString() + ' MW' + (c.power.make ? ' and make ' + c.power.make.toLocaleString() + ' MW' : '') + ' with everything running.');
+}
+// ---- stage 2: what the world has unlocked (SatMap 3.6.1: GET /unlocked, by class), and what a locked piece waits for
+function wantUnlocked(rev){
+  if (unlBusy || !(live.ok || SITE) || (UNL && (rev === undefined || rev === unlRev))) return; unlBusy = true;
+  fetch(BASE + '/unlocked', { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => { unlBusy = false; if (!d || !d.ready || !Array.isArray(d.buildables)) return; onUnlocked(d); }).catch(() => { setTimeout(() => { unlBusy = false; }, 60000); });
+}
+function onUnlocked(d){
+  UNL = {}; d.buildables.forEach(c => { UNL[c] = 1; }); unlRev = d.rev; CATLIST = null;
+  let ch = false; MY.items.forEach(it => { if (!it.cls) return; const lk = !UNL[it.cls]; if (!!it.locked !== lk) { it.locked = lk; ch = true; } }); if (ch) { store.set(MYKEY, MY); redraw(); }
+  if (!WAITS) fetch('waits.json', { cache: 'force-cache' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(w => { if (w && Array.isArray(w.w) && w.c) { WAITS = w; CATLIST = null; if ($('my-q') && ($('my-q').value || edit.cat)) mySearch(); } }).catch(() => {});
+  myCheck(); if ($('my-q') && ($('my-q').value || edit.cat || document.activeElement === $('my-q'))) mySearch();
+}
 // ---- start
 MY = myLoad(); G0 = { mach: PLAN.mach.slice(), places: PLAN.places.slice(), floors: PLAN.floors.slice() }; gkeys();
 MY.items = MY.items.filter(it => !it.src || myGuide(it));  // a guide item that no longer exists takes its change with it
@@ -2023,14 +2522,17 @@ MY.items = MY.items.filter(it => !it.src || myGuide(it));  // a guide item that 
   document.querySelectorAll('#my-snap button').forEach(b => b.addEventListener('click', () => mySetSnap(b.getAttribute('data-snap'))));
   on('eb-snap', 'click', () => mySetSnap(edit.snap === 'grid' ? 'free' : 'grid'));
   ['my-undo', 'eb-undo'].forEach(id => on(id, 'click', () => myUndo(false))); ['my-redo', 'eb-redo'].forEach(id => on(id, 'click', () => myUndo(true)));
-  on('my-q', 'input', mySearch); on('my-q', 'focus', () => { wantCat(); mySearch(); }); on('my-locked', 'change', e => { edit.locked = e.target.checked; mySearch(); });
+  on('my-q', 'input', mySearch); on('my-q', 'focus', () => { wantCat(); wantUnlocked(); mySearch(); });
+  on('my-level', 'change', e => { edit.level = e.target.value === '' ? null : +e.target.value; redraw(); });
+  document.querySelectorAll('#editbar [data-tool]').forEach(t => t.addEventListener('click', () => myTool(t.getAttribute('data-tool'))));
+  map.on('dblclick', () => { if (edit.tool && edit.line) myLineEnd(); }); on('my-locked', 'change', e => { edit.locked = e.target.checked; mySearch(); });
   on('my-save', 'click', () => { const text = JSON.stringify(myFile(), null, 1), ta = $('my-text'); ta.value = text; ta.hidden = false; $('my-text-note').hidden = false; $('my-text-note').textContent = 'Saved as a file where the browser allows it. The same plan is in the box below: copy it to keep it or to send it to someone.';
     try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = (MY.name || 'my-plan').replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.satmap-plan.json'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); } catch (er) {} });
   on('my-load', 'click', () => { const ta = $('my-text'); if (!ta.hidden && ta.value.trim().charAt(0) === '{') { try { if (myTake(JSON.parse(ta.value))) { ta.hidden = true; $('my-text-note').hidden = true; } } catch (er) { toast('That text is not a plan: ' + esc(String(er.message || er).slice(0, 80)), 5200); } return; } $('my-file').click(); ta.hidden = false; ta.value = ''; $('my-text-note').hidden = false; $('my-text-note').textContent = 'Pick the file, or paste a plan\'s text into the box and press Load again.'; });
   on('my-file', 'change', e => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { try { if (myTake(JSON.parse(rd.result))) { $('my-text').hidden = true; $('my-text-note').hidden = true; } } catch (er) { toast('That file is not a plan.', 4200); } e.target.value = ''; }; rd.readAsText(f); });
   on('my-send', 'click', () => { const p = ghostPlan(); post('/plan', p).then(() => post('/ghosts', { on: true })).then(r => toast(r && r.ok !== false ? 'Sent to the game: ' + p.boxes.length + ' outlines, yours among them. F9 there shows them.' : 'The game did not take it. SatMap has to be running in the game on this PC.', 5200)); });
-  on('my-reset', 'click', e => { const b = e.currentTarget; if (!MY.items.length) { toast('There is nothing of yours to reset.'); return; } if (!b.getAttribute('data-sure')) { b.setAttribute('data-sure', '1'); b.textContent = 'Really? All ' + MY.items.length + ' changes'; setTimeout(() => { b.removeAttribute('data-sure'); b.textContent = 'Reset everything'; }, 4000); return; }
-    b.removeAttribute('data-sure'); b.textContent = 'Reset everything'; const before = snapNow(); MY.items = []; sel = null; $('card').hidden = true; myCommit(before); toast('Your plan is empty again; the guide\'s plan is whole. Undo brings your changes back.', 5200); });
+  on('my-reset', 'click', e => { const b = e.currentTarget; if (!MY.items.length && !MY.lines.length) { toast('There is nothing of yours to reset.'); return; } if (!b.getAttribute('data-sure')) { b.setAttribute('data-sure', '1'); b.textContent = 'Really? All ' + (MY.items.length + MY.lines.length) + ' changes'; setTimeout(() => { b.removeAttribute('data-sure'); b.textContent = 'Reset everything'; }, 4000); return; }
+    b.removeAttribute('data-sure'); b.textContent = 'Reset everything'; const before = snapNow(); MY.items = []; MY.lines = []; sel = null; $('card').hidden = true; myCommit(before); toast('Your plan is empty again; the guide\'s plan is whole. Undo brings your changes back.', 5200); });
   document.querySelectorAll('#my-snap button').forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-snap') === edit.snap ? 'true' : 'false'));
 })();
 myApply();
@@ -2038,11 +2540,11 @@ myApply();
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-16 15:52:27'; let told = false;
+const BUILD = '2026-11-16 16:01:09'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 (() => { const at = /[?&]at=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.search); if (!at) return; follow = false; map.setView(ll(+at[1], +at[2]), 6.5, { animate: false }); setTimeout(() => toast('Opened at ' + Math.round(+at[1]) + ', ' + Math.round(+at[2]) + '.', 4000), 600); })();
-window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, drawHud, edit, myDo, mySetEdit, mySetSnap, myHitAt, myPlace, myTake, myFile, myUndo, myCatReady, myDragStart, myDragMove, myDragEnd, get my(){ return MY; }, onBoard, drawBoard, boardCan, get board(){ return BOARD; }, get hud(){ return HUD; }, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
+window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, drawHud, edit, myDo, mySetEdit, mySetSnap, myHitAt, myPlace, myTake, myFile, myUndo, myCatReady, myDragStart, myDragMove, myDragEnd, myTool, myLineClick, myLineEnd, myLineDo, myCheck, onUnlocked, get myChk(){ return myChk; }, get myBad(){ return myBad; }, get my(){ return MY; }, onBoard, drawBoard, boardCan, get board(){ return BOARD; }, get hud(){ return HUD; }, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
 })();
 
 </script>
