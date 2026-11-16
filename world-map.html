@@ -217,6 +217,9 @@ button.chk{cursor:pointer;border-radius:6px}button.chk:hover{background:rgba(255
 #editbar .tools button[aria-pressed=true]{background:rgba(53,214,194,.25);color:#dffcf7}
 body.drawing #map{cursor:cell}
 @media (max-width:760px){#editbar{flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 24px)}}
+.msbar{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.msbar button{all:unset;cursor:pointer;padding:3px 8px;border-radius:6px;border:1px solid var(--line2);font-size:11.5px;color:var(--muted)}.msbar button:hover{color:var(--ink);background:rgba(255,255,255,.08)}.msbar button[disabled]{opacity:.35;cursor:default}
+.msedit{display:grid!important;grid-template-columns:1fr!important;gap:6px}.msadd{margin:6px 0 12px;flex-wrap:nowrap}.msadd input{flex:1 1 auto}
 </style>
 <div class="app">
 <div id="map" role="application" aria-label="Map of the whole world"></div>
@@ -239,7 +242,7 @@ body.drawing #map{cursor:cell}
 </div>
 <section class="panel glass" id="panel" aria-label="Panel">
  <div class="tab on" id="t-guide"><h2>Guide <small id="g-count"></small></h2><p>The build order, stage by stage. Tick a step when it is done; the guide page keeps the same ticks. <b>Show</b> flies to where the step happens.</p><p id="g-game"></p><div class="nextup" id="g-next" hidden></div><div class="hudrow" id="hud-row" hidden><span>Shown in your game</span><div><button type="button" data-hud="guide" aria-pressed="false">To-do panel</button><button type="button" data-hud="next" aria-pressed="false">Next step line</button><button type="button" data-hud="outlines" aria-pressed="false">Plan outlines</button><button type="button" data-hud="snap" aria-pressed="false">Snap to the plan</button></div></div>
-  <div class="row"><span>Stage</span><select class="sel" id="gstage" aria-label="Stage of the guide"></select></div><div id="gsteps"></div><h3>On the Grass Fields <small>any time</small></h3><p>The Twin Houses, in two short tracks, and the Lakeside power station for Tier 4. They are no part of the build order.</p><div id="ghome"></div></div>
+  <div class="row"><span>Stage</span><select class="sel" id="gstage" aria-label="Stage of the guide"></select></div><div id="gsteps"></div><h3>Your steps <small>yours alone</small></h3><p>Steps of your own beside the guide's. They are kept with your plan, travel in its file, and go to the game with the guide.</p><div id="gmine"></div><div class="row msadd"><input type="text" id="ms-t" maxlength="140" placeholder="A step of your own" aria-label="A step of your own"><button type="button" class="btn" id="ms-add">Add</button></div><h3>On the Grass Fields <small>any time</small></h3><p>The Twin Houses, in two short tracks, and the Lakeside power station for Tier 4. They are no part of the build order.</p><div id="ghome"></div></div>
  <div class="tab" id="t-layers"><h2>Layers <small id="lcount"></small></h2><label class="ck"><input type="checkbox" id="hide"> Hide what is collected</label><details class="keyd"><summary>Key to the lines</summary><div class="key"><div><svg viewBox="0 0 44 12"><path d="M2 6H42" stroke="#0b1118" stroke-width="6" opacity=".6"/><path d="M2 6H42" stroke="#ffb347" stroke-width="3.6"/><path d="M13 3l3 3-3 3M27 3l3 3-3 3" fill="none" stroke="#3a2408" stroke-width="1.4"/></svg><span><b>Belt you have built.</b> The arrowheads show which way it runs.</span></div><div><svg viewBox="0 0 44 12"><path d="M2 6H42" stroke="#0b1118" stroke-width="5" opacity=".5"/><path d="M2 6H42" stroke="#ffe2b0" stroke-width="2.6" stroke-dasharray="9 6"/></svg><span><b>Belt the plan still asks for.</b> Short dots mean the ground is not surveyed: walk it first. It disappears once your belt lies along it.</span></div><div><svg viewBox="0 0 44 12"><path d="M2 6H42" stroke="#d678ff" stroke-width="1.8"/></svg><span><b>Power line you have built.</b></span></div><div><svg viewBox="0 0 44 12"><path d="M2 6H42" stroke="#ecc9ff" stroke-width="1.6" stroke-dasharray="2 5"/><circle cx="22" cy="6" r="3" fill="#e07bff" stroke="#0b1118"/></svg><span><b>Power line in the plan,</b> with a dot where a pole stands.</span></div><div><svg viewBox="0 0 44 12"><path d="M2 3H42" stroke="#49b8ff" stroke-width="2"/><path d="M2 9H42" stroke="#ffd447" stroke-width="2"/></svg><span><b>Belts inside a hall,</b> one colour for each thing carried. The list at the hall's edge names every belt that comes in or goes out there.</span></div><div><svg viewBox="0 0 44 12"><rect x="12" y="1.5" width="20" height="9" fill="none" stroke="#fff" stroke-width="1.3" stroke-dasharray="4 3"/></svg><span><b>Machine still to build.</b> When yours stands there it shows a green tick.</span></div></div></details><div id="layers"></div></div>
  <div class="tab" id="t-live"><h2>Live</h2><p id="live-long">Looking for the game on this PC.</p>
   <div class="stat"><div><b id="s-pos">–</b><span id="s-pos-l">your position</span></div><div><b id="s-speed">–</b><span>speed · height</span></div><div><b id="s-walk">–</b><span>travelled this visit</span></div><div><b id="s-power">–</b><span id="s-power-l">power</span></div></div>
@@ -952,7 +955,7 @@ function select(o, fly){
   else if (o.kind === 'fit') { const q = o.q, F = { s: ['Conveyor Splitter', '#ffffff', 'One belt in, up to three out. Here part of the belt turns off to a machine and the rest runs on. Build it with its one inlet facing the way the belt comes from.'], m: ['Conveyor Merger', '#ffc53d', 'Up to three belts in, one out. Here a machine\'s output joins the belt that collects the row.'], j: ['Pipeline Junction', '#49b8ff', 'Splits or joins a pipe, here for one machine.'], p: ['Power Pole Mk.1', '#e07bff', 'A Power Pole Mk.1 takes four Power Lines. Poles stand about every 40 m along this line; hook each machine in reach onto the nearest one.'] }[q[2]];
     ic = icon(F[1], { p: 'pole', s: 'split', m: 'merge', j: 'drop' }[q[2]], q[2] === 'm' ? 'd' : q[2] === 's' ? 's' : 'c'); title = F[0]; sub = 'The plan · on ' + q[5]; body = '<p>' + F[2] + '</p>' + posLine(q[3], q[4]); acts = [nav, copy]; }
   else if (o.kind === 'line') { ic = icon(/power/i.test(o.what) ? '#e07bff' : /pipe/i.test(o.what) ? '#49b8ff' : /Hypertube/.test(o.what) ? '#8b5fd6' : '#ffb02e', /power/i.test(o.what) ? 'pole' : /pipe/i.test(o.what) ? 'drop' : 'arrow', 'c'); title = o.l.n; sub = o.what; body = txt(o.l.t); acts = []; }
-  else if (o.kind === 'step') { ic = icon('#3ddc84', 'flag', 'c'); title = o.st.t; sub = 'Guide · ' + (o.st.who === 'station' ? 'The Lakeside power station' : o.st.who ? 'The Twin Houses' : PLAN.stages[o.st.s]); body = '<p>' + esc(o.st.d) + '</p>' + posLine(o.x, o.y); acts = [nav, copy]; }
+  else if (o.kind === 'step') { ic = icon('#3ddc84', 'flag', 'c'); title = o.st.t; sub = 'Guide · ' + (o.st.who === 'mine' ? 'Your steps' : o.st.who === 'station' ? 'The Lakeside power station' : o.st.who ? 'The Twin Houses' : PLAN.stages[o.st.s]); body = '<p>' + esc(o.st.d) + '</p>' + posLine(o.x, o.y); acts = [nav, copy]; }
   else if (o.kind === 'pm') { const m = o.m, h = hallOf[m[0]], ok = planBuilt[o.i]; ic = icon(ok ? '#2f9e68' : '#3a4656', bglyph(m[2]), 's'); title = m[2]; sub = 'Planned · ' + h.t + ', machine ' + m[1] + (planTurn[o.i] ? ' · yours faces the wrong way' : '');
     body = txt(PLAN.mt[m[0] + ':' + m[1]]) + '<p>Parts go in on the <b>' + { N: 'south', S: 'north', W: 'east' }[h.dir] + '</b> side and come out on the <b>' + { N: 'north', S: 'south', W: 'west' }[h.dir] + '</b> side: the yellow arrow. Turn the machine if its ports say otherwise.</p><p class="mono">this one: north-west corner ' + Math.round(m[3]) + ', ' + Math.round(m[4]) + ' · ' + esc(h.fl) + '</p><p class="' + (ok ? 'tagok' : '') + '">' + (ok ? 'Built: the game has a ' + esc(m[2]) + ' standing here.' + (planTurn[o.i] ? ' <b>' + esc(planTurn[o.i]) + '</b>' : '') : W ? 'Not built yet.' : 'The map cannot see your buildings yet.') + '</p><p><a href="' + h.href + '">Its set-up list in the guide</a></p>'; acts = [nav]; }
   else if (o.kind === 'fl') { const sp = o.sp, sl = o.sl, nm = sl.ci >= 0 && W && W.names[sl.ci] ? W.names[sl.ci] : 'Foundation', num = v => v.toFixed(1).replace('.0', '');
@@ -1072,7 +1075,7 @@ function drawSteps(){
   const hb = $('ghome'); if (hb && PLAN.home) { hb.innerHTML = '';      // two short tracks that belong to no stage: do them whenever you like
     [['you', 'The yard and the west house'], ['friend', 'The east house (your friend\'s track)'], ['station', 'The Lakeside power station (Tier 4)']].forEach(g => { const list = PLAN.home.filter(st => st.who === g[0]); if (!list.length) return;
       const h = document.createElement('h4'), els = list.map(stepEl); h.textContent = g[1] + ' · ' + els.filter(r => r[1]).length + ' of ' + list.length; hb.appendChild(h); els.forEach(r => hb.appendChild(r[0])); }); }
-  sendGuide();
+  myStepsDraw(); sendGuide();
 }
 document.querySelectorAll('[data-plan]').forEach(cb => { const k = cb.getAttribute('data-plan'); cb.checked = planSet[k]; cb.addEventListener('change', () => { planSet[k] = cb.checked; store.set('howson-map-planset', planSet); drawPlan(); }); });
 $('plan').checked = planOn; $('plan').addEventListener('change', e => { planOn = e.target.checked; store.set('howson-map-plan', planOn); drawPlan(); });
@@ -1649,8 +1652,8 @@ const costOf = c => String(c || '').split(/,\s*/).map(t => { const m = t.match(/
 function guideDoc(noHome){                                 // noHome: the build order alone, for the file the server hands out as one linear list
   const saved = store.get('sfplus-steps-v1', {}) || {};
   return { v: 1, name: 'Satisfactory Plus', stage, stageName: PLAN.stages[stage],
-    steps: PLAN.steps.filter(s => s.s >= stage).concat(noHome || !PLAN.home ? [] : PLAN.home.filter(s => !saved[s.id]).map(s => Object.assign({ s: stage }, s))).map(s => { const a = s.a || {}, x = a.x !== undefined ? a.x : s.x, y = a.y !== undefined ? a.y : s.y, o = { id: s.id, s: s.s, t: s.t, d: s.d, x: x === null ? null : Math.round(x * 100), y: y === null ? null : Math.round(y * 100), done: !!saved[s.id] };
-      if (a.b) { o.b = a.b; o.count = a.count || 1; o.r = a.r || 1500; } if (a.buy) o.buy = a.buy; return o; }),
+    steps: PLAN.steps.filter(s => s.s >= stage).concat(noHome || !PLAN.home ? [] : PLAN.home.filter(s => !saved[s.id]).map(s => Object.assign({ s: stage }, s))).concat(noHome ? [] : mySteps()).map(s => { const a = s.a || {}, x = a.x !== undefined ? a.x : s.x, y = a.y !== undefined ? a.y : s.y, o = { id: s.id, s: s.s, t: s.t, d: s.d, x: x === null ? null : Math.round(x * 100), y: y === null ? null : Math.round(y * 100), done: !!saved[s.id] };
+      if (a.b) { o.b = a.b; o.count = a.count || 1; o.r = a.r || 1500; } if (a.buy) o.buy = a.buy; if (s.mine) o.mine = true; return o; }),
     path: PLAN.path.map(p => ({ id: p.id, s: p.s, n: p.n, c: p.c, cost: costOf(p.c), done: !!saved[p.id] })) };
 }
 function sendGuide(){
@@ -1660,7 +1663,7 @@ function sendGuide(){
 function autoSteps(){                                     // tick a step when the game shows it is done: its buildings stand at its place, or its milestone is bought
   const bought = {}; ((live.state && live.state.purchased) || []).forEach(n => { bought[n.toLowerCase()] = 1; });
   const all2 = W && !tl.on ? W.machines.concat(W.others) : null, sv = store.get('sfplus-steps-v1', {}) || {}, now = Date.now(); let ch = 0;
-  PLAN.steps.concat(PLAN.home || []).forEach(s => {
+  PLAN.steps.concat(PLAN.home || []).concat(mySteps()).forEach(s => {
     const a = s.a; if (!a || sv[s.id] || guideHold[s.id] > now) return; let ok = false;
     if (a.buy) ok = !!bought[a.buy.toLowerCase()];
     else if (a.b && all2) { const want = a.b.map(nk), x = a.x !== undefined ? a.x : s.x, y = a.y !== undefined ? a.y : s.y, r = (a.r || 1500) / 100;
@@ -2184,7 +2187,7 @@ var edit = { on: false, snap: store.get('howson-map-mysnap', 'grid'), drag: null
 var UNL = null, unlRev = -1, unlBusy = false, WAITS = null, myBad = {}, myChk = null;
 const myId = it => 'my:' + it.id, rad = d => d * Math.PI / 180, q90 = yaw => Math.abs(((yaw % 90) + 90) % 90) < 0.01 || Math.abs(((yaw % 90) + 90) % 90 - 90) < 0.01;
 const norm360 = a => { a = ((a % 360) + 360) % 360; return Math.abs(a - Math.round(a)) < 1e-6 ? Math.round(a) % 360 : +a.toFixed(2); };
-function myLoad(){ const d = store.get(MYKEY, null); if (d && d.v === 1 && Array.isArray(d.items)) { if (!Array.isArray(d.lines)) d.lines = []; return d; } return { v: 1, name: 'My plan', seq: 0, rev: 0, items: [], lines: [] }; }
+function myLoad(){ const d = store.get(MYKEY, null); if (d && d.v === 1 && Array.isArray(d.items)) { if (!Array.isArray(d.lines)) d.lines = []; if (!Array.isArray(d.steps)) d.steps = []; return d; } return { v: 1, name: 'My plan', seq: 0, rev: 0, items: [], lines: [], steps: [] }; }
 function mySave(){ MY.rev = (MY.rev || 0) + 1; store.set(MYKEY, MY); }
 function gkeys(){                                         // a name for every guide item that survives the guide's plan being laid out again: what it is, not where it is in a list
   const seen = {}, k = base => { seen[base] = (seen[base] || 0) + 1; return base + '#' + (seen[base] - 1); };
@@ -2194,7 +2197,7 @@ function myApply(){                                       // the guide's lists w
   const over = {}; MY.items.forEach(it => { if (it.src) over[it.src] = 1; });
   PLAN.mach = G0.mach.filter(m => !over[m._k]); PLAN.places = G0.places.filter(p => !over[p._k]); PLAN.floors = G0.floors.filter(f => !over[f._k]);
   if (sel && (sel.kind === 'pm' || sel.kind === 'place' || sel.kind === 'floor')) closeCard();
-  planMatch(); myCheck(); drawPlan(); myList();
+  planMatch(); myCheck(); drawPlan(); myList(); drawSteps();
 }
 const myShown = it => !it.hide && planOn && (it.k === 'machine' && it.hall ? planSet.mach && hallOn(hallOf[it.hall] || { st: 1 }) : it.k === 'floor' ? planSet.floors && (it.st || 1) <= stage : planSet.places && (it.st || 1) <= stage && !(it.un && stage >= it.un));
 function fromGuide(h){                                    // a guide item as an item of yours, where it stands now
@@ -2210,7 +2213,7 @@ function myAdd(it){ it.id = 'u' + (++MY.seq); MY.items.push(it); return it; }
 const myGuide = it => { if (!it.src) return null; const c = it.src.charAt(0), l = c === 'm' ? G0.mach : c === 'p' ? G0.places : G0.floors; for (const g of l) if (g._k === it.src) return g; return null; };
 const myWhat = it => !it.src ? 'added by you' : it.hide ? 'removed by you' : 'moved by you';
 // ---- undo
-const snapNow = () => JSON.stringify([MY.items, MY.lines]), myRestore = sn => { const d = JSON.parse(sn); MY.items = d[0]; MY.lines = d[1] || []; };
+const snapNow = () => JSON.stringify([MY.items, MY.lines, MY.steps]), myRestore = sn => { const d = JSON.parse(sn); MY.items = d[0]; MY.lines = d[1] || []; MY.steps = d[2] || []; };
 function myCommit(before){ if (before !== undefined && before !== snapNow()) { edit.undo.push(before); if (edit.undo.length > 100) edit.undo.shift(); edit.redo = []; } mySave(); myApply(); myBar(); }
 function myUndo(redo){ const from = redo ? edit.redo : edit.undo, to = redo ? edit.undo : edit.redo; if (!from.length) { toast(redo ? 'Nothing to redo' : 'Nothing to undo'); return; }
   to.push(snapNow()); myRestore(from.pop()); if (sel && sel.kind === 'myline') { sel = null; $('card').hidden = true; } if (sel && sel.kind === 'my') { const it = MY.items.filter(q => q.id === sel.it.id)[0]; if (it && !it.hide) sel = myObj(it); else { sel = null; $('card').hidden = true; } }
@@ -2407,19 +2410,20 @@ function myPlace(e){                                       // a new piece in the
   if (!edit.on) mySetEdit(true); myCommit(before); sel = myObj(it); select(sel); if (map.getZoom() < 6) map.setView(ll(it.x, it.y), 6.5);
   toast('Added ' + esc(it.n) + (e.size ? '' : '. The game gives no size for it, so it is drawn 1 by 1 m') + '. Drag it where it goes.', 4200);
 }
-function myFile(){ return { kind: 'satmap-plan', v: 1, name: MY.name || 'My plan', made: new Date().toISOString(), base: 'Satisfactory Plus', items: MY.items, lines: MY.lines }; }
+function myFile(){ return { kind: 'satmap-plan', v: 1, name: MY.name || 'My plan', made: new Date().toISOString(), base: 'Satisfactory Plus', items: MY.items, lines: MY.lines, steps: MY.steps }; }
 function myTake(doc){                                      // a plan from a file or from pasted text: it replaces yours, and Undo brings yours back
   if (!doc || doc.kind !== 'satmap-plan' || !Array.isArray(doc.items)) { toast('That is not a SatMap plan file.', 4200); return false; }
   const ok = doc.items.filter(it => it && typeof it.n === 'string' && isFinite(it.x) && isFinite(it.y) && (it.k === 'mark' || (it.sx > 0 && it.sy > 0))).slice(0, 4000), before = snapNow();
   MY.items = ok.map((it, i) => ({ id: 'u' + (i + 1), src: typeof it.src === 'string' ? it.src : null, hide: !!it.hide, k: /^(machine|place|floor|mark)$/.test(it.k) ? it.k : 'machine', n: it.n.slice(0, 120), b: typeof it.b === 'string' ? it.b.slice(0, 120) : null, hall: typeof it.hall === 'string' ? it.hall : null, sub: typeof it.sub === 'string' ? it.sub.slice(0, 160) : '', c: /^#[0-9a-f]{3,8}$/i.test(it.c || '') ? it.c : undefined, i: typeof it.i === 'string' ? it.i.slice(0, 20) : undefined, st: it.st > 0 ? +it.st : 1, un: it.un > 0 ? +it.un : 0, x: +it.x, y: +it.y, sx: +it.sx || 0, sy: +it.sy || 0, yaw: norm360(+it.yaw || 0), h: +it.h || 4, lv: +it.lv || 0, locked: !!it.locked, cls: typeof it.cls === 'string' ? it.cls.slice(0, 120) : undefined, cost: Array.isArray(it.cost) ? it.cost.filter(c => Array.isArray(c) && typeof c[0] === 'string' && isFinite(c[1])).slice(0, 12) : undefined }));
   MY.lines = (Array.isArray(doc.lines) ? doc.lines : []).filter(l => l && /^(belt|pipe|power)$/.test(l.t) && Array.isArray(l.pts) && l.pts.length >= 2 && l.pts.every(p => Array.isArray(p) && isFinite(p[0]) && isFinite(p[1]))).slice(0, 1000).map((l, i) => ({ id: 'l' + (i + 1), t: l.t, n: typeof l.n === 'string' ? l.n.slice(0, 80) : l.t, pts: l.pts.slice(0, 200).map(p => [+p[0], +p[1]]), lv: +l.lv || 0 }));
-  MY.seq = MY.items.length + MY.lines.length; MY.name = typeof doc.name === 'string' ? doc.name.slice(0, 80) : 'My plan'; sel = null; $('card').hidden = true; myCommit(before);
-  toast('Loaded "' + esc(MY.name) + '": ' + MY.items.length + ' pieces' + (MY.lines.length ? ' and ' + MY.lines.length + ' lines' : '') + (doc.items.length > ok.length ? ', ' + (doc.items.length - ok.length) + ' left out as not readable' : '') + '. Undo brings your own back.', 5200); return true;
+  MY.steps = (Array.isArray(doc.steps) ? doc.steps : []).filter(q => q && typeof q.t === 'string' && q.t.trim()).slice(0, 200).map((q, i) => ({ id: 's' + (i + 1), t: q.t.slice(0, 140), d: typeof q.d === 'string' ? q.d.slice(0, 600) : '', x: isFinite(q.x) ? +q.x : null, y: isFinite(q.y) ? +q.y : null, b: typeof q.b === 'string' ? q.b.slice(0, 120) : null }));
+  MY.seq = MY.items.length + MY.lines.length + MY.steps.length; MY.name = typeof doc.name === 'string' ? doc.name.slice(0, 80) : 'My plan'; sel = null; $('card').hidden = true; myCommit(before);
+  toast('Loaded "' + esc(MY.name) + '": ' + MY.items.length + ' pieces' + (MY.lines.length ? ' and ' + MY.lines.length + ' lines' : '') + (MY.steps.length ? ' and ' + MY.steps.length + ' steps' : '') + (doc.items.length > ok.length ? ', ' + (doc.items.length - ok.length) + ' left out as not readable' : '') + '. Undo brings your own back.', 5200); return true;
 }
 function myGhosts(boxes, cm){                              // your pieces in the plan the game is sent: the box round the piece for older builds, and its middle, own size and exact turn beside it
   MY.items.forEach(it => { if (!myShown(it)) return; const sq = q90(it.yaw || 0), yq = norm360(Math.round((it.yaw || 0) / 90) * 90), t = sq && yq % 180 !== 0, wx = t ? it.sy : it.sx, wy = t ? it.sx : it.sy;
     const o = { id: myId(it), n: it.n, sub: 'Your plan' + (it.sub ? ' · ' + it.sub : ''), k: it.k, x: cm(it.x - wx / 2), y: cm(it.y - wy / 2), w: cm(wx), d: cm(wy), h: it.k === 'floor' || it.k === 'mark' ? 0 : cm(it.h || 4), yaw: sq ? yq : it.yaw, c: it.k === 'floor' ? '#35d07f' : MYCOL, z: null, cx: cm(it.x), cy: cm(it.y), sx: cm(it.sx), sy: cm(it.sy) };
-    if (it.b && it.k !== 'floor') o.b = it.b; if (!sq) o.free = true; if (it.lv > 0.1) o.lv = cm(it.lv); boxes.push(o); });
+    if (it.b) o.b = it.b; if (!sq) o.free = true; if (it.lv > 0.1) o.lv = cm(it.lv); boxes.push(o); });
 }
 function myMatch(everything){ myBuilt = {}; if (!MY || !everything) return; MY.items.forEach(it => { if (!it.b || it.hide) return; const want = nk(it.b); myBuilt[it.id] = everything.some(b => Math.hypot(b.x - it.x, b.y - it.y) < 5 && nk(b.n).indexOf(want) >= 0); }); }
 // ---- stage 2: levels
@@ -2508,10 +2512,36 @@ function wantUnlocked(rev){
   fetch(BASE + '/unlocked', { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => { unlBusy = false; if (!d || !d.ready || !Array.isArray(d.buildables)) return; onUnlocked(d); }).catch(() => { setTimeout(() => { unlBusy = false; }, 60000); });
 }
 function onUnlocked(d){
-  UNL = {}; d.buildables.forEach(c => { UNL[c] = 1; }); unlRev = d.rev; CATLIST = null;
+  UNL = {}; d.buildables.forEach(c => { UNL[c] = 1; }); unlRev = d.rev; CATLIST = null; if (d.locked && typeof d.locked === 'object') { const w = [], c = {}; Object.keys(d.locked).forEach(k => { const t = Array.isArray(d.locked[k]) ? d.locked[k][0] : d.locked[k]; if (typeof t === 'string') { c[k] = w.length; w.push(t); } }); WAITS = { w, c, mod: true }; }
   let ch = false; MY.items.forEach(it => { if (!it.cls) return; const lk = !UNL[it.cls]; if (!!it.locked !== lk) { it.locked = lk; ch = true; } }); if (ch) { store.set(MYKEY, MY); redraw(); }
   if (!WAITS) fetch('waits.json', { cache: 'force-cache' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(w => { if (w && Array.isArray(w.w) && w.c) { WAITS = w; CATLIST = null; if ($('my-q') && ($('my-q').value || edit.cat)) mySearch(); } }).catch(() => {});
   myCheck(); if ($('my-q') && ($('my-q').value || edit.cat || document.activeElement === $('my-q'))) mySearch();
+}
+// ---- steps of your own, beside the guide's: written in the Guide panel, kept with your plan, sent to the game marked "mine"
+function mySteps(){ return ((MY && MY.steps) || []).map(q => ({ id: 'ms:' + q.id, s: stage, who: 'mine', mine: true, t: q.t, d: q.d || '', x: isFinite(q.x) && q.x !== null ? q.x : null, y: isFinite(q.y) && q.y !== null ? q.y : null, a: q.b && q.x !== null ? { b: [q.b], count: 1, r: 800, x: q.x, y: q.y } : undefined, q })); }
+function myStepsDraw(){
+  const box = $('gmine'); if (!box || !MY) return; box.innerHTML = ''; const list = mySteps();
+  if (!list.length) { box.innerHTML = '<div class="none">None yet. Write one below. With a piece picked on the map it points at that piece, and ticks itself when the building stands there.</div>'; return; }
+  list.forEach((st, i) => {
+    if (edit.stepEdit === st.q.id) { const f = document.createElement('div'); f.className = 'gstep msedit'; f.innerHTML = '<input type="text" id="ms-et" maxlength="140" aria-label="The step" value="' + esc(st.t) + '"><textarea id="ms-ed" rows="3" maxlength="600" aria-label="More words" placeholder="More words, if it needs them">' + esc(st.d) + '</textarea><div class="msbar"><button type="button" data-a="save">Save</button><button type="button" data-a="cancel">Cancel</button></div>';
+      f.addEventListener('click', e => { const a = e.target.getAttribute('data-a'); if (a) myStepDo(a, i); }); box.appendChild(f); return; }
+    const el = stepEl(st)[0], bar = document.createElement('div'); bar.className = 'msbar';
+    bar.innerHTML = '<button type="button" data-a="up" title="Earlier"' + (i ? '' : ' disabled') + '>↑</button><button type="button" data-a="down" title="Later"' + (i < list.length - 1 ? '' : ' disabled') + '>↓</button><button type="button" data-a="here" title="Point this step at the piece picked on the map, or at the middle of the view">Put it here</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="del">Remove</button>';
+    bar.addEventListener('click', e => { const a = e.target.getAttribute('data-a'); if (a) myStepDo(a, i); }); el.appendChild(bar); box.appendChild(el); });
+}
+function myStepPlace(){                                    // where a step points: the piece picked on the map (yours or anything else with a place), else nowhere
+  if (sel && sel.kind === 'my') return { x: sel.it.x, y: sel.it.y, b: sel.it.b || null }; if (sel && sel.x !== undefined && sel.kind !== 'step') return { x: +(+sel.x).toFixed(1), y: +(+sel.y).toFixed(1), b: sel.kind === 'pm' ? sel.m[2] : null }; return null; }
+function myStepDo(a, i){
+  const before = snapNow(), L = MY.steps, q = L[i];
+  if (a === 'add') { const el = $('ms-t'), t = el.value.trim(); if (!t) { el.focus(); return; } const p = myStepPlace() || { x: null, y: null, b: null }; L.push({ id: 's' + (++MY.seq), t: t.slice(0, 140), d: '', x: p.x, y: p.y, b: p.b }); el.value = ''; }
+  else if (!q) return;
+  else if (a === 'up' && i > 0) { L[i] = L[i - 1]; L[i - 1] = q; } else if (a === 'down' && i < L.length - 1) { L[i] = L[i + 1]; L[i + 1] = q; }
+  else if (a === 'del') { L.splice(i, 1); const sv = store.get('sfplus-steps-v1', {}) || {}; delete sv['ms:' + q.id]; store.set('sfplus-steps-v1', sv); }
+  else if (a === 'here') { const p = myStepPlace(), c = map.getCenter(); q.x = p ? p.x : +c.lng.toFixed(1); q.y = p ? p.y : +(-c.lat).toFixed(1); q.b = p ? p.b : null; toast(p ? 'The step points at what is picked on the map' + (p.b ? ' and ticks itself when a ' + esc(p.b) + ' stands there.' : '.') : 'The step points at the middle of the view.', 4200); }
+  else if (a === 'edit') { edit.stepEdit = q.id; myStepsDraw(); return; }
+  else if (a === 'cancel') { edit.stepEdit = null; myStepsDraw(); return; }
+  else if (a === 'save') { const t = $('ms-et').value.trim(); if (t) { q.t = t.slice(0, 140); q.d = $('ms-ed').value.trim().slice(0, 600); } edit.stepEdit = null; }
+  myCommit(before);
 }
 // ---- start
 MY = myLoad(); G0 = { mach: PLAN.mach.slice(), places: PLAN.places.slice(), floors: PLAN.floors.slice() }; gkeys();
@@ -2523,6 +2553,7 @@ MY.items = MY.items.filter(it => !it.src || myGuide(it));  // a guide item that 
   on('eb-snap', 'click', () => mySetSnap(edit.snap === 'grid' ? 'free' : 'grid'));
   ['my-undo', 'eb-undo'].forEach(id => on(id, 'click', () => myUndo(false))); ['my-redo', 'eb-redo'].forEach(id => on(id, 'click', () => myUndo(true)));
   on('my-q', 'input', mySearch); on('my-q', 'focus', () => { wantCat(); wantUnlocked(); mySearch(); });
+  on('ms-add', 'click', () => myStepDo('add')); on('ms-t', 'keydown', e => { if (e.key === 'Enter') myStepDo('add'); });
   on('my-level', 'change', e => { edit.level = e.target.value === '' ? null : +e.target.value; redraw(); });
   document.querySelectorAll('#editbar [data-tool]').forEach(t => t.addEventListener('click', () => myTool(t.getAttribute('data-tool'))));
   map.on('dblclick', () => { if (edit.tool && edit.line) myLineEnd(); }); on('my-locked', 'change', e => { edit.locked = e.target.checked; mySearch(); });
@@ -2531,7 +2562,7 @@ MY.items = MY.items.filter(it => !it.src || myGuide(it));  // a guide item that 
   on('my-load', 'click', () => { const ta = $('my-text'); if (!ta.hidden && ta.value.trim().charAt(0) === '{') { try { if (myTake(JSON.parse(ta.value))) { ta.hidden = true; $('my-text-note').hidden = true; } } catch (er) { toast('That text is not a plan: ' + esc(String(er.message || er).slice(0, 80)), 5200); } return; } $('my-file').click(); ta.hidden = false; ta.value = ''; $('my-text-note').hidden = false; $('my-text-note').textContent = 'Pick the file, or paste a plan\'s text into the box and press Load again.'; });
   on('my-file', 'change', e => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { try { if (myTake(JSON.parse(rd.result))) { $('my-text').hidden = true; $('my-text-note').hidden = true; } } catch (er) { toast('That file is not a plan.', 4200); } e.target.value = ''; }; rd.readAsText(f); });
   on('my-send', 'click', () => { const p = ghostPlan(); post('/plan', p).then(() => post('/ghosts', { on: true })).then(r => toast(r && r.ok !== false ? 'Sent to the game: ' + p.boxes.length + ' outlines, yours among them. F9 there shows them.' : 'The game did not take it. SatMap has to be running in the game on this PC.', 5200)); });
-  on('my-reset', 'click', e => { const b = e.currentTarget; if (!MY.items.length && !MY.lines.length) { toast('There is nothing of yours to reset.'); return; } if (!b.getAttribute('data-sure')) { b.setAttribute('data-sure', '1'); b.textContent = 'Really? All ' + (MY.items.length + MY.lines.length) + ' changes'; setTimeout(() => { b.removeAttribute('data-sure'); b.textContent = 'Reset everything'; }, 4000); return; }
+  on('my-reset', 'click', e => { const b = e.currentTarget; if (!MY.items.length && !MY.lines.length) { toast('There is nothing of yours on the map to reset. Your own steps are not touched by this.'); return; } if (!b.getAttribute('data-sure')) { b.setAttribute('data-sure', '1'); b.textContent = 'Really? All ' + (MY.items.length + MY.lines.length) + ' changes'; setTimeout(() => { b.removeAttribute('data-sure'); b.textContent = 'Reset everything'; }, 4000); return; }
     b.removeAttribute('data-sure'); b.textContent = 'Reset everything'; const before = snapNow(); MY.items = []; MY.lines = []; sel = null; $('card').hidden = true; myCommit(before); toast('Your plan is empty again; the guide\'s plan is whole. Undo brings your changes back.', 5200); });
   document.querySelectorAll('#my-snap button').forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-snap') === edit.snap ? 'true' : 'false'));
 })();
@@ -2540,11 +2571,11 @@ myApply();
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-16 16:01:09'; let told = false;
+const BUILD = '2026-11-16 16:04:17'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 (() => { const at = /[?&]at=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.search); if (!at) return; follow = false; map.setView(ll(+at[1], +at[2]), 6.5, { animate: false }); setTimeout(() => toast('Opened at ' + Math.round(+at[1]) + ', ' + Math.round(+at[2]) + '.', 4000), 600); })();
-window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, drawHud, edit, myDo, mySetEdit, mySetSnap, myHitAt, myPlace, myTake, myFile, myUndo, myCatReady, myDragStart, myDragMove, myDragEnd, myTool, myLineClick, myLineEnd, myLineDo, myCheck, onUnlocked, get myChk(){ return myChk; }, get myBad(){ return myBad; }, get my(){ return MY; }, onBoard, drawBoard, boardCan, get board(){ return BOARD; }, get hud(){ return HUD; }, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
+window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, drawHud, edit, myDo, mySetEdit, mySetSnap, myHitAt, myPlace, myTake, myFile, myUndo, myCatReady, myDragStart, myDragMove, myDragEnd, myTool, myLineClick, myLineEnd, myLineDo, myCheck, onUnlocked, mySteps, myStepDo, get myChk(){ return myChk; }, get myBad(){ return myBad; }, get my(){ return MY; }, onBoard, drawBoard, boardCan, get board(){ return BOARD; }, get hud(){ return HUD; }, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
 })();
 
 </script>
