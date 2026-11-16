@@ -6,9 +6,9 @@ One pack built round [Satisfactory Plus](satisfactory-plus.html), in three forms
 
 | File | For | Mods |
 | --- | --- | --- |
-| [`packs/HowsonPlus.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlus.smmprofile) | Solo play | 106 |
-| [`packs/HowsonPlusServer.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusServer.smmprofile) | The dedicated server | 94 |
-| [`packs/HowsonPlusClient.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusClient.smmprofile) | A PC joining that server | 102 |
+| [`packs/HowsonPlus.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlus.smmprofile) | Solo play | 107 |
+| [`packs/HowsonPlusServer.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusServer.smmprofile) | The dedicated server | 99 |
+| [`packs/HowsonPlusClient.smmprofile`](https://github.com/scotthowson/SatisfactoryHowson/blob/main/packs/HowsonPlusClient.smmprofile) | A PC joining that server | 107 |
 
 ## Read this first
 
@@ -45,7 +45,7 @@ The first four are already inside both overlay zips ([Howson Plus on the server]
 Set in the game, not in a file:
 
 - **Per save** (Mod Savegame Settings, chosen when the world is made): Shorter Hard Drive Research 300 seconds (its own default is 3); Infinite Zoop "Blueprint Zoops" off. For the server, make the save in single player with the client pack, set them there, then upload the save.
-- **Key bindings** (Options, Keybindings, on each PC): Infinite Nudge cycle mode from Z to apostrophe, Cable Highlighter from F8 to F9, and optionally Location and Rotation from Alt+X to Alt+L. Without the first two, Smart! swallows those keys.
+- **Key bindings** (Options, Keybindings, on each PC): Infinite Nudge cycle mode from Z to apostrophe, Cable Highlighter from F8 to F5, Smart! Camera "edit layout" from F8 to F4, and optionally Location and Rotation from Alt+X to Alt+L. Smart! swallows Z otherwise, and F7 to F9 belong to SatMap (next step, to-do panel, plan outlines) on a PC that has it.
 - **Custom Hud** (solo only): hide the version label, from its building in the Special tab.
 - **Universal Swatch Slots:** players joining the server need the same palette file as the server (its page).
 
@@ -80,12 +80,14 @@ These are the places where two mods meet and only the game can say what happens.
 - **Covered Conveyor Belts:** no patch: Mk.2 to Mk.6 hang on base-game milestones that Satisfactory Plus replaced and may never unlock; check in game
 - **Wall Pipe Supports:** no patch: its page ties the unlock to the base game's Coal Generator milestone; check in game
 - **Wood Walls (and Roofs):** no patch: some entries hang on a base-game milestone; check in game
-- **Road Maker:** solo only; fence walls are tied to milestones by base-game name; check in game
+- **Road Maker:** on the server since 16 Nov 2026 (1.3.1 is the first with a Linux server build); its page says multiplayer support is included but not tested; fence walls are tied to milestones by base-game name; check in game
 - **Power Checker:** own unlock, cost not patched
 - **Faster Manual Crafting Redux:** hand-crafting speed; Scott's own cap is step 0.175, maximum 8
 - **Taj's Graphical Overhaul:** last built for an older game; ficsit.app: 'Allegedly works. Author has not tested it.'
 - **Snappy Build Menu:** client only
-- **Storm Lights:** solo only; not tested in multiplayer by its author
+- **Storm Lights:** on the server since 16 Nov 2026 (1.0.1 has a Linux server build); not tested in multiplayer or on a dedicated server by its author
+- **Custom Hud:** on the server since 16 Nov 2026 on Scott's word; its author marks it untested in multiplayer and likely host only, and a dedicated server has no host: take it back out if it misbehaves there
+- **Bottleneck:** on the server since 16 Nov 2026 on Scott's word; its author marks it untested in multiplayer and likely host only: take it back out if it misbehaves there
 - **Atlas: Buildings on the map:** building and machine settings from the map work in single player and for the host only
 - **Megaprojects: Power Domain:** kept on Scott's choice, wireless power links included; a late goal (patched milestone at Tier 4, needs Space Elevator parts)
 - **Critical Path:** F10 report of what blocks the current milestone. Its page says modded content is measured, not assumed, but it is untested beside Satisfactory Plus's replaced milestones and custom machines: try it solo first
@@ -104,12 +106,8 @@ These are the places where two mods meet and only the game can say what happens.
 - **No Splash / Intro Screens:** only changes your own screen, so the server does not need it.
 - **Taj's Graphical Overhaul:** only changes your own screen, so the server does not need it.
 - **More Sign Spots:** only changes your own screen, so the server does not need it.
-- **Road Maker:** no server build.
-- **Storm Lights:** no server build.
-- **Custom Hud:** its author marks it untested in multiplayer and likely host only, and a dedicated server has no host.
-- **Bottleneck:** its author marks it untested in multiplayer and likely host only, and a dedicated server has no host.
 
-The profile for this PC when it joins the Plus server: the server pack plus the mods that only change this PC's own screen. Each is client-optional: its plugin file says RequiredOnRemote false, or, where it is not installed here to read, its page says so (client_only_says). Road Maker and Storm Lights would be needed on the server but have no Linux server build, and Custom Hud and Bottleneck are host-only by their author's word, so those four stay off while joining.
+The profile for this PC when it joins the Plus server: the server pack plus the mods that only change this PC's own screen. Each is client-optional: its plugin file says RequiredOnRemote false, or, where it is not installed here to read, its page says so (client_only_says). Since 16 Nov 2026 every mod that has a Linux server build is in the server pack, on Scott's word ("Everything that has a server build. i realistically want in the server pack and or overlay."): Road Maker and Storm Lights gained server builds on 15 Nov, and Custom Hud and Bottleneck, which their author marks untested in multiplayer and likely host only, came in under the same rule. The solo pack and the joining client are now the same list.
 
 ## Held back for later
 
@@ -140,7 +138,7 @@ How to put them on the server and on a joining PC: [Howson Plus on the server](p
 | --- | --- | --- |
 | [SatisfactoryPlus (SF+/SFP)](https://ficsit.app/mod/SatisfactoryPlus) | Content overhaul and recipe rebalancing for Satisfactory. | Everywhere |
 
-### Build tools (14)
+### Build tools (15)
 
 | Mod | What it does | Where |
 | --- | --- | --- |
@@ -156,8 +154,9 @@ How to put them on the server and on a joining PC: [Howson Plus on the server](p
 | [Progressive Blueprinters](https://ficsit.app/mod/ProgressiveBlueprinter) | A set of tiered blueprinting machines that grow with your progress. | Everywhere |
 | [Construction Preferences](https://ficsit.app/mod/ConstructionPreferences) | Set a variety of preferences related to construction | Everywhere |
 | [Pole Position](https://ficsit.app/mod/StackableDistance) | Snaps the next stackable pole to max belt/pipe/tube reach from the last one and shows that range as a ring. | Everywhere |
-| [Road Maker](https://ficsit.app/mod/RoadMaker) | Curved roads with lane lines and markings, intersections, road tools, fences, fence walls and a sign gantry, plus smart snapping | Solo only |
+| [Road Maker](https://ficsit.app/mod/RoadMaker) | Curved roads with lane lines and markings, intersections, road tools, fences, fence walls and a sign gantry, plus smart snapping | Everywhere |
 | [SnapOn](https://ficsit.app/mod/DirectToSplitter) | SNAPON, apply directly to the factory. (Attach Splitters, Mergers, and Pipe Junctions directly to factory inputs/outputs) | Everywhere |
+| [Quick Blueprint](https://ficsit.app/mod/BlueprintHighlighted) | Quickly generate a Blueprint from Dismantle mode | Everywhere |
 
 ### Information (8)
 
@@ -176,11 +175,11 @@ How to put them on the server and on a joining PC: [Howson Plus on the server](p
 
 | Mod | What it does | Where |
 | --- | --- | --- |
-| [Custom Hud](https://ficsit.app/mod/CustomizableHUD) | Hide and show parts of your HUD | Solo only |
+| [Custom Hud](https://ficsit.app/mod/CustomizableHUD) | Hide and show parts of your HUD | Everywhere |
 | [Speedometer](https://ficsit.app/mod/Velocimeter) | Shows the speed/coords and altitude of your character and have an Odometer. | Everywhere |
 | [GameTime](https://ficsit.app/mod/GameTime) | Have the game time, system time and session time clock always on your screen. | Everywhere |
 | [Location and Rotation](https://ficsit.app/mod/HologramLocation) | Adds a widget which shows you the location and rotation info for the currently highlighted buildable | Solo and client |
-| [Bottleneck](https://ficsit.app/mod/Bottleneck) | A tool to easily see what the machine is doing and how well it is working. | Solo only |
+| [Bottleneck](https://ficsit.app/mod/Bottleneck) | A tool to easily see what the machine is doing and how well it is working. | Everywhere |
 | [Production Stats](https://ficsit.app/mod/Stats) | See production and consumption statistics. | Everywhere |
 | [Atlas: Buildings on the map](https://ficsit.app/mod/FactoryAtlas) | See your buildings on the map, and control them! | Everywhere |
 | [Miner Status on MAP](https://ficsit.app/mod/StatusMapMarker) | If the extractor/miner is stuck, will show on map as a marker. | Everywhere |
@@ -197,7 +196,7 @@ How to put them on the server and on a joining PC: [Howson Plus on the server](p
 | [Snappy Build Menu](https://ficsit.app/mod/SnappyBuildMenu) | Performance improvements for the build menu. Instant search, no stutter, fewer clicks. | Solo and client |
 | [No Splash / Intro Screens](https://ficsit.app/mod/NoSplash) | Removes all splash screens from game startup | Solo and client |
 | [Taj's Graphical Overhaul](https://ficsit.app/mod/TajsGraph) | Crank up those graphics and make efficiency look sexy! | Solo and client |
-| [Storm Lights](https://ficsit.app/mod/StormLights) | Your night only lights come on during storms, heavy rain and fog, and flicker when lightning strikes. | Solo only |
+| [Storm Lights](https://ficsit.app/mod/StormLights) | Your night only lights come on during storms, heavy rain and fog, and flicker when lightning strikes. | Everywhere |
 | [More Sign Spots](https://ficsit.app/mod/MoreSignSpots) | Adds more Sign attachment points to vanilla buildings | Solo and client |
 | [Indicator Colors](https://ficsit.app/mod/IndicatorColors) | Change the colors of production indicators | Everywhere |
 | [Hover Pack Fuse Reminder](https://ficsit.app/mod/HoverpackFuseReminder) | Warns you in the Fuse Box UI when you have a Hover Pack equipped. | Everywhere |
