@@ -189,6 +189,27 @@ label.ck input{width:17px;height:17px;accent-color:var(--accent);flex:none}
 .voidmask{image-rendering:auto}
 .hudrow{display:grid;gap:6px;margin:2px 0 10px}.hudrow>span{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#93a1b3)}.hudrow>div{display:flex;flex-wrap:wrap;gap:6px}
 .hudrow button{font:500 12.5px/1 var(--body,inherit);padding:8px 10px;border-radius:9px;border:1px solid var(--line,#263445);background:rgba(255,255,255,.04);color:var(--muted,#93a1b3);cursor:pointer}.hudrow button[aria-pressed=true]{background:rgba(53,214,194,.16);border-color:rgba(53,214,194,.6);color:var(--ink,#eef3f8)}.hudrow button:focus-visible{outline:2px solid var(--accent,#fa9549);outline-offset:2px}
+
+/* the plan editor */
+.mybox{margin:2px 0 14px;padding:12px;border:1px solid rgba(53,214,194,.4);border-radius:12px;background:linear-gradient(180deg,rgba(53,214,194,.1),rgba(53,214,194,.03));display:grid;gap:9px}
+.mybox h3{margin:2px 0 0}.mybox p{margin:0;font-size:12.5px;color:var(--muted)}
+.panel input[type=text],.panel textarea{padding:7px 10px;border-radius:7px;border:1px solid var(--line2);background:#0f1722;color:inherit;font:inherit;min-width:0;width:100%;box-sizing:border-box}
+.panel textarea{font:400 11.5px/1.4 var(--mono);resize:vertical}
+.seg{display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;flex:1 1 auto}
+.seg button{all:unset;cursor:pointer;flex:1;text-align:center;padding:6px 10px;font-weight:500;font-size:13px}
+.seg button[aria-pressed=true]{background:rgba(53,214,194,.22);color:#dffcf7}
+.seg button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent2,#35d6c2);outline-offset:1px}
+.btn[disabled]{opacity:.4;cursor:default}
+#my-hits button{grid-template-columns:26px minmax(0,1fr) auto}#my-hits small{grid-column:2/-1;color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:-6px}
+#my-hits{max-height:260px;overflow:auto}
+.myform{display:flex;flex-wrap:wrap;gap:6px;align-items:end;margin:8px 0}.myform label{display:grid;gap:2px;font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex:1 1 64px}
+.myform input{width:100%;box-sizing:border-box;flex:none!important;font:400 13px var(--mono)}
+#editbar{position:absolute;z-index:24;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;gap:6px;align-items:center;padding:7px 8px 7px 14px;border-radius:12px;border:1px solid rgba(53,214,194,.55)}
+#editbar[hidden]{display:none}#editbar b{font:600 12.5px var(--body,inherit);color:#dffcf7;margin-right:6px;white-space:nowrap}
+#editbar button{all:unset;cursor:pointer;padding:6px 11px;border-radius:8px;border:1px solid var(--line2);background:rgba(255,255,255,.05);font-size:12.5px;font-weight:500;white-space:nowrap}
+#editbar button:hover{background:rgba(255,255,255,.12)}#editbar button[disabled]{opacity:.4;cursor:default}#editbar button.go{background:var(--accent);color:#1d1300;border-color:transparent}
+body.editing #map{cursor:crosshair}
+@media (max-width:760px){#editbar{bottom:calc(64px + env(safe-area-inset-bottom,0px))}#editbar b{display:none}}
 </style>
 <div class="app">
 <div id="map" role="application" aria-label="Map of the whole world"></div>
@@ -238,7 +259,7 @@ label.ck input{width:17px;height:17px;accent-color:var(--accent);flex:none}
   <h3>Logistics</h3><div class="rows" id="f-logi"><div class="none">Nothing yet.</div></div>
   <h3>In stock</h3><div class="rows" id="f-stock"><div class="none">What your containers hold appears here with the mod's server part.</div></div>
   <h3>Not producing</h3><div class="rows" id="f-stalled"><div class="none">Nothing to show.</div></div><h3>Machines</h3><div class="rows" id="f-counts"><div class="none">Nothing yet.</div></div><h3>Everything else you have placed</h3><div class="rows" id="f-other"><div class="none">Nothing yet.</div></div></div>
- <div class="tab" id="t-plan"><h2>The plan</h2><label class="ck"><input type="checkbox" id="plan"> Show the Satisfactory Plus plan</label><h3>What to draw</h3><label class="ck"><input type="checkbox" data-plan="floors"> Floors</label><label class="ck"><input type="checkbox" data-plan="mach"> Every machine</label><label class="ck"><input type="checkbox" data-plan="lanes"> Belts and pipes inside the halls</label><label class="ck"><input type="checkbox" data-plan="fit"> Splitters, Mergers, Junctions, Power Poles</label><label class="ck"><input type="checkbox" data-plan="places"> Placements: the HUB plaza, storage bays, fittings, wind pads</label><label class="ck"><input type="checkbox" data-plan="routes"> Belts between the floors</label><label class="ck"><input type="checkbox" data-plan="power"> Power lines and the Hypertube</label><div class="row"><span>Stage</span><select class="sel" id="stage" aria-label="Stage of the plan"></select></div>
+ <div class="tab" id="t-plan"><h2>The plan</h2><div class="mybox"><h3>Your plan <small id="my-count"></small></h3><p>Move, turn, copy or take out anything in the guide's plan, and add buildings of your own. Yours carry a teal corner; the guide's plan stays whole underneath and comes back when you take yours away.</p><label class="ck"><input type="checkbox" id="my-edit"> Edit the plan</label><div class="row"><span>Placing</span><div class="seg" id="my-snap"><button type="button" data-snap="grid" aria-pressed="true">On the grid</button><button type="button" data-snap="free" aria-pressed="false">Free</button></div></div><div class="row"><button type="button" class="btn" id="my-undo" disabled>Undo</button><button type="button" class="btn" id="my-redo" disabled>Redo</button></div><h3>Add a building</h3><input type="text" id="my-q" placeholder="Smelter, Foundation, Basic Wall, Coal-Powered…" autocomplete="off" aria-label="Find a building to add"><label class="ck" id="my-locked-row" hidden><input type="checkbox" id="my-locked"> Show what is still locked</label><p id="my-q-note"></p><div class="rows" id="my-hits"></div><h3>Your changes</h3><div class="rows" id="my-list"><div class="none">Nothing yet. Switch Edit on and drag anything in the plan, or add a building.</div></div><div class="row"><button type="button" class="btn" id="my-send">Send to the game</button><button type="button" class="btn" id="my-save">Save</button><button type="button" class="btn" id="my-load">Load</button><button type="button" class="btn" id="my-reset">Reset everything</button><input type="file" id="my-file" accept=".json,application/json" hidden></div><p id="my-text-note" hidden></p><textarea id="my-text" rows="5" spellcheck="false" aria-label="The plan as text" hidden></textarea><details class="keyd"><summary>Mouse and keys while editing</summary><p><b>Drag</b> a piece to move it; drag the round handle to turn it. A floor takes what stands on it along (Shift: the floor alone). <b>R</b> a quarter turn (Shift: back), <b>[</b> and <b>]</b> 5° (Shift: 1°), <b>arrows</b> 1 m (Shift: 8 m, Alt: 10 cm), <b>Ctrl D</b> copy, <b>Delete</b> take out, <b>G</b> grid or free, <b>Ctrl Z</b> undo, <b>Ctrl Y</b> redo.</p></details></div><h3>The guide's plan</h3><label class="ck"><input type="checkbox" id="plan"> Show the Satisfactory Plus plan</label><h3>What to draw</h3><label class="ck"><input type="checkbox" data-plan="floors"> Floors</label><label class="ck"><input type="checkbox" data-plan="mach"> Every machine</label><label class="ck"><input type="checkbox" data-plan="lanes"> Belts and pipes inside the halls</label><label class="ck"><input type="checkbox" data-plan="fit"> Splitters, Mergers, Junctions, Power Poles</label><label class="ck"><input type="checkbox" data-plan="places"> Placements: the HUB plaza, storage bays, fittings, wind pads</label><label class="ck"><input type="checkbox" data-plan="routes"> Belts between the floors</label><label class="ck"><input type="checkbox" data-plan="power"> Power lines and the Hypertube</label><div class="row"><span>Stage</span><select class="sel" id="stage" aria-label="Stage of the plan"></select></div>
   <div class="row"><button type="button" class="btn" id="home">Go to the base</button><a class="btn" href="satisfactory-plus.html">Open the guide</a></div>
   <h3>In the game</h3><p id="ghost-note">Plan ghosts need the SatMap mod: outlines of the plan drawn in the world.</p><div class="row"><button type="button" class="btn go" id="ghost-on" disabled>Show the plan in the game</button><button type="button" class="btn" id="ghost-off" disabled>Hide it</button></div><p id="snap-note"></p>
   <h3>Halls: placed of planned</h3><p id="plan-note">With the mod's factory data, each planned machine turns green once the right machine stands on its spot.</p><div id="hallrows"></div></div>
@@ -258,6 +279,7 @@ label.ck input{width:17px;height:17px;accent-color:var(--accent);flex:none}
 </section>
 <section class="card glass" id="card" hidden aria-live="polite"></section>
 <div id="toast" class="glass" hidden></div>
+<div id="editbar" class="glass" hidden><b>Editing your plan</b><button type="button" id="eb-snap" title="Grid or free placing (G)">On the grid</button><button type="button" id="eb-undo" title="Undo (Ctrl Z)">Undo</button><button type="button" id="eb-redo" title="Redo (Ctrl Y)">Redo</button><button type="button" id="eb-done" class="go">Done</button></div>
 <div class="hud"><div class="cell glass opt" id="readout">move the pointer over the map</div><div class="glass" id="way" hidden><canvas class="rose" width="76" height="76"></canvas><div><b id="way-d">–</b><span id="way-n"></span></div><button type="button" class="btn sm" id="way-x">Stop</button></div><div class="cell glass" id="clock">&nbsp;</div></div>
 </div>
 <script src="map-hd/hd.js" onerror="window.HOWSON_HD=null"></script>
@@ -783,6 +805,7 @@ function paint(ctx, b){
     });
     ctx.globalAlpha = 1;
   }
+  drawMy(ctx, s, z, X, Y, inb, LBL);
   ctx.setLineDash([]); ctx.globalAlpha = 1; LATE.forEach(f => f()); sayAll(ctx, LBL, TOOK);
   ALERTS.forEach(a => {                                   // the watchdog's warnings, above what they are about
     if (!inb(a.x, a.y)) return; const k = z < 4 ? 18 : 26, px = X(a.x), py = Y(a.y) - (z >= 5 ? 22 : 0);
@@ -802,7 +825,7 @@ function paint(ctx, b){
   tpins().forEach(p => { const x = p.x / 100, y = p.y / 100; if (!inb(x, y)) return; ctx.globalAlpha = p.done ? .45 : 1; ctx.drawImage(icon(p.colour || TPINCOL, 'pin', 's', { done: !!p.done }), X(x) - k2 / 2, Y(y) - k2 / 2, k2, k2);
     if (z >= 4.5 && p.text && !p.done) { const t = p.text.length > 28 ? p.text.slice(0, 27) + '…' : p.text; ctx.font = '600 11.5px "IBM Plex Sans",sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(8,12,18,.85)'; ctx.strokeText(t, X(x), Y(y) + k2 / 2 + 12); ctx.fillStyle = '#fff'; ctx.fillText(t, X(x), Y(y) + k2 / 2 + 12); } });
   ctx.globalAlpha = 1;
-  if (sel && sel.x !== undefined && inb(sel.x, sel.y)) { ctx.beginPath(); ctx.arc(X(sel.x), Y(sel.y), Math.max(16, sz * 0.8), 0, 7); ctx.strokeStyle = '#fa9549'; ctx.lineWidth = 2.5; ctx.stroke(); }
+  if (sel && sel.kind !== 'my' && sel.x !== undefined && inb(sel.x, sel.y)) { ctx.beginPath(); ctx.arc(X(sel.x), Y(sel.y), Math.max(16, sz * 0.8), 0, 7); ctx.strokeStyle = '#fa9549'; ctx.lineWidth = 2.5; ctx.stroke(); }
 }
 const Sprites = L.Renderer.extend({
   options: { padding: 0.5 },
@@ -834,6 +857,7 @@ function hitAt(cp){
   const n = Math.ceil(r / G);
   for (let i = Math.floor(x / G) - n; i <= Math.floor(x / G) + n; i++) for (let j = Math.floor(y / G) - n; j <= Math.floor(y / G) + n; j++)
     (grid[i + ',' + j] || []).forEach(m => { if (m.c.shown && !(hideDone && done(m)) && !(m.c.t === 'plant' && z < 2.5)) tryIt(m, m.x, m.y); });
+  { const mh = myHitAt(x, y, s); if (mh && (edit.on || !best)) return mh; }      // a piece of your own plan: first of all while editing
   if (best) return best;
   if (W && fset.lines && z >= 4.5) {                       // a belt, pipe or power line you have built
     const tol = 6 / s, on = q => { const ax = q[0] / 100, ay = q[1] / 100, bx = q[2] / 100, by = q[3] / 100, l2 = (bx - ax) * (bx - ax) + (by - ay) * (by - ay) || 1, t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / l2)); return Math.hypot(ax + t * (bx - ax) - x, ay + t * (by - ay) - y) < tol; };
@@ -856,7 +880,7 @@ function hitAt(cp){
   }
   return fsp;
 }
-map.on('click', e => { const h = hitAt(e.containerPoint); if (h) select(h); else closeCard(); });
+map.on('click', e => { if (Date.now() - edit.skipClick < 400) return; const h = hitAt(e.containerPoint); if (h) select(h); else closeCard(); });
 let hoverT = 0;
 map.on('mousemove', e => {
   const x = Math.round(e.latlng.lng), y = Math.round(-e.latlng.lat); $('readout').textContent = x + ', ' + y + '   in game ' + (x * 100) + ', ' + (y * 100);
@@ -869,7 +893,7 @@ const posLine = (x, y, z) => '<p class="mono">' + Math.round(x) + ', ' + Math.ro
 let CAT = null, catBusy = false, catNo = 0;
 function wantCat(){
   if (CAT || catBusy || Date.now() - catNo < 60000 || !(live.ok || SITE)) return; catBusy = true;
-  fetch(BASE + '/catalog', { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => { catBusy = false; if (!d || !d.done || !d.buildables) { catNo = Date.now(); return; } CAT = {}; d.buildables.forEach(b => { CAT[b.c] = b; }); if (sel && (sel.kind === 'pc' || sel.kind === 'b' || sel.kind === 'fl')) select(sel); }).catch(() => { catBusy = false; catNo = Date.now(); });
+  fetch(BASE + '/catalog', { cache: 'no-store' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => { catBusy = false; if (!d || !d.done || !d.buildables) { catNo = Date.now(); return; } CAT = {}; d.buildables.forEach(b => { CAT[b.c] = b; }); CATLIST = null; if ($('my-q') && $('my-q').value) mySearch(); if (sel && (sel.kind === 'pc' || sel.kind === 'b' || sel.kind === 'fl')) select(sel); }).catch(() => { catBusy = false; catNo = Date.now(); });
 }
 const mnum = v => (+(v / 100).toFixed(2)) + '';
 function pieceSize(cls, sh){                              // "8 m long, 4 m high, 0.5 m thick" from the game's own numbers
@@ -931,6 +955,7 @@ function select(o, fly){
   else if (o.kind === 'pc') { wantCat(); const sh = W && W.shape ? W.shape[o.ci] : null, c = CAT && CAT[o.cls || (W && W.classes[o.ci])], edge = o.what === 'edge';
     ic = icon('#3f6a94', 'hub', 's'); title = o.n; sub = 'Built · ' + (edge ? 'fence' : EDGEPIECE.test(o.n) ? 'railing' : 'wall') + (c && c.sub ? ' · ' + c.sub : '');
     body = (edge ? '<p>Runs corner to corner across an ' + mnum(o.w * 100) + ' by ' + mnum(o.d * 100) + ' m square' + (o.on ? ', along the long side of the corner piece under it' : '') + '. The game files it with the foundations; the map draws the line it is.</p>' : pieceSize(o.cls, sh)) + posLine(o.x, o.y, o.z); acts = [nav, copy]; }
+  else if (o.kind === 'my') { const c = myCard(o.it), it = o.it; ic = it.k === 'mark' ? icon(it.c || MYCOL, it.i || 'flag', 'c') : icon('#1c6e66', it.k === 'floor' ? 'hub' : bglyph(it.n), 's'); title = c.title; sub = c.sub; body = c.body + posLine(it.x, it.y); acts = c.acts.concat([nav, copy]); }
   else if (o.kind === 'al') { ic = icon(ALCOL[o.sev] || ALCOL[1], ALGLYPH[o.k] || 'wrench', 'd'); title = o.text; sub = 'Watchdog' + (o.n ? ' · ' + o.n : '') + (o.since ? ' · for ' + ago(o.since) : '');
     body = (o.more ? '<p><b>' + esc(o.more) + '</b></p>' : '') + '<p>' + (ALHELP[o.k] || 'Something here needs a look.') + '</p>' + posLine(o.x, o.y, o.z); acts = [nav, copy]; }
   else if (o.kind === 'pl') { ic = icon(o.p.color, 'pin', 'c'); title = o.p.name; sub = o.p.isMe ? 'You' : 'Player'; o.x = o.p.cur[0]; o.y = o.p.cur[1]; body = posLine(o.x, o.y, o.p.z); acts = o.p.isMe ? [copy] : [nav, copy]; }
@@ -942,6 +967,7 @@ function select(o, fly){
 $('card').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b || !sel) return; const a = b.getAttribute('data-act'), o = sel;
   if (a === 'close') closeCard();
+  else if (/^my-/.test(a)) myCardAct(a);
   else if (a === 'nav') setWay({ x: o.x, y: o.y, name: o.kind === 'm' ? o.c.n : o.kind === 'floor' ? o.f.n : o.kind === 'place' ? o.p.n : o.kind === 'fit' ? 'the ' + (o.q[2] === 's' ? 'Splitter' : o.q[2] === 'm' ? 'Merger' : o.q[2] === 'j' ? 'Junction' : 'Power Pole') + ' on ' + o.q[5] : o.kind === 'step' ? o.st.t : o.kind === 'pin' ? o.p.name : o.kind === 'pm' ? o.m[2] + ', ' + hallOf[o.m[0]].t : o.name || o.n || 'this spot', o });
   else if (a === 'copy') { const t = Math.round(o.x) + ', ' + Math.round(o.y); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Copied ' + t), () => toast(t)); }
   else if (a === 'tick') { if (ticks[o.id]) delete ticks[o.id]; else ticks[o.id] = 1; store.set('howson-map-ticks-v1', Object.keys(ticks)); changed(); select(o); }
@@ -1366,9 +1392,9 @@ function wrongWay(m, dir){
 }
 function adopt(w){ W = buildWorld(w); FL = floorsOf(w); W.machines.concat(W.others).forEach(o => { const sl = slabUnder(o.x, o.y, o.z); o.st = sl ? sl.st : 1; }); }
 const worldStale = rev => (tl.on ? tl.held : W ? W.rev : null) !== rev;
-function onWorld(w){
-  lastDoc = w; if (tl.on) { tl.held = w.rev; tl.doc = w; return; }       // the map is showing the past: keep the present for later
-  adopt(w); drawStoreys(); autoSteps();
+function planMatch(){                                     // which planned machine and place has its building standing: run again whenever the plan or the world changes
+  for (const k in planBuilt) delete planBuilt[k]; for (const k in planTurn) delete planTurn[k]; for (const k in placeBuilt) delete placeBuilt[k];
+  if (!W) { myMatch(null); return; }
   const cell = {}; W.machines.forEach(m => { const k = Math.floor(m.x / 16) + ',' + Math.floor(m.y / 16); (cell[k] = cell[k] || []).push(m); });
   PLAN.mach.forEach((pm, i) => {
     const cx = pm[3] + pm[5] / 2, cy = pm[4] + pm[6] / 2, want = nk(pm[2]); let ok = false;
@@ -1380,7 +1406,13 @@ function onWorld(w){
     const cx = p.x + p.w / 2, cy = p.y + p.h / 2, want = p.b !== undefined ? (p.b ? norm(p.b) : '\u0000') : /container|storage bay/i.test(p.n) ? 'storage container' : /wind turbine/i.test(p.n) ? 'wind turbine' : /hypertube/i.test(p.n) ? 'hypertube entrance' : norm(p.n), reach = Math.max(6, Math.min(p.w, p.h) / 2 + 3);
     placeBuilt[i] = everything.some(b => Math.hypot(b.x - cx, b.y - cy) < reach && (norm(b.n).indexOf(want) >= 0 || want.indexOf(norm(b.n)) >= 0 || (want === 'storage container' && /container/i.test(b.n))));
   });
+  myMatch(everything);
+}
+function onWorld(w){
+  lastDoc = w; if (tl.on) { tl.held = w.rev; tl.doc = w; return; }       // the map is showing the past: keep the present for later
+  adopt(w); drawStoreys(); autoSteps(); planMatch();
   const by = {}; let run2 = 0, idle = 0, off = 0; const stalled = [];
+
   W.machines.forEach(m => { by[m.n] = (by[m.n] || 0) + 1; if (m.state === 1) run2++; else if (m.state === 0) { idle++; if (m.recipe) stalled.push(m); } else if (m.state === 2 || m.state === 3) { off++; stalled.push(m); } });
   const known = W.machines.some(m => m.state >= 0);
   $('f-n').textContent = fmt(W.machines.length); $('f-run').textContent = known ? run2 : '–'; $('f-idle').textContent = known ? idle : '–'; $('f-off').textContent = known ? off : '–'; $('f-rev').textContent = 'update ' + W.rev;
@@ -1435,6 +1467,7 @@ function ghostPlan(){
   if (planSet.floors) PLAN.floors.forEach(f => { if (f.st <= stage) boxes.push({ id: 'f:' + f.n, n: f.n, sub: f.w + ' by ' + f.h + ' m', k: 'floor', x: cm(f.x), y: cm(f.y), w: cm(f.w), d: cm(f.h), h: 0, yaw: 0, c: '#35d07f', z: null }); });
   if (planSet.mach) PLAN.mach.forEach((m, i) => { const h = hallOf[m[0]]; if (hallOn(h)) boxes.push(Object.assign({ id: m[0] + ':' + m[1] + ':' + i, n: m[2], sub: h.t + ' · ' + m[7] + ' · ' + m[8] + '%', k: 'machine', x: cm(m[3]), y: cm(m[4]), w: cm(m[5]), d: cm(m[6]), h: cm(m[9] || 6), c: '#ffffff', z: null, b: m[2] }, planYaw(m[2], m[5], m[6], h.dir))); });
   if (planSet.places) PLAN.places.forEach((p, i) => { if (p.st <= stage && !(p.un && stage >= p.un)) { const bn = placeName(p); boxes.push(Object.assign({ id: 'p:' + i, n: p.n, sub: p.g, k: p.w ? 'place' : 'mark', x: cm(p.x), y: cm(p.y), w: cm(p.w), d: cm(p.h), h: p.w ? 400 : 0, yaw: 0, c: p.c, z: null }, p.w && bn ? Object.assign({ b: bn }, planYaw(Array.isArray(bn) ? bn[0] : bn, p.w, p.h, '')) : {})); } });
+  myGhosts(boxes, cm);
   const pl = (n, k, c, pts) => lines.push({ n, k, c, p: pts.map(q => [cm(q[0]), cm(q[1])]) });
   if (planSet.lanes) PLAN.lanes.forEach(ln => { if (hallOn(hallOf[ln.k])) ln.s.forEach(seg => pl(ln.n, ln.pipe ? 'pipe' : 'belt', ln.pipe ? '#49b8ff' : '#ff9d2e', seg)); });
   if (planSet.routes) PLAN.routes.forEach(r => { if (r.st <= stage && !(r.un && stage >= r.un)) pl(r.n, 'belt', '#ffb02e', r.p); });
@@ -1494,7 +1527,7 @@ function alertsFrom(st){                                  // the mod's list, plu
 }
 var fuseSince = 0, planSent = '', planAt = 0;
 function planSync(st){                                     // F9 in the game shows what the map last sent: send the plan by itself, and again when the stage or the layers change
-  const g = st.ghosts; if (!g || window.HOWSON_READONLY) return; const p = ghostPlan(), sig = p.name + '|' + p.boxes.length + '|' + p.lines.length + '|' + JSON.stringify(planSet), now = Date.now();
+  const g = st.ghosts; if (!g || window.HOWSON_READONLY) return; const p = ghostPlan(), sig = p.name + '|' + p.boxes.length + '|' + p.lines.length + '|' + JSON.stringify(planSet) + '|' + (MY ? MY.rev : 0), now = Date.now();
   if ((sig === planSent && !(g.boxes === 0 && p.boxes.length && now - planAt > 30000)) || now - planAt < 4000) return;
   planAt = now; post('/plan', p).then(r => { if (r && r.ok !== false) planSent = sig; });
 }
@@ -1744,6 +1777,7 @@ let qt = 0; $('q').addEventListener('input', () => { clearTimeout(qt); qt = setT
 document.addEventListener('keydown', e => {
   const typing = /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName);
   if (e.key === 'Escape') { $('hits').innerHTML = ''; closeCard(); if (typing) document.activeElement.blur(); return; }
+  if (!typing && editKey(e)) { e.preventDefault(); return; }
   if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === '/') { e.preventDefault(); $('q').focus(); }
   else if (e.key === 'f' || e.key === 'F') { $('follow').checked = !$('follow').checked; $('follow').dispatchEvent(new Event('change')); toast($('follow').checked ? 'Keeping you in view' : 'Free view'); }
@@ -1751,14 +1785,264 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'n' || e.key === 'N') { let best = null, bd = 1e18; all.forEach(m => { if (m.c.k.indexOf('slug') === 0 && !done(m)) { const d = distTo(m.x, m.y); if (d < bd) { bd = d; best = m; } } }); if (best) { if (!best.c.shown) setLayer(best.c, true); select(best, true); setWay({ x: best.x, y: best.y, name: best.c.n, o: best }); } }
 });
 
+$('card').addEventListener('keydown', e => { if (e.key === 'Enter' && /^my-[xya]$/.test(e.target.id)) { e.preventDefault(); myCardAct('my-set'); } });
+// ---- the plan editor, stage 1 (Scott, 16 Nov 2026: "live edit the guide items, move them around ... every single item rotatable, have a non snap mode").
+// Your plan sits on top of the guide's: a guide item you move, turn or remove becomes an item of yours that stands in for it
+// (its `src` names the guide item); a piece you add has no `src`.  Taking your item away gives the guide's back.
+// Everything of yours is in metres and degrees: x, y is the CENTRE of the box, sx and sy its size along its own X and Y, yaw any angle.
+// This file is pasted into the page's script by build_map.py where world-map.js says /*EDIT*/; state is `var` so that code
+// earlier in the script that runs before this point (a first repaint) finds it undefined instead of failing.
+var MYKEY = 'howson-map-myplan-v1', MYCOL = '#35d6c2', MY = null, G0 = null, CATLIST = null, myBuilt = {};
+var edit = { on: false, snap: store.get('howson-map-mysnap', 'grid'), drag: null, undo: [], redo: [], skipClick: 0, locked: false };
+const myId = it => 'my:' + it.id, rad = d => d * Math.PI / 180, q90 = yaw => Math.abs(((yaw % 90) + 90) % 90) < 0.01 || Math.abs(((yaw % 90) + 90) % 90 - 90) < 0.01;
+const norm360 = a => { a = ((a % 360) + 360) % 360; return Math.abs(a - Math.round(a)) < 1e-6 ? Math.round(a) % 360 : +a.toFixed(2); };
+function myLoad(){ const d = store.get(MYKEY, null); return d && d.v === 1 && Array.isArray(d.items) ? d : { v: 1, name: 'My plan', seq: 0, rev: 0, items: [] }; }
+function mySave(){ MY.rev = (MY.rev || 0) + 1; store.set(MYKEY, MY); }
+function gkeys(){                                         // a name for every guide item that survives the guide's plan being laid out again: what it is, not where it is in a list
+  const seen = {}, k = base => { seen[base] = (seen[base] || 0) + 1; return base + '#' + (seen[base] - 1); };
+  G0.mach.forEach(m => { m._k = k('m:' + m[0] + ':' + m[1] + ':' + m[2]); }); G0.places.forEach(p => { p._k = k('p:' + p.g + '|' + p.n); }); G0.floors.forEach(f => { f._k = k('f:' + f.n); });
+}
+function myApply(){                                       // the guide's lists without what yours stand in for; then everything that depends on them
+  const over = {}; MY.items.forEach(it => { if (it.src) over[it.src] = 1; });
+  PLAN.mach = G0.mach.filter(m => !over[m._k]); PLAN.places = G0.places.filter(p => !over[p._k]); PLAN.floors = G0.floors.filter(f => !over[f._k]);
+  if (sel && (sel.kind === 'pm' || sel.kind === 'place' || sel.kind === 'floor')) closeCard();
+  planMatch(); drawPlan(); myList();
+}
+const myShown = it => !it.hide && planOn && (it.k === 'machine' && it.hall ? planSet.mach && hallOn(hallOf[it.hall] || { st: 1 }) : it.k === 'floor' ? planSet.floors && (it.st || 1) <= stage : planSet.places && (it.st || 1) <= stage && !(it.un && stage >= it.un));
+function fromGuide(h){                                    // a guide item as an item of yours, where it stands now
+  const turn = (name, w, d, dir) => { const py = name ? planYaw(name, w, d, dir) : {}; return py.yaw !== null && py.yaw !== undefined ? py.yaw : py.yaws ? py.yaws[0] : 0; };
+  if (h.kind === 'pm') { const m = h.m, hl = hallOf[m[0]], yaw = turn(m[2], m[5], m[6], hl.dir), q = yaw % 180 !== 0;
+    return { src: m._k, k: 'machine', n: m[2], b: m[2], hall: m[0], sub: hl.t + ' · ' + m[7], x: m[3] + m[5] / 2, y: m[4] + m[6] / 2, sx: q ? m[6] : m[5], sy: q ? m[5] : m[6], yaw, h: m[9] || 6, lv: 0 }; }
+  if (h.kind === 'place') { const p = h.p, bn = placeName(p), b0 = Array.isArray(bn) ? bn[0] : bn, yaw = p.w ? turn(b0, p.w, p.h, '') : 0, q = yaw % 180 !== 0;
+    return { src: p._k, k: p.w ? 'place' : 'mark', n: p.n, b: b0 || null, sub: p.g, c: p.c, i: p.i, st: p.st, un: p.un, x: p.x + p.w / 2, y: p.y + p.h / 2, sx: q ? p.h : p.w, sy: q ? p.w : p.h, yaw, h: 4, lv: 0 }; }
+  if (h.kind === 'floor') { const f = h.f; return { src: f._k, k: 'floor', n: f.n, b: null, sub: f.sub, st: f.st, x: f.x + f.w / 2, y: f.y + f.h / 2, sx: f.w, sy: f.h, yaw: 0, h: 1, lv: 0 }; }
+  return null;
+}
+function myAdd(it){ it.id = 'u' + (++MY.seq); MY.items.push(it); return it; }
+const myGuide = it => { if (!it.src) return null; const c = it.src.charAt(0), l = c === 'm' ? G0.mach : c === 'p' ? G0.places : G0.floors; for (const g of l) if (g._k === it.src) return g; return null; };
+const myWhat = it => !it.src ? 'added by you' : it.hide ? 'removed by you' : 'moved by you';
+// ---- undo
+const snapNow = () => JSON.stringify(MY.items);
+function myCommit(before){ if (before !== undefined && before !== snapNow()) { edit.undo.push(before); if (edit.undo.length > 100) edit.undo.shift(); edit.redo = []; } mySave(); myApply(); myBar(); }
+function myUndo(redo){ const from = redo ? edit.redo : edit.undo, to = redo ? edit.undo : edit.redo; if (!from.length) { toast(redo ? 'Nothing to redo' : 'Nothing to undo'); return; }
+  to.push(snapNow()); MY.items = JSON.parse(from.pop()); if (sel && sel.kind === 'my') { const it = MY.items.filter(q => q.id === sel.it.id)[0]; if (it && !it.hide) sel = myObj(it); else { sel = null; $('card').hidden = true; } }
+  mySave(); myApply(); myBar(); if (sel && sel.kind === 'my') select(sel); }
+// ---- geometry
+const myObj = it => ({ kind: 'my', it, x: it.x, y: it.y });
+const myLocal = (it, x, y) => { const a = -rad(it.yaw || 0), dx = x - it.x, dy = y - it.y; return [dx * Math.cos(a) - dy * Math.sin(a), dx * Math.sin(a) + dy * Math.cos(a)]; };
+const myInside = (it, x, y, pad) => { const l = myLocal(it, x, y); return Math.abs(l[0]) <= it.sx / 2 + pad && Math.abs(l[1]) <= it.sy / 2 + pad; };
+const myHandle = (it, s) => { const a = rad(it.yaw || 0), d = it.sy / 2 + 16 / s; return [it.x + d * Math.sin(a), it.y - d * Math.cos(a)]; };      // the turning handle: beyond the middle of the piece's own -Y side
+function myHitAt(x, y, s){                                // yours, the small before the large, so a machine on a floor is picked before the floor
+  if (!MY || !planOn) return null; let best = null, area = 1e18; const r = 11 / s;
+  MY.items.forEach(it => { if (!myShown(it)) return; const ok = it.k === 'mark' || !(it.sx > 0) ? Math.hypot(it.x - x, it.y - y) < r : myInside(it, x, y, 0), a = it.k === 'mark' ? 0 : it.sx * it.sy; if (ok && a < area) { area = a; best = it; } });
+  return best ? myObj(best) : null;
+}
+function guideHitAt(x, y, s){                              // a guide item under the pointer, for the editor: the same order as the map's own picking
+  const r = 11 / s;
+  if (planSet.places) for (const p of PLAN.places) { if (p.st > stage || (p.un && stage >= p.un)) continue; if (p.w ? (x >= p.x && x <= p.x + p.w && y >= p.y && y <= p.y + p.h) : Math.hypot(p.x - x, p.y - y) < r) return { kind: 'place', p, x: p.x + p.w / 2, y: p.y + p.h / 2 }; }
+  if (planSet.mach) for (let i = 0; i < PLAN.mach.length; i++) { const m = PLAN.mach[i]; if (hallOn(hallOf[m[0]]) && x >= m[3] && x <= m[3] + m[5] && y >= m[4] && y <= m[4] + m[6]) return { kind: 'pm', i, m, x: m[3] + m[5] / 2, y: m[4] + m[6] / 2 }; }
+  if (planSet.floors) for (const f of PLAN.floors) if (f.st <= stage && x >= f.x && x <= f.x + f.w && y >= f.y && y <= f.y + f.h) return { kind: 'floor', f };
+  return null;
+}
+function mySnap(it, x, y){                                 // on the grid: half metres for a machine, the world's 8 m grid for a floor that stands square; free: where it is dropped
+  if (edit.snap !== 'grid') return [+x.toFixed(2), +y.toFixed(2)];
+  if (it.k === 'floor' && q90(it.yaw)) { const t = Math.round(it.yaw / 90) % 2 !== 0, wx = t ? it.sy : it.sx, wy = t ? it.sx : it.sy; return [Math.round((x - wx / 2) / 8) * 8 + wx / 2, Math.round((y - wy / 2) / 8) * 8 + wy / 2]; }
+  return [Math.round(x * 2) / 2, Math.round(y * 2) / 2];
+}
+const myTurnSnap = a => edit.snap === 'grid' ? norm360(Math.round(a / 15) * 15) : norm360(Math.round(a * 10) / 10);
+// what stands on a floor moves with it: the guide's and yours whose centre is on it
+function myRiders(fl){
+  const out = [], on = (x, y) => myInside(fl, x, y, 0.01);      // on it or on its edge: a door in its wall goes along
+  MY.items.forEach(it => { if (it !== fl && !it.hide && it.k !== 'floor' && on(it.x, it.y)) out.push(it); });
+  PLAN.mach.slice().forEach((m, i) => { if (on(m[3] + m[5] / 2, m[4] + m[6] / 2)) out.push(myAdd(fromGuide({ kind: 'pm', m, i }))); });
+  PLAN.places.slice().forEach(p => { if (p.st <= stage && on(p.x + p.w / 2, p.y + p.h / 2)) out.push(myAdd(fromGuide({ kind: 'place', p }))); });
+  return out;
+}
+// ---- drawing
+function myPorts(it){                                     // the building's belt, pipe and power ports about the middle of its box, from the game: a standing one's shape, else the catalogue
+  if (!it.b) return null; const ci = nameIx(it.b), sh = ci >= 0 && W && W.shape ? W.shape[ci] : null;
+  if (sh && sh[4] && sh[4].length) return sh[4].map(p => [(p[0] - (sh[2] || 0)) / 100, (p[1] - (sh[3] || 0)) / 100, p[2], p[3], p[5]]);
+  const c = CATLIST ? CATLIST.byName[nk(it.b)] : null; if (!c || !c.ports) return null; const o = c.hard ? [c.hard[2] || 0, c.hard[3] || 0] : c.centre || [0, 0];
+  return c.ports.map(p => [(p[0] - o[0]) / 100, (p[1] - o[1]) / 100, p[2], p[3], p[5]]);
+}
+function drawMy(ctx, s, z, X, Y, inb, LBL){
+  if (!MY || !planOn || z < 3.5) return;
+  const order = MY.items.filter(myShown).sort((a, b) => (a.k === 'floor' ? 0 : 1) - (b.k === 'floor' ? 0 : 1));
+  order.forEach(it => {
+    const reach = Math.hypot(it.sx || 0, it.sy || 0) / 2; if (!inb(it.x - reach, it.y - reach) && !inb(it.x + reach, it.y + reach) && !inb(it.x, it.y)) return;
+    const on = sel && sel.kind === 'my' && sel.it.id === it.id, px = X(it.x), py = Y(it.y), w = it.sx * s, d = it.sy * s, built = myBuilt[it.id];
+    if (it.k === 'mark' || !(it.sx > 0)) { const k = z < 5.5 ? 16 : 22; ctx.drawImage(icon(it.c || MYCOL, it.i || 'flag', 'c', { ring: on ? '#fa9549' : MYCOL }), px - k / 2, py - k / 2, k, k); if (z >= 6.5) LBL.push([2, it.n, px, py + k / 2 + 12]); return; }
+    ctx.save(); ctx.translate(px, py); ctx.rotate(rad(it.yaw || 0)); ctx.setLineDash(built ? [] : it.k === 'floor' ? [] : [5, 4]);
+    ctx.fillStyle = it.k === 'floor' ? 'rgba(53,208,127,.1)' : built ? 'rgba(61,220,132,.16)' : 'rgba(53,214,194,.09)'; ctx.strokeStyle = on ? '#fa9549' : built ? '#3ddc84' : MYCOL; ctx.lineWidth = on ? 2.6 : it.k === 'floor' ? 2 : 1.6;
+    ctx.fillRect(-w / 2, -d / 2, w, d); ctx.strokeRect(-w / 2, -d / 2, w, d); ctx.setLineDash([]);
+    ctx.fillStyle = MYCOL; ctx.beginPath(); ctx.moveTo(-w / 2, -d / 2); ctx.lineTo(-w / 2 + Math.min(9, w / 3), -d / 2); ctx.lineTo(-w / 2, -d / 2 + Math.min(9, d / 3)); ctx.closePath(); ctx.fill();      // the corner mark: this one is yours
+    if (z >= 5.5 && it.k !== 'floor') { const ps = myPorts(it), a = Math.max(3.5, Math.min(6.5, w / 5, d / 5));
+      (ps || []).forEach(p => { const x = p[0] * s, y = p[1] * s; ctx.beginPath(); ctx.strokeStyle = '#0b1118'; ctx.lineWidth = 1;
+        if (p[2] === 'power') { ctx.fillStyle = '#d678ff'; ctx.arc(x, y, a * .42, 0, 7); ctx.fill(); ctx.stroke(); return; }
+        ctx.fillStyle = p[2] === 'pipe' ? '#49b8ff' : '#ffd447'; if (typeof p[4] !== 'number' || p[3] === 'any') { ctx.rect(x - a / 2, y - a / 2, a, a); ctx.fill(); ctx.stroke(); return; }
+        const nx = Math.cos(rad(p[4])), ny = Math.sin(rad(p[4])), dd = p[3] === 'in' ? -1 : 1, bx = x - nx * dd * a * .4, by = y - ny * dd * a * .4;
+        ctx.moveTo(x + nx * dd * a, y + ny * dd * a); ctx.lineTo(bx - ny * a * .8, by + nx * a * .8); ctx.lineTo(bx + ny * a * .8, by - nx * a * .8); ctx.closePath(); ctx.fill(); ctx.stroke(); }); }
+    if (on && edit.on) { const hy = -d / 2 - 16; ctx.strokeStyle = '#fa9549'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, -d / 2); ctx.lineTo(0, hy); ctx.stroke(); ctx.beginPath(); ctx.arc(0, hy, 6, 0, 7); ctx.fillStyle = '#fa9549'; ctx.fill(); ctx.strokeStyle = '#0b1118'; ctx.stroke(); }
+    ctx.restore();
+    if (z >= (it.k === 'floor' ? 5 : 6.25) && Math.max(w, d) > 34) LBL.push([on ? 4 : it.k === 'floor' ? 2.5 : 2, it.n + (it.locked ? ' · locked' : ''), px, py + 4, on ? { bg: '#fa9549', col: '#1d1300' } : it.k === 'floor' ? { bg: 'rgba(16,22,31,.9)' } : { max: Math.max(30, Math.max(w, d) - 6) }]);
+  });
+}
+// ---- picking up, moving and turning with the mouse
+function myDragStart(e){
+  if (!edit.on || !planOn || !MY || (e.originalEvent && e.originalEvent.button !== 0)) return;
+  const x = e.latlng.lng, y = -e.latlng.lat, s = view ? view.s : 1; let mode = 'move', lead = null, guide = null;
+  if (sel && sel.kind === 'my' && myShown(sel.it)) { const h = myHandle(sel.it, s); if (Math.hypot(h[0] - x, h[1] - y) < 10 / s) { mode = 'turn'; lead = sel.it; } }
+  if (!lead) { const mh = myHitAt(x, y, s); if (mh) lead = mh.it; else guide = guideHitAt(x, y, s); }
+  if (!lead && !guide) return;
+  map.dragging.disable(); edit.drag = { mode, lead, guide, x0: x, y0: y, px: e.containerPoint, moved: false, before: snapNow(), alone: !!(e.originalEvent && e.originalEvent.shiftKey), group: null, a0: lead ? lead.yaw || 0 : 0 };
+}
+function myDragMove(e){
+  const g = edit.drag; if (!g) return; const x = e.latlng.lng, y = -e.latlng.lat;
+  if (!g.moved) { if (Math.hypot(e.containerPoint.x - g.px.x, e.containerPoint.y - g.px.y) < 4) return; g.moved = true;
+    if (!g.lead) { g.lead = myAdd(fromGuide(g.guide)); g.a0 = g.lead.yaw || 0; }
+    const riders = g.lead.k === 'floor' && !g.alone ? myRiders(g.lead) : []; g.group = [g.lead].concat(riders).map(it => ({ it, x: it.x, y: it.y, yaw: it.yaw || 0 }));
+    if (!g.guide && !riders.length) { /* nothing new came from the guide */ } else myApply();
+    sel = myObj(g.lead); $('card').hidden = true; }
+  if (g.mode === 'move') { const L0 = g.group[0], p = mySnap(g.lead, L0.x + x - g.x0, L0.y + y - g.y0), dx = p[0] - L0.x, dy = p[1] - L0.y; g.group.forEach(q => { q.it.x = +(q.x + dx).toFixed(3); q.it.y = +(q.y + dy).toFixed(3); }); }
+  else { const L0 = g.group[0], a = myTurnSnap(Math.atan2(y - L0.y, x - L0.x) * 180 / Math.PI + 90), da = rad(a - L0.yaw);
+    g.group.forEach(q => { const rx = q.x - L0.x, ry = q.y - L0.y; q.it.x = +(L0.x + rx * Math.cos(da) - ry * Math.sin(da)).toFixed(3); q.it.y = +(L0.y + rx * Math.sin(da) + ry * Math.cos(da)).toFixed(3); q.it.yaw = norm360(q.yaw + a - L0.yaw); }); }
+  $('readout').textContent = g.lead.n + '   ' + (+g.lead.x.toFixed(2)) + ', ' + (+g.lead.y.toFixed(2)) + '   turned ' + (g.lead.yaw || 0) + '°' + (g.group.length > 1 ? '   with ' + (g.group.length - 1) + ' on it' : '');
+  redraw();
+}
+function myDragEnd(){
+  const g = edit.drag; if (!g) return; edit.drag = null; map.dragging.enable();
+  if (!g.moved) return;                                   // a plain click: the map's own click picks it
+  edit.skipClick = Date.now(); myCommit(g.before); sel = myObj(g.lead); select(sel);
+}
+map.on('mousedown', myDragStart); map.on('mousemove', myDragMove); document.addEventListener('mouseup', myDragEnd);
+// ---- what the buttons and keys do to the picked piece
+function myTarget(){                                      // the picked piece as one of yours; a picked guide item becomes yours at this moment
+  if (!sel) return null; if (sel.kind === 'my') return sel.it;
+  if (sel.kind === 'pm' || sel.kind === 'place' || sel.kind === 'floor') { const it = myAdd(fromGuide(sel)); sel = myObj(it); return it; }
+  return null;
+}
+function myDo(what, arg){
+  if (!MY) return false; const before = snapNow(), it = myTarget(); if (!it) return false;
+  const group = it.k === 'floor' && what !== 'copy' && what !== 'del' && what !== 'set' ? [it].concat(myRiders(it)) : [it];
+  if (what === 'turn') { const da = rad(arg), cx = it.x, cy = it.y; group.forEach(q => { const rx = q.x - cx, ry = q.y - cy; q.x = +(cx + rx * Math.cos(da) - ry * Math.sin(da)).toFixed(3); q.y = +(cy + rx * Math.sin(da) + ry * Math.cos(da)).toFixed(3); q.yaw = norm360((q.yaw || 0) + arg); }); }
+  else if (what === 'nudge') group.forEach(q => { q.x = +(q.x + arg[0]).toFixed(3); q.y = +(q.y + arg[1]).toFixed(3); });
+  else if (what === 'set') { if (isFinite(arg.x)) it.x = +arg.x; if (isFinite(arg.y)) it.y = +arg.y; if (isFinite(arg.yaw)) it.yaw = norm360(+arg.yaw); }
+  else if (what === 'copy') { const c = Object.assign({}, it, { src: null, hall: null, sub: 'copy of ' + it.n, st: 1, un: 0 }); delete c.id; const off = Math.max(it.sx, 2) + 2, a = rad(it.yaw || 0), p = mySnap(c, it.x + off * Math.cos(a), it.y + off * Math.sin(a)); c.x = p[0]; c.y = p[1]; sel = myObj(myAdd(c)); }
+  else if (what === 'del') { if (it.src) { it.hide = true; toast(esc(it.n) + ' is out of your plan. The guide still has it: Your changes, in the Plan panel, brings it back.', 5200); } else MY.items = MY.items.filter(q => q !== it); sel = null; $('card').hidden = true; }
+  else if (what === 'back') { MY.items = MY.items.filter(q => q !== it); sel = null; $('card').hidden = true; }
+  myCommit(before); if (sel && sel.kind === 'my') { sel = myObj(sel.it); select(sel); } return true;
+}
+function editKey(e){                                      // true when the key was the editor's
+  if (!MY) return false; const k = e.key, mod = e.ctrlKey || e.metaKey;
+  if (mod && (k === 'z' || k === 'Z')) { if (!edit.on) return false; myUndo(e.shiftKey); return true; }
+  if (mod && (k === 'y' || k === 'Y')) { if (!edit.on) return false; myUndo(true); return true; }
+  if (!edit.on || e.altKey && !/^Arrow/.test(k)) return false;
+  if (mod) { if (k === 'd' || k === 'D') return myDo('copy'); return false; }
+  if (k === 'g' || k === 'G') { mySetSnap(edit.snap === 'grid' ? 'free' : 'grid'); return true; }
+  const picked = sel && (sel.kind === 'my' || sel.kind === 'pm' || sel.kind === 'place' || sel.kind === 'floor'); if (!picked) return false;
+  if (k === 'r' || k === 'R') return myDo('turn', e.shiftKey ? -90 : 90);
+  if (k === '[' || k === '{') return myDo('turn', e.shiftKey ? -1 : -5);
+  if (k === ']' || k === '}') return myDo('turn', e.shiftKey ? 1 : 5);
+  if (k === 'Delete' || k === 'Backspace') return myDo('del');
+  if (/^Arrow/.test(k)) { const fl = sel.kind === 'floor' || (sel.kind === 'my' && sel.it.k === 'floor'), st = e.altKey ? 0.1 : e.shiftKey || (fl && edit.snap === 'grid') ? 8 : edit.snap === 'grid' ? 1 : 0.5; return myDo('nudge', k === 'ArrowLeft' ? [-st, 0] : k === 'ArrowRight' ? [st, 0] : k === 'ArrowUp' ? [0, -st] : [0, st]); }
+  return false;
+}
+// ---- the card of one of your pieces
+function myCard(it){
+  const g = myGuide(it), sq = q90(it.yaw || 0), one = v => (+(+v).toFixed(2)) + '';
+  let body = (it.k === 'mark' ? '' : '<p>' + one(it.sx) + ' by ' + one(it.sy) + ' m' + (it.b ? ', the game\'s own size' : '') + '.' + (it.locked ? ' <b>Locked</b> in your world for now: it can be planned, not yet built.' : '') + '</p>')
+    + (myBuilt[it.id] ? '<p class="tagok">Built: one stands here.</p>' : '')
+    + '<div class="myform"><label>x<input type="text" id="my-x" inputmode="decimal" value="' + one(it.x) + '"></label><label>y<input type="text" id="my-y" inputmode="decimal" value="' + one(it.y) + '"></label>' + (it.k === 'mark' ? '' : '<label>turned<input type="text" id="my-a" inputmode="decimal" value="' + one(it.yaw || 0) + '"></label>') + '<button type="button" class="btn" data-act="my-set">Set</button></div>'
+    + (it.k !== 'mark' && !sq ? '<p>Turned to ' + one(it.yaw) + '°. The map holds any angle. Whether the game\'s outline (F9) and its snap (F6) follow an angle that is not a quarter turn has not been checked yet.</p>' : '')
+    + (it.k === 'floor' ? '<p>Moving or turning a floor takes what stands on it along. Hold Shift while dragging to move the floor alone.</p>' : '')
+    + (g ? '<p>The guide has this ' + (it.k === 'mark' ? 'at ' : 'with its middle at ') + one(g._k.charAt(0) === 'm' ? g[3] + g[5] / 2 : g.x + g.w / 2) + ', ' + one(g._k.charAt(0) === 'm' ? g[4] + g[6] / 2 : g.y + (g.h || 0) / 2) + '.</p>' : '');
+  const btn = (act, text) => '<button type="button" class="btn" data-act="' + act + '">' + text + '</button>';
+  return { title: it.n, sub: 'Your plan · ' + myWhat(it) + (it.sub ? ' · ' + it.sub : ''), body, acts: (it.k === 'mark' ? [] : [btn('my-l', '↺ 90°'), btn('my-r', '↻ 90°')]).concat([btn('my-copy', 'Copy'), it.src ? btn('my-back', 'Back to the guide\'s') : '', btn('my-del', it.src ? 'Take out' : 'Delete')]) };
+}
+function myCardAct(a){
+  if (a === 'my-l') myDo('turn', -90); else if (a === 'my-r') myDo('turn', 90); else if (a === 'my-copy') myDo('copy'); else if (a === 'my-del') myDo('del'); else if (a === 'my-back') myDo('back');
+  else if (a === 'my-set') myDo('set', { x: parseFloat($('my-x').value), y: parseFloat($('my-y').value), yaw: $('my-a') ? parseFloat($('my-a').value) : NaN });
+  else return false; return true;
+}
+// ---- the panel: the switch, the list of your changes, adding from the game's own list, files
+function mySetSnap(v){ edit.snap = v; store.set('howson-map-mysnap', v); document.querySelectorAll('#my-snap button').forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-snap') === v ? 'true' : 'false')); myBar(); toast(v === 'grid' ? 'On the grid: half metres, floors on the 8 m grid, turns in steps of 15°' : 'Free: where you drop it, at any angle'); }
+function mySetEdit(v){ edit.on = !!v; $('my-edit').checked = edit.on; document.body.classList.toggle('editing', edit.on); myBar(); redraw(); if (edit.on && !planOn) { $('plan').checked = true; $('plan').dispatchEvent(new Event('change')); } }
+function myBar(){ const b = $('editbar'); if (!b) return; b.hidden = !edit.on; if (!edit.on) return; $('eb-snap').textContent = edit.snap === 'grid' ? 'On the grid' : 'Free'; $('eb-undo').disabled = !edit.undo.length; $('eb-redo').disabled = !edit.redo.length; $('my-undo').disabled = !edit.undo.length; $('my-redo').disabled = !edit.redo.length; }
+function myList(){
+  const box = $('my-list'); if (!box) return; box.innerHTML = ''; const n = MY.items.length; $('my-count').textContent = n ? n + (n === 1 ? ' change' : ' changes') : '';
+  if (!n) { box.innerHTML = '<div class="none">Nothing yet. Switch Edit on and drag anything in the plan, or add a building below.</div>'; return; }
+  MY.items.slice().reverse().slice(0, 80).forEach(it => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<i></i><span>' + esc(it.n) + '</span><em>' + (it.hide ? 'removed · bring back' : !it.src ? 'added' : 'moved') + '</em>'; if (it.hide) b.style.opacity = '.6';
+    b.replaceChild(mini(icon(it.hide ? '#566273' : '#1c6e66', it.k === 'floor' ? 'hub' : it.k === 'mark' ? 'flag' : bglyph(it.n), 's')), b.querySelector('i'));
+    b.addEventListener('click', () => { if (it.hide) { const before = snapNow(); MY.items = MY.items.filter(q => q !== it); myCommit(before); toast(esc(it.n) + ' is back as the guide has it'); } else select(myObj(it), true); }); box.appendChild(b); });
+  if (n > 80) { const d = document.createElement('div'); d.className = 'none'; d.textContent = 'and ' + (n - 80) + ' more'; box.appendChild(d); }
+}
+function myCatReady(){                                    // the game's own list of every building (SatMap's catalogue), read once; without a game, the plan's own machines
+  if (CATLIST) return CATLIST; const list = [], byName = {};
+  if (CAT) Object.keys(CAT).forEach(c => { const b = CAT[c], so = b.solid && b.solid.box && b.solid.box[0] > 0 ? b.solid.box : null, sz = b.hard && b.hard[0] > 0 ? [b.hard[0], b.hard[1], b.size ? b.size[2] : 400] : b.size && b.size[0] > 0 ? b.size : so ? [so[0], so[1], so[2]] : null;
+    if (!b.n || b.part) return; const e = { n: b.n, c, cat: b.cat || '', sub: b.sub || '', kind: b.kind || 'other', size: sz ? [sz[0] / 100, sz[1] / 100, (sz[2] || 400) / 100] : null, ports: b.ports || null, hard: b.hard || null, centre: b.centre || null, unlocked: b.unlocked, waits: b.waits || '' }; list.push(e); if (!byName[nk(b.n)] || (e.size && !byName[nk(b.n)].size)) byName[nk(b.n)] = e; });
+  else Object.keys(PLAN.size).forEach(n => { if (/Mk\.\d/.test(n) && PLAN.size[n.replace(/Mk\.(\d)/, 'Mk$1')] === PLAN.size[n]) return; const e = { n, c: '', cat: 'The plan\'s machines', sub: '', kind: 'machine', size: [PLAN.size[n][0], PLAN.size[n][1], 4], ports: null }; list.push(e); byName[nk(n)] = e; });
+  list.sort((a, b) => a.n < b.n ? -1 : a.n > b.n ? 1 : 0); const out = { list, byName, game: !!CAT, knows: list.some(e => typeof e.unlocked === 'boolean') }; if (CAT) CATLIST = out; return out;
+}
+function mySearch(){
+  const q = $('my-q').value.trim().toLowerCase(), box = $('my-hits'), cl = myCatReady(); box.innerHTML = '';
+  $('my-locked-row').hidden = !cl.knows;
+  $('my-q-note').textContent = cl.game ? cl.list.length.toLocaleString() + ' buildings from your game, every mod included.' + (cl.knows ? '' : ' The game does not say yet which of them your world has unlocked, so all are shown.') : 'Without a game on the line only the plan\'s own machines can be added. With SatMap running, the game\'s whole list is here.';
+  if (!q) return; const words = q.split(/\s+/), hit = cl.list.filter(e => { if (cl.knows && !edit.locked && e.unlocked === false) return false; const hay = (e.n + ' ' + e.cat + ' ' + e.sub).toLowerCase(); return words.every(w => hay.indexOf(w) >= 0); });
+  hit.sort((a, b) => (a.n.toLowerCase().indexOf(q) === 0 ? 0 : 1) - (b.n.toLowerCase().indexOf(q) === 0 ? 0 : 1) || (a.size ? 0 : 1) - (b.size ? 0 : 1));
+  hit.slice(0, 40).forEach(e => { const b = document.createElement('button'), lock = e.unlocked === false; b.type = 'button';
+    b.innerHTML = '<i></i><span>' + esc(e.n) + (lock ? ' · locked' : '') + '</span><em>' + esc(e.size ? (+e.size[0].toFixed(1)) + ' × ' + (+e.size[1].toFixed(1)) + ' m' : 'size not known') + '</em><small>' + esc([e.cat, e.sub].filter(Boolean).join(' · ') + (lock && e.waits ? ' · waits for ' + e.waits : '')) + '</small>';
+    b.replaceChild(mini(icon(lock ? '#566273' : '#1c6e66', e.kind === 'floor' ? 'hub' : bglyph(e.n), 's')), b.querySelector('i')); b.addEventListener('click', () => myPlace(e)); box.appendChild(b); });
+  if (!hit.length) box.innerHTML = '<div class="none">Nothing by that name.</div>'; else if (hit.length > 40) { const d = document.createElement('div'); d.className = 'none'; d.textContent = (hit.length - 40) + ' more: type more of the name'; box.appendChild(d); }
+}
+function myPlace(e){                                       // a new piece in the middle of the view, at the game's own size, picked and ready to drag
+  const before = snapNow(), c = map.getCenter(), sz = e.size || [1, 1, 1], it = { src: null, k: e.kind === 'floor' ? 'floor' : 'machine', n: e.n, b: e.n, cls: e.c || undefined, sub: [e.cat, e.sub].filter(Boolean).join(' · '), x: 0, y: 0, sx: sz[0], sy: sz[1], h: sz[2], yaw: 0, lv: 0, st: 1 };
+  if (!e.size) it.nosize = true; if (e.unlocked === false) it.locked = true; const p = mySnap(it, c.lng, -c.lat); it.x = p[0]; it.y = p[1]; myAdd(it);
+  if (!edit.on) mySetEdit(true); myCommit(before); sel = myObj(it); select(sel); if (map.getZoom() < 6) map.setView(ll(it.x, it.y), 6.5);
+  toast('Added ' + esc(it.n) + (e.size ? '' : '. The game gives no size for it, so it is drawn 1 by 1 m') + '. Drag it where it goes.', 4200);
+}
+function myFile(){ return { kind: 'satmap-plan', v: 1, name: MY.name || 'My plan', made: new Date().toISOString(), base: 'Satisfactory Plus', items: MY.items }; }
+function myTake(doc){                                      // a plan from a file or from pasted text: it replaces yours, and Undo brings yours back
+  if (!doc || doc.kind !== 'satmap-plan' || !Array.isArray(doc.items)) { toast('That is not a SatMap plan file.', 4200); return false; }
+  const ok = doc.items.filter(it => it && typeof it.n === 'string' && isFinite(it.x) && isFinite(it.y) && (it.k === 'mark' || (it.sx > 0 && it.sy > 0))).slice(0, 4000), before = snapNow();
+  MY.items = ok.map((it, i) => ({ id: 'u' + (i + 1), src: typeof it.src === 'string' ? it.src : null, hide: !!it.hide, k: /^(machine|place|floor|mark)$/.test(it.k) ? it.k : 'machine', n: it.n.slice(0, 120), b: typeof it.b === 'string' ? it.b.slice(0, 120) : null, hall: typeof it.hall === 'string' ? it.hall : null, sub: typeof it.sub === 'string' ? it.sub.slice(0, 160) : '', c: /^#[0-9a-f]{3,8}$/i.test(it.c || '') ? it.c : undefined, i: typeof it.i === 'string' ? it.i.slice(0, 20) : undefined, st: it.st > 0 ? +it.st : 1, un: it.un > 0 ? +it.un : 0, x: +it.x, y: +it.y, sx: +it.sx || 0, sy: +it.sy || 0, yaw: norm360(+it.yaw || 0), h: +it.h || 4, lv: +it.lv || 0, locked: !!it.locked }));
+  MY.seq = MY.items.length; MY.name = typeof doc.name === 'string' ? doc.name.slice(0, 80) : 'My plan'; sel = null; $('card').hidden = true; myCommit(before);
+  toast('Loaded "' + esc(MY.name) + '": ' + MY.items.length + ' pieces' + (doc.items.length > ok.length ? ', ' + (doc.items.length - ok.length) + ' left out as not readable' : '') + '. Undo brings your own back.', 5200); return true;
+}
+function myGhosts(boxes, cm){                              // your pieces in the plan the game is sent: the box round the piece for older builds, and its middle, own size and exact turn beside it
+  MY.items.forEach(it => { if (!myShown(it)) return; const sq = q90(it.yaw || 0), yq = norm360(Math.round((it.yaw || 0) / 90) * 90), t = sq && yq % 180 !== 0, wx = t ? it.sy : it.sx, wy = t ? it.sx : it.sy;
+    const o = { id: myId(it), n: it.n, sub: 'Your plan' + (it.sub ? ' · ' + it.sub : ''), k: it.k, x: cm(it.x - wx / 2), y: cm(it.y - wy / 2), w: cm(wx), d: cm(wy), h: it.k === 'floor' || it.k === 'mark' ? 0 : cm(it.h || 4), yaw: sq ? yq : it.yaw, c: it.k === 'floor' ? '#35d07f' : MYCOL, z: null, cx: cm(it.x), cy: cm(it.y), sx: cm(it.sx), sy: cm(it.sy) };
+    if (it.b && it.k !== 'floor') o.b = it.b; if (!sq) o.free = true; boxes.push(o); });
+}
+function myMatch(everything){ myBuilt = {}; if (!MY || !everything) return; MY.items.forEach(it => { if (!it.b || it.hide) return; const want = nk(it.b); myBuilt[it.id] = everything.some(b => Math.hypot(b.x - it.x, b.y - it.y) < 5 && nk(b.n).indexOf(want) >= 0); }); }
+// ---- start
+MY = myLoad(); G0 = { mach: PLAN.mach.slice(), places: PLAN.places.slice(), floors: PLAN.floors.slice() }; gkeys();
+MY.items = MY.items.filter(it => !it.src || myGuide(it));  // a guide item that no longer exists takes its change with it
+(function(){
+  const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
+  on('my-edit', 'change', e => mySetEdit(e.target.checked)); on('eb-done', 'click', () => mySetEdit(false));
+  document.querySelectorAll('#my-snap button').forEach(b => b.addEventListener('click', () => mySetSnap(b.getAttribute('data-snap'))));
+  on('eb-snap', 'click', () => mySetSnap(edit.snap === 'grid' ? 'free' : 'grid'));
+  ['my-undo', 'eb-undo'].forEach(id => on(id, 'click', () => myUndo(false))); ['my-redo', 'eb-redo'].forEach(id => on(id, 'click', () => myUndo(true)));
+  on('my-q', 'input', mySearch); on('my-q', 'focus', () => { wantCat(); mySearch(); }); on('my-locked', 'change', e => { edit.locked = e.target.checked; mySearch(); });
+  on('my-save', 'click', () => { const text = JSON.stringify(myFile(), null, 1), ta = $('my-text'); ta.value = text; ta.hidden = false; $('my-text-note').hidden = false; $('my-text-note').textContent = 'Saved as a file where the browser allows it. The same plan is in the box below: copy it to keep it or to send it to someone.';
+    try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = (MY.name || 'my-plan').replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.satmap-plan.json'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); } catch (er) {} });
+  on('my-load', 'click', () => { const ta = $('my-text'); if (!ta.hidden && ta.value.trim().charAt(0) === '{') { try { if (myTake(JSON.parse(ta.value))) { ta.hidden = true; $('my-text-note').hidden = true; } } catch (er) { toast('That text is not a plan: ' + esc(String(er.message || er).slice(0, 80)), 5200); } return; } $('my-file').click(); ta.hidden = false; ta.value = ''; $('my-text-note').hidden = false; $('my-text-note').textContent = 'Pick the file, or paste a plan\'s text into the box and press Load again.'; });
+  on('my-file', 'change', e => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { try { if (myTake(JSON.parse(rd.result))) { $('my-text').hidden = true; $('my-text-note').hidden = true; } } catch (er) { toast('That file is not a plan.', 4200); } e.target.value = ''; }; rd.readAsText(f); });
+  on('my-send', 'click', () => { const p = ghostPlan(); post('/plan', p).then(() => post('/ghosts', { on: true })).then(r => toast(r && r.ok !== false ? 'Sent to the game: ' + p.boxes.length + ' outlines, yours among them. F9 there shows them.' : 'The game did not take it. SatMap has to be running in the game on this PC.', 5200)); });
+  on('my-reset', 'click', e => { const b = e.currentTarget; if (!MY.items.length) { toast('There is nothing of yours to reset.'); return; } if (!b.getAttribute('data-sure')) { b.setAttribute('data-sure', '1'); b.textContent = 'Really? All ' + MY.items.length + ' changes'; setTimeout(() => { b.removeAttribute('data-sure'); b.textContent = 'Reset everything'; }, 4000); return; }
+    b.removeAttribute('data-sure'); b.textContent = 'Reset everything'; const before = snapNow(); MY.items = []; sel = null; $('card').hidden = true; myCommit(before); toast('Your plan is empty again; the guide\'s plan is whole. Undo brings your changes back.', 5200); });
+  document.querySelectorAll('#my-snap button').forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-snap') === edit.snap ? 'true' : 'false'));
+})();
+myApply();
+
 $('stage').value = stage; $('gstage').value = stage;
 goHome(); drawPlan(); drawSteps(); drawPins(); counts(); liveText(); drawStock();
 // the map is rebuilt often: say so when the copy on screen is no longer the newest
-const BUILD = '2026-11-16 15:39:04'; let told = false;
+const BUILD = '2026-11-16 15:52:27'; let told = false;
 setInterval(() => { if (told || document.hidden || !/^https?:/.test(location.protocol)) return; fetch(location.pathname, { cache: 'no-store' }).then(r => r.text()).then(t => { const m = t.match(/const BUILD = '([^']+)'/); if (m && m[1] !== BUILD) { told = true; const el = $('toast'); el.innerHTML = 'A newer version of the map is ready. <button type="button" class="btn sm go" id="t-reload">Reload</button>'; el.hidden = false; clearTimeout(toastT); $('t-reload').addEventListener('click', () => location.reload()); } }).catch(() => {}); }, 30000);
 $('map').classList.toggle('plan-labels-off', map.getZoom() < 4.5);
 (() => { const at = /[?&]at=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/.exec(location.search); if (!at) return; follow = false; map.setView(ll(+at[1], +at[2]), 6.5, { animate: false }); setTimeout(() => toast('Opened at ' + Math.round(+at[1]) + ', ' + Math.round(+at[2]) + '.', 4000), 600); })();
-window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, drawHud, onBoard, drawBoard, boardCan, get board(){ return BOARD; }, get hud(){ return HUD; }, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
+window.HOWSON_MAP = { map, plan: PLAN, ghostPlan, post, onNodes, all, cats: CATS, live, PL, onState, onLive, onWorld, hitAt, select, planRun, setWay, get world(){ return W; }, get way(){ return way; }, get floors(){ return FL; }, get alerts(){ return ALERTS; }, tl, onAlerts, onHistory, onEvents, alertsFrom, extras26, guideDoc, autoSteps, guideSync, tlSeek, tlEnter, tlLeave, spotAt, planYaw, extras31, drawDigest, drawHud, edit, myDo, mySetEdit, mySetSnap, myHitAt, myPlace, myTake, myFile, myUndo, myCatReady, myDragStart, myDragMove, myDragEnd, get my(){ return MY; }, onBoard, drawBoard, boardCan, get board(){ return BOARD; }, get hud(){ return HUD; }, get rates(){ return RATES; }, get run(){ return run; }, planBuilt, sprites };
 })();
 
 </script>
